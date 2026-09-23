@@ -1,0 +1,25 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-1-mapping-values.md §3 — Schema.loads(text) returns errors located in the definition
+- id: E1
+  text: "{name: tags, type: mapping, values: 3}"
+  expect: [{path: [values], code: wrong_type}]
+- id: E2
+  text: "{name: tags, type: mapping, fields: {a: {type: string}}, values: integer}"
+  expect: [{path: [], code: invalid}]
+- id: E3
+  text: "{name: tags, type: mapping, values: integer, description: 3}"
+  expect: [{path: [description], code: wrong_type}]
+- id: E4
+  text: "{name: tags, type: mapping, values: integer, description: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}"
+  expect: [{path: [description], code: max_length}]
+- id: E5
+  text: "{name: tags, type: mapping, values: integer, description: \"line one\\nline two\"}"
+  expect: [{path: [description], code: invalid}]
+- id: E6
+  text: "{name: tags, type: mapping, fields: {a: {type: string, name: x}}}"
+  expect: [{path: [fields, a, name], code: unexpected}]
+- id: E7
+  text: "{name: tags, type: mapping, fields: {a: 5}}"
+  expect: [{path: [fields, a], code: wrong_type}]
+- id: E8
+  text: "{name: tags, type: mapping, fields: [1, 2]}"
+  expect: [{path: [fields], code: wrong_type}]

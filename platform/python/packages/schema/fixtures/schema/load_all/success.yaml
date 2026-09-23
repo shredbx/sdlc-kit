@@ -1,0 +1,12 @@
+# schema port — Schema.load_all(folder, namespace) reads every real *.yaml file in it
+- id: A1
+  namespace: ""
+  files: {a.yaml: "{name: one, type: string}", b.yaml: "{name: two, type: integer}"}
+  expect: [one, two]
+- id: A2
+  namespace: notif
+  files:
+    a.yaml: "{name: one, type: string}"
+    .hidden.yaml: "{name: bad, type: string}"
+    readme.md: "not a definition, ignored by extension"
+  expect: [notif.one]

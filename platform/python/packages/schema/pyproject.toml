@@ -1,0 +1,24 @@
+[project]
+name = "process-kit-schema"
+version = "0.1.0"
+description = "Definitions: read a schema from a file, text, parsed data or a folder, and use it as a type."
+requires-python = ">=3.13"
+dependencies = ["process-kit-types", "pyyaml>=6"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pyyaml>=6"]
+
+[tool.uv.sources]
+process-kit-types = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src/process_kit/schema"]
+sources = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]

@@ -1,0 +1,9 @@
+# schema port — Schema.load_all(folder, namespace) locates every error by the file it came from
+- id: E1
+  namespace: ""
+  files: {a.yaml: "{name: one, type: string}", b.yaml: "{name: one, type: integer}"}
+  expect: [{path: [b.yaml, name], code: invalid}]
+- id: E2
+  namespace: ""
+  files: {a.yaml: "{name: one, type: bogus}"}
+  expect: [{path: [a.yaml, type], code: unknown_type}]

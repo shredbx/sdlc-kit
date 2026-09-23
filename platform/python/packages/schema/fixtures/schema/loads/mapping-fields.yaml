@@ -1,0 +1,20 @@
+# schema port — Schema.loads() builds a mapping's fields: form and validates through it
+- id: F1
+  namespace: notif
+  text: |
+    name: person
+    type: mapping
+    fields:
+      age: {type: integer, required: true}
+      nickname: {type: string}
+  value: {age: 30, nickname: abc}
+  expect: []
+- id: F2
+  namespace: notif
+  text: |
+    name: person
+    type: mapping
+    fields:
+      age: {type: integer, required: true}
+  value: {}
+  expect: [{path: [age], code: missing}]

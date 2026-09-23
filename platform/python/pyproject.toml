@@ -2,7 +2,7 @@
 members = ["packages/*"]
 
 [dependency-groups]
-dev = ["ruff>=0.6", "mypy>=1.11"]
+dev = ["ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
 
 [tool.ruff]
 target-version = "py313"
@@ -15,4 +15,4 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.13"
 strict = true
 explicit_package_bases = true
-mypy_path = ["packages/types/src"]
+mypy_path = ["packages/types/src", "packages/schema/src"]

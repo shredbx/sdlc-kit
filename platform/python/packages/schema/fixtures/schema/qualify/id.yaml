@@ -1,0 +1,6 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-2-qualify.md §3 — qualify_id(name, namespace): an id
+- {id: D1, name: tag, namespace: notif, expect: notif.tag}
+- {id: D2, name: core.tag, namespace: notif, expect: core.tag}
+- {id: D3, name: string, namespace: notif, expect: notif.string}
+- {id: D4, name: tag, namespace: "", expect: tag}
+- {id: D5, name: tag, namespace: a.b, expect: a.b.tag}

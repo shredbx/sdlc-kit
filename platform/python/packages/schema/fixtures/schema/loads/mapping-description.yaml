@@ -1,0 +1,9 @@
+# docs/tasks/260922-process-cli-03/steps/m1-1-field-schema-description.md §3 — Schema.loads(text, namespace).description
+- id: D1
+  namespace: notif
+  text: "{name: tags, type: mapping, values: tag, description: 'a set of labels'}"
+  expect: "a set of labels"
+- id: D2
+  namespace: notif
+  text: "{name: tags, type: mapping, values: tag}"
+  expect: null

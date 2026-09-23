@@ -1,0 +1,5 @@
+# schema port — Schema.loads() builds and validates a non-mapping YAML kind end to end
+- {id: N1, namespace: notif, text: "{name: greeting, type: string, pattern: 'hi.*'}", value: "hi there", expect: []}
+- {id: N2, namespace: notif, text: "{name: greeting, type: string, pattern: 'hi.*'}", value: bye, expect: [{path: [], code: pattern}]}
+- {id: N3, namespace: notif, text: "{name: nums, type: sequence, items: integer}", value: [1, 2], expect: []}
+- {id: N4, namespace: notif, text: "{name: nums, type: sequence, items: integer}", value: [1, "x"], expect: [{path: [1], code: wrong_type}]}

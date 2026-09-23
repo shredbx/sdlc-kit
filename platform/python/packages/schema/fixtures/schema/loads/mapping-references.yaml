@@ -1,0 +1,13 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-1-mapping-values.md §3 — Schema.loads(text, namespace).references()
+- id: L1
+  namespace: notif
+  text: "{name: tags, type: mapping, values: tag}"
+  expect: [{path: [values], name: notif.tag}]
+- id: L2
+  namespace: notif
+  text: "{name: tags, type: mapping, keys: tag, values: core.tag}"
+  expect: [{path: [keys], name: notif.tag}, {path: [values], name: core.tag}]
+- id: L3
+  namespace: notif
+  text: "{name: counts, type: mapping, values: integer}"
+  expect: [{path: [values], name: integer}]

@@ -1,0 +1,3 @@
+# schema port — Schema.load(path, namespace) reads a schema from a real file
+- {id: L1, namespace: notif, text: "{name: tag, type: string}", expect: notif.tag}
+- {id: L2, namespace: "", text: "{name: tag, type: string}", expect: tag}

@@ -1,0 +1,7 @@
+# schema port — Schema.loads() errors that apply to any YAML kind, not just mapping
+- {id: G1, text: "{type: string}", expect: [{path: [name], code: missing}]}
+- {id: G2, text: "{name: a.b, type: string}", expect: [{path: [name], code: invalid}]}
+- {id: G3, text: "{name: string, type: string}", expect: [{path: [name], code: invalid}]}
+- {id: G4, text: "{name: x, type: bogus}", expect: [{path: [type], code: unknown_type}]}
+- {id: G5, text: "{name: x, type: string, bogus: 1}", expect: [{path: [bogus], code: unexpected}]}
+- {id: G6, text: "{name: x}", expect: [{path: [type], code: missing}]}

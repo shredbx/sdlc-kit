@@ -1,0 +1,12 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-2-qualify.md §3 — qualify(name, namespace): a reference to a type
+- {id: Q1, name: tag, namespace: notif, expect: notif.tag}
+- {id: Q2, name: core.tag, namespace: notif, expect: core.tag}
+- {id: Q3, name: string, namespace: notif, expect: string}
+- {id: Q4, name: integer, namespace: notif, expect: integer}
+- {id: Q5, name: float, namespace: notif, expect: float}
+- {id: Q6, name: boolean, namespace: notif, expect: boolean}
+- {id: Q7, name: sequence, namespace: notif, expect: sequence}
+- {id: Q8, name: mapping, namespace: notif, expect: mapping}
+- {id: Q9, name: tag, namespace: "", expect: tag}
+- {id: Q10, name: tag, namespace: a.b, expect: a.b.tag}
+- {id: Q11, name: string_list, namespace: notif, expect: notif.string_list}

@@ -1,0 +1,4 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-2-schema-parse.md — parse(value) with a value that is not text
+- {id: W1, value: 3}
+- {id: W2, value: null}
+- {id: W3, value: !!binary YTogMQ==}

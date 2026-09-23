@@ -1,0 +1,6 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-2-qualify.md §3 — a wrong call raises
+- {id: W1, call: qualify, name: 3, namespace: notif, raises: TypeError}
+- {id: W2, call: qualify_id, name: null, namespace: notif, raises: TypeError}
+- {id: W3, call: qualify, name: tag, namespace: .a, raises: ValueError}
+- {id: W4, call: qualify_id, name: tag, namespace: a..b, raises: ValueError}
+- {id: W5, call: qualify, name: tag, namespace: 3, raises: TypeError}

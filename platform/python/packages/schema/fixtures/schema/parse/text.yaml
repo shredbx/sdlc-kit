@@ -1,0 +1,33 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-2-schema-parse.md — parse(text)
+- id: P1
+  text: |
+    a: 1
+    b: [x, y]
+  expect: {data: {a: 1, b: [x, y]}, errors: []}
+- id: P2
+  text: ""
+  expect: {data: null, errors: []}
+- id: P3
+  text: hello
+  expect: {data: hello, errors: []}
+- id: P4
+  text: |
+    a: 1
+    a: 2
+  expect: {data: null, errors: [{path: [], code: invalid}]}
+- id: P5
+  text: |
+    outer:
+      a: 1
+      a: 2
+  expect: {data: null, errors: [{path: [], code: invalid}]}
+- id: P6
+  text: "a: [1, 2"
+  expect: {data: null, errors: [{path: [], code: invalid}]}
+- id: P7
+  text: |
+    x:
+      a: 1
+    y:
+      a: 2
+  expect: {data: {x: {a: 1}, y: {a: 2}}, errors: []}
