@@ -1,0 +1,14 @@
+# types port — IntegerType(**properties).validate(value, path, types)
+- {id: V1, properties: {}, value: 5, expect: []}
+- {id: V2, properties: {}, value: "5", expect: [{path: [], code: wrong_type}]}
+- {id: V3, properties: {}, value: true, expect: [{path: [], code: wrong_type}]}
+- {id: V4, properties: {}, value: 5.5, expect: [{path: [], code: wrong_type}]}
+- {id: V5, properties: {minimum: 3}, value: 2, expect: [{path: [], code: minimum}]}
+- {id: V6, properties: {minimum: 3}, value: 3, expect: []}
+- {id: V7, properties: {maximum: 3}, value: 4, expect: [{path: [], code: maximum}]}
+- {id: V8, properties: {maximum: 3}, value: 3, expect: []}
+- id: V9
+  properties: {minimum: 3, maximum: 5}
+  value: 1
+  expect: [{path: [], code: minimum}]
+- {id: V10, properties: {minimum: 2}, value: 1, path: [count], expect: [{path: [count], code: minimum}]}

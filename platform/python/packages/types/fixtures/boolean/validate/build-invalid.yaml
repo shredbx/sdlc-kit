@@ -1,0 +1,2 @@
+# fixtures-plan/boolean/validate.md — BooleanType() raises: it has no properties
+- {id: B2, properties: {minimum: 1}, expect: {raises: [minimum]}}

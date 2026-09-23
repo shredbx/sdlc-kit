@@ -1,0 +1,10 @@
+# fixtures-plan/boolean/validate.md — BooleanType.validate(value, path, types)
+- {id: V1, value: true, expect: []}
+- {id: V2, value: false, expect: []}
+- {id: V3, value: "true", expect: [{path: [], code: wrong_type}]}
+- {id: V4, value: 1, expect: [{path: [], code: wrong_type}]}
+- {id: V5, value: 2.5, expect: [{path: [], code: wrong_type}]}
+- {id: V6, value: null, expect: [{path: [], code: wrong_type}]}
+- {id: V7, value: ["a"], expect: [{path: [], code: wrong_type}]}
+- {id: V8, value: {a: b}, expect: [{path: [], code: wrong_type}]}
+- {id: V9, value: a, path: [tags, 1], expect: [{path: [tags, 1], code: wrong_type}]}

@@ -1,0 +1,5 @@
+# types port — FloatType(**properties) is built and holds the properties it was given
+- {id: F1, properties: {}, expect: built}
+- {id: F2, properties: {minimum: 1.5}, expect: built}
+- {id: F3, properties: {maximum: 10.5}, expect: built}
+- {id: F4, properties: {minimum: 1.0, maximum: 10.0}, expect: built}

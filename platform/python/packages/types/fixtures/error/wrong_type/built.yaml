@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-1-process-load.md §1 — wrong_type(path, expected, value)
+- {id: E1, path: [], expected: a string, value: 3}
+- {id: E2, path: [steps, 1], expected: a step, value: null}

@@ -1,0 +1,22 @@
+name: python-ci
+
+on:
+  push:
+    paths: ["platform/python/**", ".github/workflows/python-ci.yml"]
+  pull_request:
+    paths: ["platform/python/**", ".github/workflows/python-ci.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy packages/types/src
+      - run: uv run pytest packages/types

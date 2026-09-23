@@ -1,0 +1,3 @@
+# types port — SequenceType(**properties) raises: wrong-typed properties
+- {id: Q4, properties: {items: 1}, expect: {raises: [items]}}
+- {id: Q5, properties: {unexpected: 1}, expect: {raises: [unexpected]}}

@@ -1,0 +1,6 @@
+# types port — StringType(**properties) raises: wrong-typed or malformed properties
+- {id: S7, properties: {min_length: "two"}, expect: {raises: [min_length]}}
+- {id: S8, properties: {max_length: "ten"}, expect: {raises: [max_length]}}
+- {id: S9, properties: {enum: "a"}, expect: {raises: [enum]}}
+- {id: S10, properties: {pattern: "("}, expect: {raises: [pattern]}}
+- {id: S11, properties: {unexpected: 1}, expect: {raises: [unexpected]}}

@@ -1,0 +1,14 @@
+# types port — FloatType(**properties).validate(value, path, types)
+- {id: V1, properties: {}, value: 1.5, expect: []}
+- {id: V2, properties: {}, value: 3, expect: []}
+- {id: V3, properties: {}, value: "3", expect: [{path: [], code: wrong_type}]}
+- {id: V4, properties: {}, value: true, expect: [{path: [], code: wrong_type}]}
+- {id: V5, properties: {minimum: 2.0}, value: 1.5, expect: [{path: [], code: minimum}]}
+- {id: V6, properties: {minimum: 2.0}, value: 2, expect: []}
+- {id: V7, properties: {maximum: 2.0}, value: 2.5, expect: [{path: [], code: maximum}]}
+- {id: V8, properties: {maximum: 2.0}, value: 2, expect: []}
+- id: V9
+  properties: {minimum: 2.0, maximum: 5.0}
+  value: 1
+  expect: [{path: [], code: minimum}]
+- {id: V10, properties: {minimum: 1.0}, value: 0.5, path: [score], expect: [{path: [score], code: minimum}]}

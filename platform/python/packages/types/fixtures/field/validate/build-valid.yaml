@@ -1,0 +1,4 @@
+# docs/tasks/260922-process-cli-03/steps/m1-1-field-schema-description.md §3 — Field(**properties).description
+- {id: F1, properties: {name: a, type: string}, expect: null}
+- {id: F2, properties: {name: a, type: string, description: "the display name"}, expect: "the display name"}
+- {id: F3, properties: {name: a, type: string, required: true, description: "x"}, expect: "x"}

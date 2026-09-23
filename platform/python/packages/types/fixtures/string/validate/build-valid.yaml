@@ -1,0 +1,9 @@
+# types port — StringType(**properties) is built and holds the properties it was given
+- {id: S1, properties: {}, expect: built}
+- {id: S2, properties: {min_length: 2}, expect: built}
+- {id: S3, properties: {max_length: 10}, expect: built}
+- {id: S4, properties: {pattern: "^[a-z]+$"}, expect: built}
+- {id: S5, properties: {enum: [a, b, c]}, expect: built}
+- id: S6
+  properties: {min_length: 1, max_length: 5, pattern: "^[a-z]+$", enum: [ab, abc]}
+  expect: built

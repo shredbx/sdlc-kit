@@ -1,0 +1,4 @@
+# types port — SequenceType(**properties) is built and holds the properties it was given
+- {id: Q1, properties: {}, expect: built}
+- {id: Q2, properties: {items: string}, expect: built}
+- {id: Q3, properties: {items: integer}, expect: built}

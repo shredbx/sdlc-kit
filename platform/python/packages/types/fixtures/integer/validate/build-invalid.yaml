@@ -1,0 +1,5 @@
+# types port — IntegerType(**properties) raises: wrong-typed properties
+- {id: I5, properties: {minimum: "one"}, expect: {raises: [minimum]}}
+- {id: I6, properties: {maximum: "ten"}, expect: {raises: [maximum]}}
+- {id: I7, properties: {minimum: 1.5}, expect: {raises: [minimum]}}
+- {id: I8, properties: {unexpected: 1}, expect: {raises: [unexpected]}}

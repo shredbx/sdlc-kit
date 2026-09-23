@@ -1,0 +1,17 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-1-mapping-values.md §3 — MappingType(**properties).validate(value, path, Types())
+- {id: M1, properties: {values: integer}, value: {a: 1, b: 2}, expect: []}
+- {id: M2, properties: {values: integer}, value: {a: 1, b: x}, expect: [{path: [b], code: wrong_type}]}
+- {id: M3, properties: {values: integer}, value: {}, expect: []}
+- {id: M4, properties: {values: integer}, value: {a: x}, path: [cfg], expect: [{path: [cfg, a], code: wrong_type}]}
+- {id: M5, properties: {values: integer}, value: [1], expect: [{path: [], code: wrong_type}]}
+- {id: M6, properties: {values: sequence}, value: {a: [1], b: 3}, expect: [{path: [b], code: wrong_type}]}
+- {id: M7, properties: {keys: string}, value: {a: 1, 2: x}, expect: [{path: [2], code: wrong_type}]}
+- {id: M8, properties: {keys: string}, value: {true: 1}, expect: [{path: ["True"], code: wrong_type}]}
+- id: M9
+  properties: {keys: string, values: integer}
+  value: {a: 1, 2: x}
+  expect: [{path: [2], code: wrong_type}, {path: [2], code: wrong_type}]
+- {id: M10, properties: {keys: string, values: integer}, value: {}, expect: []}
+- {id: M11, properties: {values: nothing}, value: {a: 1}, expect: [{path: [], code: unknown_type}]}
+- {id: M12, properties: {keys: nothing}, value: {a: 1}, expect: [{path: [], code: unknown_type}]}
+- {id: M13, properties: {}, value: {a: [1], b: 3}, expect: []}

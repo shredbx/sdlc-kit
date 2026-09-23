@@ -1,0 +1,10 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-1-mapping-values.md §3 — MappingType(**properties).references() as (path, name)
+- {id: R1, properties: {values: integer}, expect: [{path: [values], name: integer}]}
+- {id: R2, properties: {keys: string}, expect: [{path: [keys], name: string}]}
+- id: R3
+  properties: {keys: string, values: integer}
+  expect: [{path: [keys], name: string}, {path: [values], name: integer}]
+- id: R4
+  properties: {fields: [{name: a, type: tag}]}
+  expect: [{path: [fields, a, type], name: tag}]
+- {id: R5, properties: {}, expect: []}

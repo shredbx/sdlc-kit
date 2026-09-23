@@ -1,0 +1,4 @@
+# docs/tasks/260922-process-cli-03/steps/m1-1-field-schema-description.md §3 — Field(**properties) raises: pydantic's (loc, type)
+- id: I1
+  properties: {name: a, type: string, description: 3}
+  expect: [{loc: [description], type: string_type}]

@@ -1,0 +1,16 @@
+# types port — SequenceType(**properties).validate(value, path, types)
+- {id: V1, properties: {}, value: [], expect: []}
+- {id: V2, properties: {}, value: [1, "a", true], expect: []}
+- {id: V3, properties: {}, value: "not-a-list", expect: [{path: [], code: wrong_type}]}
+- {id: V4, properties: {items: integer}, value: [1, 2, 3], expect: []}
+- {id: V5, properties: {items: integer}, value: [1, "x", 3], expect: [{path: [1], code: wrong_type}]}
+- id: V6
+  properties: {items: integer}
+  value: [1, "x", "y"]
+  expect: [{path: [1], code: wrong_type}, {path: [2], code: wrong_type}]
+- {id: V7, properties: {items: nothing}, value: [1], expect: [{path: [], code: unknown_type}]}
+- id: V8
+  properties: {items: integer}
+  value: ["x"]
+  path: [tags]
+  expect: [{path: [tags, 0], code: wrong_type}]

@@ -1,0 +1,9 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m2-1-mapping-values.md §3 — MappingType(**properties) raises: pydantic's (loc, type)
+- id: B1
+  properties: {fields: [{name: a, type: string}], values: integer}
+  expect: [{loc: [], type: value_error}]
+- id: B2
+  properties: {fields: [{name: a, type: string}], keys: string}
+  expect: [{loc: [], type: value_error}]
+- {id: B3, properties: {values: 3}, expect: [{loc: [values], type: string_type}]}
+- {id: B4, properties: {keys: true}, expect: [{loc: [keys], type: string_type}]}

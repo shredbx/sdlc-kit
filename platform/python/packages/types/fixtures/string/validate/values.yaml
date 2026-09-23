@@ -1,0 +1,17 @@
+# types port — StringType(**properties).validate(value, path, types)
+- {id: V1, properties: {}, value: hello, expect: []}
+- {id: V2, properties: {}, value: 3, expect: [{path: [], code: wrong_type}]}
+- {id: V3, properties: {}, value: true, expect: [{path: [], code: wrong_type}]}
+- {id: V4, properties: {min_length: 3}, value: hi, expect: [{path: [], code: min_length}]}
+- {id: V5, properties: {min_length: 3}, value: hey, expect: []}
+- {id: V6, properties: {max_length: 3}, value: heyy, expect: [{path: [], code: max_length}]}
+- {id: V7, properties: {max_length: 3}, value: hey, expect: []}
+- {id: V8, properties: {pattern: "^[a-z]+$"}, value: Hello, expect: [{path: [], code: pattern}]}
+- {id: V9, properties: {pattern: "^[a-z]+$"}, value: hello, expect: []}
+- {id: V10, properties: {enum: [a, b]}, value: c, expect: [{path: [], code: enum}]}
+- {id: V11, properties: {enum: [a, b]}, value: a, expect: []}
+- id: V12
+  properties: {min_length: 3, pattern: "^[a-z]+$", enum: [abcd]}
+  value: AB
+  expect: [{path: [], code: min_length}, {path: [], code: pattern}, {path: [], code: enum}]
+- {id: V13, properties: {min_length: 2}, value: h, path: [name], expect: [{path: [name], code: min_length}]}

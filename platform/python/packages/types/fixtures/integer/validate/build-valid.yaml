@@ -1,0 +1,5 @@
+# types port — IntegerType(**properties) is built and holds the properties it was given
+- {id: I1, properties: {}, expect: built}
+- {id: I2, properties: {minimum: 1}, expect: built}
+- {id: I3, properties: {maximum: 10}, expect: built}
+- {id: I4, properties: {minimum: 1, maximum: 10}, expect: built}
