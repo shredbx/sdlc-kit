@@ -1,0 +1,12 @@
+topic: namespace-capability-outermost
+question: Is capability the outermost namespace segment for sdlc definitions, and
+  are all capability paths pre-scaffolded up front or created lazily on real need?
+status: decided
+resolution: "Capability is the outermost namespace segment (sdlc.<capability>....),\
+  \ applied lazily \u2014 a path exists only when a real definition needs it, never\
+  \ pre-scaffolded."
+rationale: Resolved before this session; restated here so it's checkable instead of
+  only living in chat history. Pre-scaffolding all capability paths up front repeats
+  the sbx.framework mistake of modeling structure ahead of real content (see CLAUDE.md's
+  capability-scopes tension note).
+date: '2026-09-24'

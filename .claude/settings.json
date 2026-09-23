@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "process-claude-plugin@process-os": true
+  }
+}

@@ -1,0 +1,12 @@
+# A point-in-time call this workspace made — decided or deliberately deferred — recorded so it can
+# be checked later instead of re-derived from chat history or proposal-doc callouts.
+name: decision
+type: mapping
+fields:
+  topic:      {type: string, required: true}
+  question:   {type: string, required: true}
+  status:     {type: decision-status, required: true}
+  resolution: {type: string, required: true}
+  rationale:  {type: string, required: true}
+  date:       {type: string, required: true}
+  supersedes: {type: string, required: false}

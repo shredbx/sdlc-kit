@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SBX SDLC Kit — filestructure &amp; starter-set proposal</title>
+<style>
+  :root{
+    --bg:#faf9f7; --panel:#ffffff; --ink:#1c1a17; --ink-soft:#5a554d; --line:#e6e1d8;
+    --accent:#8a5a2e; --accent-soft:#f1e6d8; --code-bg:#f3efe6; --code-ink:#3a3428;
+    --ok:#3d6b3d; --warn:#a15a1f; --warn-bg:#fbeee0; --decide:#7a3f9d; --decide-bg:#f1e6f7;
+    --tag-bg:#eee9df;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#17140f; --panel:#1f1b15; --ink:#eae4d8; --ink-soft:#b4ac9c; --line:#332d24;
+      --accent:#d79a5c; --accent-soft:#2c2114; --code-bg:#241f17; --code-ink:#e4dcc9;
+      --ok:#7cbf7c; --warn:#e0a05a; --warn-bg:#2e2013; --decide:#c893e6; --decide-bg:#251a2c;
+      --tag-bg:#26211a;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.6;
+  }
+  header.top{
+    padding:2.5rem 1.5rem 1.5rem; max-width:840px; margin:0 auto;
+  }
+  header.top h1{font-size:1.65rem; margin:0 0 0.35rem; letter-spacing:-0.01em}
+  header.top .sub{color:var(--ink-soft); font-size:0.98rem}
+  .status-row{margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap}
+  .badge{
+    display:inline-block; font-size:0.72rem; font-weight:600; letter-spacing:0.02em;
+    padding:0.28rem 0.6rem; border-radius:999px; background:var(--tag-bg); color:var(--ink-soft);
+    text-transform:uppercase;
+  }
+  .badge.proposal{background:var(--decide-bg); color:var(--decide)}
+  nav.toc{
+    max-width:840px; margin:0 auto 1rem; padding:1rem 1.5rem; background:var(--panel);
+    border:1px solid var(--line); border-radius:10px;
+  }
+  nav.toc h2{font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); margin:0 0 0.6rem}
+  nav.toc ol{margin:0; padding-left:1.2rem; columns:2; column-gap:2rem}
+  nav.toc li{margin-bottom:0.3rem; font-size:0.92rem}
+  nav.toc a{color:var(--ink); text-decoration:none}
+  nav.toc a:hover{color:var(--accent)}
+  main{max-width:840px; margin:0 auto; padding:0 1.5rem 4rem}
+  section{margin-top:2.6rem}
+  h2{font-size:1.28rem; border-bottom:1px solid var(--line); padding-bottom:0.5rem; letter-spacing:-0.005em}
+  h3{font-size:1.02rem; margin-top:1.6rem; color:var(--ink)}
+  p{margin:0.75rem 0}
+  ul, ol{padding-left:1.3rem}
+  li{margin:0.3rem 0}
+  a{color:var(--accent)}
+  code{
+    background:var(--code-bg); color:var(--code-ink); padding:0.1rem 0.35rem; border-radius:5px;
+    font-size:0.88em; font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  pre{
+    background:var(--code-bg); color:var(--code-ink); padding:1rem 1.1rem; border-radius:10px;
+    overflow-x:auto; font-size:0.85rem; line-height:1.55; border:1px solid var(--line);
+    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  pre code{background:none; padding:0; font-size:1em}
+  .callout{
+    border-left:3px solid var(--accent); background:var(--accent-soft); padding:0.85rem 1.1rem;
+    border-radius:0 8px 8px 0; margin:1rem 0; font-size:0.94rem;
+  }
+  .decide{
+    border-left:3px solid var(--decide); background:var(--decide-bg); padding:0.85rem 1.1rem;
+    border-radius:0 8px 8px 0; margin:1.1rem 0;
+  }
+  .decide .label{font-weight:700; color:var(--decide); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:0.35rem}
+  .warn{
+    border-left:3px solid var(--warn); background:var(--warn-bg); padding:0.85rem 1.1rem;
+    border-radius:0 8px 8px 0; margin:1.1rem 0; font-size:0.94rem;
+  }
+  table{width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.9rem}
+  th, td{text-align:left; padding:0.5rem 0.7rem; border-bottom:1px solid var(--line); vertical-align:top}
+  th{color:var(--ink-soft); font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.03em}
+  tr:last-child td{border-bottom:none}
+  .item{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:1rem 1.2rem; margin:1rem 0;
+  }
+  .item .head{display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap}
+  .item .kind{font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); font-weight:700}
+  .item .id{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:0.95rem; color:var(--accent); font-weight:600}
+  .item .why{margin-top:0.4rem; font-size:0.9rem; color:var(--ink-soft)}
+  .approve{font-size:0.72rem; font-weight:700; color:var(--decide); text-transform:uppercase; letter-spacing:0.03em}
+  footer{max-width:840px; margin:0 auto; padding:2rem 1.5rem 3rem; color:var(--ink-soft); font-size:0.85rem; border-top:1px solid var(--line)}
+  .cap-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:0.5rem; margin:1rem 0}
+  .cap{
+    background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:0.55rem 0.7rem;
+    font-size:0.82rem;
+  }
+  .cap .tier{display:block; font-size:0.66rem; text-transform:uppercase; color:var(--ink-soft); letter-spacing:0.03em; margin-bottom:0.15rem}
+  .cap.touched{border-color:var(--ok); background:color-mix(in srgb, var(--ok) 10%, var(--panel))}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>SBX SDLC Kit — filestructure &amp; starter-set proposal</h1>
+  <p class="sub">A working document, written for review — not yet modeled. Last updated 2026-09-23.</p>
+  <div class="status-row">
+    <span class="badge proposal">Proposal — nothing built yet</span>
+    <span class="badge">Local file, in-repo — not a claude.ai artifact</span>
+    <span class="badge">docs/proposals/filestructure-and-starter-set.html</span>
+  </div>
+</header>
+
+<nav class="toc" style="border-color:var(--decide)">
+  <h2 style="color:var(--decide)">Revision note — 2026-09-24, read this first</h2>
+  <p style="font-size:0.9rem; margin:0">Two things below are stale, superseded by chat discussion
+  after this was first written — marked inline where they occur, not silently changed: <strong>§4
+  capability ordering</strong> is now decided (action-first, confirmed by you), and the schema
+  extension mechanism (§3) is confirmed working exactly as you described, not an open tension.
+  <strong>Sequencing has also changed</strong>: before this Next.js starter, the agreed first real
+  work is porting process-os's own <code>types</code> package into <code>platform/python/</code> —
+  see <code>docs/proposals/porting-and-modeling-process.md</code> for why, and
+  <code>docs/research/python-implementation-quality-comparison.md</code> for what that port needs to
+  fix along the way. §5's starter set below still applies, just second, not first.</p>
+</nav>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#howtoread">How to read this</a></li>
+    <li><a href="#filestructure">Repo filestructure</a></li>
+    <li><a href="#namespaces">process-os scope &amp; namespace shape</a></li>
+    <li><a href="#capabilities">The 13-capabilities question</a></li>
+    <li><a href="#starter">Day-one starter set</a></li>
+    <li><a href="#coverage">What the starter set covers of the 13</a></li>
+    <li><a href="#agreement">Working agreement</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="howtoread">
+  <h2>1. How to read this</h2>
+  <p>This is my view, for you to edit or reject piece by piece — not a plan I'm about to execute.
+  Nothing here is written into <code>processos-workspace/definitions/</code> yet. Where I've made a
+  call that's genuinely a toss-up, I've marked it <span class="approve">decision needed</span> rather
+  than picking silently.</p>
+  <p>Everything below is aimed squarely at the goal you've already named: a Next.js app bootstrap
+  matching <code>bestays-web</code>'s environment, to host the Vercel AI SDK chat UI experiment, on
+  the way to the real AI Assistant product. I haven't proposed anything for Go, Python, Swift, or
+  Kotlin yet — those get their own namespace the day we actually start one, not before.</p>
+</section>
+
+<section id="filestructure">
+  <h2>2. Repo filestructure</h2>
+  <p>Three prior-art shapes exist already: this repo's own draft <code>README.md</code>
+  (<code>platform/</code> — "packages, frameworks, application bootstrappable templates and
+  configured applications"), <code>sbx-workspace</code>
+  (<code>platform/python/{applications,frameworks,packages}</code>, plus a separate
+  <code>projects/{products,experiments,prototypes,tools}</code> and a top-level <code>consumers/</code>),
+  and <code>sbx.framework</code> (<code>packages/&lt;name&gt;/&lt;lang&gt;</code>,
+  <code>apps/&lt;name&gt;/&lt;lang&gt;</code>, <code>projects/{bos,ide}</code> as whitelabelable
+  product instances, delivery explicitly out of scope). Your own message this turn —
+  <code>platform/python|go../packages|frameworks|apps</code>, with products/experiments as their own
+  scope — matches <code>sbx-workspace</code>'s shape most closely, so that's what I've built the
+  proposal around.</p>
+
+  <pre><code>sdlc-kit/
+├── processos.yaml
+├── processos-workspace/              # process-os DEFINITIONS live here — see §3
+│   ├── definitions/sbx-sdlc-kit/
+│   ├── records/                       # kept in git — actual instances (e.g. a rendered app's spec)
+│   ├── output/                        # git-ignored — per-run scratch only, NOT where real output lives
+│   └── runs/                          # git-ignored
+├── platform/                          # real, generated/bootstrapped code — the actions/templates
+│   │                                    above render INTO here via `--into`, never into output/
+│   ├── node/
+│   │   ├── packages/                  # small reusable libs (e.g. a shared chat-UI wrapper package)
+│   │   ├── frameworks/                # glue that combines packages into a dev experience
+│   │   └── apps/
+│   │       └── nextjs-starter/        # ← the near-term bootstrap; see §5
+│   ├── go/{packages,frameworks,apps}          # empty until a Go entity is actually needed
+│   ├── python/{packages,frameworks,apps}      # empty until a Python entity is actually needed
+│   ├── swift/{packages,frameworks,apps}
+│   └── kotlin/{packages,frameworks,apps}
+├── products/                          # composition layer: an app (or several) + services + scripts
+│   │                                    + configs + texts — NOT platform-specific
+│   └── (empty until a real product exists)
+├── experiments/                       # fast, process-free throwaway spikes — already established
+├── docs/
+│   ├── research/                      # investigation, not proposals
+│   └── proposals/                     # documents like this one
+└── CLAUDE.md
+</code></pre>
+
+  <div class="callout">
+    <strong>Why <code>platform/&lt;lang&gt;/apps/</code> and not straight into <code>products/</code>:</strong>
+    an app under <code>platform/</code> is a reusable, generic starter for that tech stack — cloneable,
+    not tied to any one product. A <em>product</em> is what happens when one or more of those apps get
+    combined with services, scripts, config, and content for an actual thing you're shipping. The
+    Next.js starter is a <code>platform/node/apps/</code> citizen; the AI Assistant product, once it
+    exists, is a <code>products/</code> citizen that <em>uses</em> that starter (and others) rather
+    than copying them.
+  </div>
+
+  <div class="decide">
+    <span class="label">Decision needed</span>
+    <code>apps</code> (your wording this turn) vs. <code>applications</code>
+    (<code>sbx-workspace</code>'s actual folder name). I've used <code>apps</code> below, deferring to
+    what you wrote just now — flag if you'd rather match <code>sbx-workspace</code> exactly.
+  </div>
+
+  <div class="decide">
+    <span class="label">Decision needed</span>
+    Nest <code>products/</code> and <code>experiments/</code> as siblings of <code>platform/</code>
+    (as drawn above — the most direct reading of "its own scope"), or nest them together under one
+    parent the way <code>sbx-workspace</code> does
+    (<code>projects/{products,experiments,prototypes,tools}</code>)? The nested form groups
+    "everything that isn't platform-native code" under one name, which may be worth it once
+    <code>prototypes/</code> or a <code>tools/</code> equivalent shows up — but that's not a need yet,
+    so I've defaulted to the flatter, current-need version.
+  </div>
+</section>
+
+<section id="namespaces">
+  <h2>3. process-os scope &amp; namespace shape</h2>
+  <p><strong>One scope, <code>sbx-sdlc-kit</code></strong> — not a separate scope per platform or per
+  product yet. Splitting later (e.g. for independent <code>readonly</code>/<code>readwrite</code>
+  boundaries) is cheap via <code>uses:</code> once there's a real reason; there isn't one yet.</p>
+  <p>Namespaces mirror <code>platform/</code> directly: <code>sbx-sdlc-kit.node</code>,
+  <code>.go</code>, <code>.python</code>, <code>.swift</code>, <code>.kotlin</code> — created one at a
+  time, only when that platform is actually being worked. Within <code>.node</code>, framework
+  (<code>nextjs</code> vs. <code>sveltekit</code>) is a typed field on the app schema, the same way
+  process-os's own <code>sdlc.application.framework</code> is <code>enum: [none, typer]</code> within
+  its <code>python</code> namespace — not a further folder split.</p>
+
+  <div class="decide">
+    <span class="label">Decision needed</span>
+    The alternative to the paragraph above: namespace directly by <em>framework</em>
+    (<code>sbx-sdlc-kit.nextjs</code>, <code>.sveltekit</code>) rather than by platform
+    (<code>sbx-sdlc-kit.node</code>) with framework as a field. In practice almost every action,
+    template, and package will be framework-specific anyway (a Next.js bootstrap script has nothing in
+    common with a SvelteKit one), so the field-based grouping may just add a layer that never gets
+    reused. I lean towards <strong>framework-level namespaces</strong> for that reason, opposite of
+    what I assumed above — genuinely your call, this is exactly the kind of thing "precise, not
+    ambiguous" should decide, not a default.
+  </div>
+
+  <h3>Reuse from process-os itself</h3>
+  <p>Confirmed usable via a <code>libraries:</code> entry in <code>processos.yaml</code> (read-only,
+  no fork): process-os's <code>std</code> scope (<code>version</code>, <code>relative-path</code>,
+  <code>file-list</code> — genuinely generic, no reason to redefine). <strong>Not</strong> proposing to
+  reuse <code>sdlc</code>/<code>sdlc.python</code> directly — they're process-os's own narrow demo
+  content (python/typer only, hard-coded to that one framework choice in
+  <code>resolve-platform</code>'s shell script). Their <em>shape</em> — a generic dispatcher process
+  that <code>switch</code>es on a resolved platform into a platform-specific process — is worth
+  copying; the rows themselves aren't reuse candidates.</p>
+</section>
+
+<section id="capabilities">
+  <h2>4. The 13-capabilities question</h2>
+  <p>You said: "I'd start with capabilities to and fulfill the processes looking at sbx v1 as
+  reference." Last turn I flagged a real tension: <code>sbx.framework</code> tried capability-as-
+  namespace and explicitly retired it (2026-08-01: "what a capability was becomes a subprocess"),
+  after keeping that ruling for its entire 7.5-week build.</p>
+
+  <div class="decide" style="border-color:var(--ok)">
+    <span class="label" style="color:var(--ok)">Resolved, 2026-09-24 — superseding the box below</span>
+    You meant it literally, and made the case well: capability <em>is</em> the outermost namespace
+    (<code>sdlc.&lt;capability&gt;.…</code>), applied <strong>lazily</strong> — a path only gets
+    created the moment a real definition needs it, never pre-scaffolded — which is what keeps this
+    from repeating <code>sbx.framework</code>'s "1000 capability files" failure while still getting
+    the win it was actually for: <code>process-cli list --namespace</code> can answer "show me
+    everything for this capability" as a real query. Ordering within a capability is
+    <strong>action-first</strong> (e.g. <code>sdlc.testing.documentation.…</code>, not
+    <code>sdlc.documentation.testing.…</code>) — confirmed in chat, not re-litigated here. Platform
+    position (second-level vs. deeper) is still open, deliberately deferred until the <code>types</code>
+    port gives us real content to test it against, per
+    <code>docs/proposals/porting-and-modeling-process.md</code>.
+  </div>
+  <div class="decide">
+    <span class="label">Superseded — kept for the reasoning, not the conclusion</span>
+    Original framing (2026-09-23): use the 13 as a coverage checklist, not literal namespace
+    folders — this was the wrong call, corrected above.
+  </div>
+
+  <p>The confirmed 13 (source: <code>shredbx/.sbx/workspace/capability-roadmap.yml</code>), for
+  reference:</p>
+  <div class="cap-grid">
+    <div class="cap"><span class="tier">Foundational</span>modeling</div>
+    <div class="cap"><span class="tier">Foundational</span>architecture</div>
+    <div class="cap"><span class="tier">Build</span>implementation</div>
+    <div class="cap"><span class="tier">Build</span>infrastructure</div>
+    <div class="cap"><span class="tier">Build</span>configuration</div>
+    <div class="cap"><span class="tier">Quality</span>testing</div>
+    <div class="cap"><span class="tier">Quality</span>documentation</div>
+    <div class="cap"><span class="tier">Quality</span>security</div>
+    <div class="cap"><span class="tier">Delivery</span>automation</div>
+    <div class="cap"><span class="tier">Delivery</span>deployment</div>
+    <div class="cap"><span class="tier">Operational</span>observability</div>
+    <div class="cap"><span class="tier">Operational</span>operations</div>
+    <div class="cap"><span class="tier">Operational</span>continuity</div>
+  </div>
+</section>
+
+<section id="starter">
+  <h2>5. Day-one starter set</h2>
+  <p>Five definitions, each independently approvable, each existing only to get one real thing done:
+  a Next.js app bootstrap matching <code>bestays-web</code>'s confirmed environment (Next.js 15 +
+  React 19, App Router + Turbopack, Tailwind v4, shadcn/ui "new-york", Radix, react-hook-form + zod,
+  next-themes — <code>docs/research/shredbx-bestierealestate-and-capabilities.md</code> Part 3),
+  minus its three <code>@reactbook/*</code> workspace-internal dependencies, which won't exist here.</p>
+
+  <div class="item">
+    <div class="head"><span class="kind">Type</span><span class="id">sbx-sdlc-kit.node.app-name</span></div>
+    <p class="why">A constrained string for an app's own name (kebab-case, filesystem- and
+    npm-package-safe) — mirrors <code>std.relative-path</code>'s style: a pattern with a comment
+    showing a real example, nothing clever.</p>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="kind">Schema</span><span class="id">sbx-sdlc-kit.node.app</span></div>
+    <p class="why">Minimal: <code>name</code>, <code>description</code>, <code>version</code>
+    (<code>std.version</code>), <code>framework</code> (start as a one-value
+    <code>enum: [nextjs]</code> — add <code>sveltekit</code> the day that's real, not before). No
+    <code>platform</code>/<code>language</code> split like upstream's — not needed until a second
+    platform exists.</p>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="kind">Template</span><span class="id">sbx-sdlc-kit.node.nextjs-starter</span></div>
+    <p class="why">The file tree itself: <code>package.json</code> (Next.js 15, React 19, Tailwind v4
+    via <code>@tailwindcss/postcss</code>, shadcn <code>components.json</code> pre-scaffolded
+    "new-york"/neutral/lucide, react-hook-form+zod, next-themes), <code>next.config.ts</code>,
+    <code>app/</code> (App Router, no <code>pages/</code>), <code>globals.css</code>. A
+    <code>pattern:</code> block (process-os's <code>conform()</code> mechanism) checking the load-
+    bearing lines so drift from this baseline is detectable later, the same way
+    <code>process-os.package</code>'s own template does.</p>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="kind">Action</span><span class="id">sbx-sdlc-kit.node.create-nextjs-app</span></div>
+    <p class="why">Shell action, <code>type: shell</code>: takes an <code>sbx-sdlc-kit.node.app</code>
+    record, renders the template <code>--into platform/node/apps/&lt;name&gt;</code>, then
+    <code>pnpm install</code>. A <code>check.sh</code> refuses to overwrite an existing app folder —
+    same guard <code>sdlc.python.create-project</code> uses.</p>
+  </div>
+
+  <div class="item">
+    <div class="head"><span class="kind">Process</span><span class="id">sbx-sdlc-kit.node.build-nextjs-app</span></div>
+    <p class="why">One step today (<code>create-nextjs-app</code>) — kept as its own process rather
+    than calling the action directly, so it's already shaped to grow a second step (e.g. an install-
+    the-shared-chat-package step) without restructuring later. Not a speculative multi-step pipeline —
+    a process of one real step is still a process, per process-os's own
+    <code>Process.of_action</code>.</p>
+  </div>
+
+  <div class="callout">
+    Deliberately <strong>not</strong> proposed yet: anything for the chat UI itself (that's the
+    <code>/experiments</code> spike, explicitly process-free by your own instruction), anything for
+    Go/Python/Swift/Kotlin, and any <code>products/</code> definition — no product exists to compose
+    yet.
+  </div>
+</section>
+
+<section id="coverage">
+  <h2>6. What the starter set covers of the 13</h2>
+  <table>
+    <tr><th>Capability</th><th>Touched by</th><th>Note</th></tr>
+    <tr><td>modeling</td><td>the <code>type</code> + <code>schema</code></td><td>what an app <em>is</em>, named and typed</td></tr>
+    <tr><td>architecture</td><td>the namespace shape (§3)</td><td>where node/nextjs code lives long-term</td></tr>
+    <tr><td>implementation</td><td>the <code>action</code></td><td>the actual scaffold step</td></tr>
+    <tr><td>configuration</td><td>the <code>template</code></td><td>the package.json/tsconfig/tailwind baseline</td></tr>
+    <tr><td>automation</td><td>the <code>process</code></td><td>one checked, runnable entry point</td></tr>
+    <tr><td>testing</td><td><em>not yet</em></td><td>no test scaffold in the template yet — worth asking about explicitly</td></tr>
+    <tr><td>documentation</td><td><em>partial</em></td><td>template's own README.md.jinja, nothing beyond that</td></tr>
+    <tr><td>infrastructure / security / deployment / observability / operations / continuity</td><td><em>not yet</em></td><td>correctly out of scope — nothing is deployed yet</td></tr>
+  </table>
+  <p>Read this table itself as the practical version of "capabilities as reference" from §4: it's a
+  gap list, not a folder list.</p>
+</section>
+
+<section id="agreement">
+  <h2>7. Working agreement (reminder, not new)</h2>
+  <ul>
+    <li>Each item in §5 gets your explicit yes individually — I won't <code>process-cli write</code>
+    anything from this document without that.</li>
+    <li>After each one is written: <code>process-cli check</code>, then move to the next — never a
+    batch.</li>
+    <li>No claude.ai artifacts for anything in this project — documents like this one are files in
+    the repo.</li>
+    <li>Both decision points in §2 and §3 need an answer before §5 can be modeled as-is (they affect
+    the exact ids).</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  SBX SDLC Kit — proposal document, not a build log. Open this file directly in a browser
+  (<code>file://</code>) or via any static server; no network dependencies.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+name: configuration
+description: "The settings that shape how a built thing behaves without changing its\
+  \ code \u2014 env vars, config files, template-rendered baseline files."

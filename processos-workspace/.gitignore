@@ -1,0 +1,3 @@
+# What runs write. The records given to runs, in records/, is kept.
+output/
+runs/

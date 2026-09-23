@@ -1,0 +1,5 @@
+# A scope: a name, a version, and the scopes whose definitions this one may name. Its folder holds the
+# definitions, one folder for each kind: type/, schema/, template/, action/ and process/.
+name: sbx-sdlc-kit
+version: 0.1.0
+uses: []

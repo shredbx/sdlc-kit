@@ -1,0 +1,4 @@
+name: architecture
+description: "How the workspace itself is organized \u2014 namespace shape, scope\
+  \ structure, filestructure conventions, and the governance (this capability list,\
+  \ the decision log) that keeps those choices from being reinvented ad hoc."

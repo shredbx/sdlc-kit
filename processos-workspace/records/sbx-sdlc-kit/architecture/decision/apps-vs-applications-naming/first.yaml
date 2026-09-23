@@ -1,0 +1,9 @@
+topic: apps-vs-applications-naming
+question: Under platform/<lang>/, is the folder for bootstrapped applications named
+  apps/ or applications/?
+status: deferred
+resolution: "Not decided yet \u2014 deferred until we actually port or bootstrap the\
+  \ first application under platform/."
+rationale: No real content exists yet to test either name against; picking now would
+  be guessing ahead of need.
+date: '2026-09-24'

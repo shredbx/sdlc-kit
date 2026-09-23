@@ -1,0 +1,4 @@
+# Where a decision record currently stands.
+name: decision-status
+type: string
+enum: [decided, deferred, superseded]

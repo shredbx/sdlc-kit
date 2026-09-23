@@ -1,0 +1,13 @@
+topic: type-schema-separation
+question: Can a mapping schema and a bare scalar/enum/sequence type ever share a name
+  or a filesystem location?
+status: decided
+resolution: "No \u2014 a schema (type: mapping) and a primitive type are always kept\
+  \ in separate kind-folders (type/ vs schema/) per namespace, and never share a name.\
+  \ A primitive type that's genuinely needed gets its own clear, dedicated namespace\
+  \ rather than being tucked in wherever's convenient."
+rationale: "Keeps what defines the shape of X (schema) and what constrains a single\
+  \ value (type) unambiguous at a glance \u2014 this is why capability is a schema\
+  \ only, with no competing bare enum-type of the same name, and why decision-status\
+  \ is its own separate type file rather than inlined."
+date: '2026-09-24'

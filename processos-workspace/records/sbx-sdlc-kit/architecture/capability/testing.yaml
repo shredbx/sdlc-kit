@@ -1,0 +1,3 @@
+name: testing
+description: "Verifying a thing works \u2014 test strategy, fixtures, coverage, and\
+  \ the checks that catch drift from what was modeled."

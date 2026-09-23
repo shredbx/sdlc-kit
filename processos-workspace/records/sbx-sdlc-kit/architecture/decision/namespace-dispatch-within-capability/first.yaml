@@ -1,0 +1,14 @@
+topic: namespace-dispatch-within-capability
+question: Within a capability namespace, do we dispatch by platform with framework
+  as a field (sdlc.<capability>.node), or directly by framework (sdlc.<capability>.nextjs)?
+status: decided
+resolution: Namespace by framework first (sdlc.<capability>.nextjs), not by platform.
+  Extend with a dotted segment only when framework alone doesn't disambiguate (e.g.
+  nextjs.javascript vs nextjs.typescript, if that distinction is ever real). Fall
+  back to a platform-level segment (sdlc.<capability>.node) only when there's genuinely
+  no framework in play.
+rationale: Almost every action/template/package is framework-specific in practice;
+  a platform-level field-based grouping would add an extra layer that rarely gets
+  reused. Extending with a dotted segment only on real disambiguation need keeps names
+  clean rather than pre-guessing splits that might never be needed.
+date: '2026-09-24'

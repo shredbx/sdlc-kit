@@ -1,0 +1,9 @@
+topic: filestructure-nesting
+question: "Where do product-facing folders (products/, experiments/) live in the repo\
+  \ root \u2014 flat at root, or nested under a parent folder?"
+status: decided
+resolution: "products/ and experiments/ nest under a single projects/ parent, sibling\
+  \ to platform/ \u2014 matching sbx-workspace's shape (projects/{products,experiments,prototypes,tools})."
+rationale: Keeps repo root clean as more folders (prototypes, tools) get added later;
+  matches a shape already proven in sbx-workspace rather than inventing a new one.
+date: '2026-09-24'

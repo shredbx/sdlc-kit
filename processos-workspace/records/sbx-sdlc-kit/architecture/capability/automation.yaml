@@ -1,0 +1,3 @@
+name: automation
+description: "Repeatable execution of work that would otherwise be done by hand \u2014\
+  \ process-os actions/processes, CI jobs, scripted pipelines."

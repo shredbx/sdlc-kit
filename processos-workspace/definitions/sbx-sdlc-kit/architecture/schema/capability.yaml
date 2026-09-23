@@ -1,0 +1,8 @@
+# One capability this workspace organizes namespaces by. Records under this schema ARE the closed
+# list — before adding a new sdlc.<name>.* namespace, check what's recorded here; if it's not here,
+# that's the signal to add a record (discussed first), not to freelance a namespace segment.
+name: capability
+type: mapping
+fields:
+  name:        {type: string, required: true}
+  description: {type: string, required: true}

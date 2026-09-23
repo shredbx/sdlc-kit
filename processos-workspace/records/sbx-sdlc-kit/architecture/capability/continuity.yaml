@@ -1,0 +1,3 @@
+name: continuity
+description: "Keeping a thing recoverable and durable over time \u2014 backups, disaster\
+  \ recovery, versioning/rollback, long-term retention."

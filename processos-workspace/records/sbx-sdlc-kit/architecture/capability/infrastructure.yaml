@@ -1,0 +1,3 @@
+name: infrastructure
+description: "The underlying platforms and services something runs on \u2014 servers,\
+  \ hosting, databases, networking. Topology, not app code."

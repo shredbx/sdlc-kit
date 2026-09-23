@@ -1,0 +1,9 @@
+# The config of this workspace: where its definitions are, and where runs work. process-cli finds it by
+# looking upward from the current folder. Paths are relative to this file.
+version: 0.1.0                    # the shape of this file; changes only when process-cli's own config format does
+definitions: processos-workspace/definitions   # a folder of scopes; every folder in it is one
+runtime:
+  root: processos-workspace       # runs work here
+  records: records                # the records given to runs, one folder per instance; kept in git
+  output: output                  # where actions write, and their working folder
+  runs: runs                      # the state of each run, one folder per run; git-ignored
