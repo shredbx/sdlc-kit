@@ -1,0 +1,15 @@
+topic: file-organization-for-codegen
+question: What file/class organization should sbx-sdlc-kit's own code, and future
+  generated code, follow so it stays lightweight, uniform, and bootstrappable?
+status: decided
+resolution: Every file this repo authors itself is small and single-concern - one
+  class or responsibility per file, named for what it does, following each platform's
+  own idiom rather than forcing one naming convention across languages. Applies to
+  our own actions/processes/templates and any codegen output going forward - not retroactively
+  to verbatim-ported upstream packages (types/schema/action stay verbatim per docs/proposals/porting-and-modeling-process.md).
+rationale: shredbx's Go code (v1) makes one interface/concern per file pervasive and
+  idiomatic (validator.go, prompt_renderer.go - 200+ instances); sbx.framework's Python
+  core (v2) never carried this over (store.py is 838 lines). process-os's own types
+  package already does this per-type (string_type.py, integer_type.py, ...) - little
+  gap to close in what's already ported.
+date: '2026-09-24'

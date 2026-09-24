@@ -1,0 +1,3 @@
+name: maintainability
+description: How easily the system can be modified, understood, tested, and extended
+  without breaking what already works.

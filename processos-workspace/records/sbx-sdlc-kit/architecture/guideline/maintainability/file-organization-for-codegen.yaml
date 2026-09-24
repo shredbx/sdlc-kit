@@ -1,0 +1,9 @@
+topic: file-organization-for-codegen
+tier: text
+category: maintainability
+statement: Every file this repo authors itself is small and single-concern - one class
+  or responsibility per file, named for what it does, following the target platform's
+  own idiom.
+rationale: 'Keeps generated and hand-written code the same shape, and keeps any file
+  swappable or regeneratable on its own once codegen exists. See decision: file-organization-for-codegen.'
+date: '2026-09-24'

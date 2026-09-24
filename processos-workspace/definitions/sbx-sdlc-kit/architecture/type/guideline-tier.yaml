@@ -1,0 +1,7 @@
+# How mechanically a guideline is enforced today - not aspirational. text: the LLM/human follows it,
+# nothing checks it yet. check: something real (a lint run, a CI step, process-cli check) verifies
+# it - see the guideline's own verification field. floor: built into the tooling itself, never
+# separately checked because it can't be violated.
+name: guideline-tier
+type: string
+enum: [text, check, floor]

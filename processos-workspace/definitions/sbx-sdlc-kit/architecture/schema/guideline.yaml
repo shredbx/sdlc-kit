@@ -1,0 +1,14 @@
+# A rule of work for this repo, tiered by how it's actually enforced today. `topic` is a short,
+# searchable label; the record's own file path (guideline/<category>/...) carries any deeper
+# scoping a rule needs - one real segment at a time, never a pre-built category x framework x
+# scope grid (decision: schema-evolution-mechanism).
+name: guideline
+type: mapping
+fields:
+  topic:        {type: string, required: true}
+  tier:         {type: guideline-tier, required: true}
+  category:     {type: string, required: true}
+  statement:    {type: string, required: true}
+  rationale:    {type: string, required: true}
+  verification: {type: string, required: false}
+  date:         {type: string, required: true}

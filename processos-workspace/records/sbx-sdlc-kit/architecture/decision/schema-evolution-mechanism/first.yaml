@@ -1,0 +1,16 @@
+topic: schema-evolution-mechanism
+question: When an entity needs new capability, which mechanism do we reach for, and
+  what stops namespace nesting from becoming a pre-built grid?
+status: decided
+resolution: 'Four mechanisms, in preference order: extend the schema directly (fields
+  every instance needs); nest via a deeper folder path; compose via a field typed
+  as another mapping schema; extend via a process''s requires: plus a sibling extension/<name>.yaml.
+  Guardrail: add one real nesting segment or requires-extension only when one real
+  case needs it - never pre-declare a category x platform (or any N-dimensional) grid.
+  Full detail: docs/proposals/schema-evolution-principles.md.'
+rationale: shredbx's nfr.yml x nfr-platform-matrix.yml (7 categories x 4 platforms,
+  28 cells) needed populating whether or not a real rule existed per cell; sbx.framework
+  explicitly ported only the flat half and dropped the platform axis. process-os's
+  own sdlc.build-application / extension/build.yaml confirms mechanism 4 is real,
+  not invented.
+date: '2026-09-24'

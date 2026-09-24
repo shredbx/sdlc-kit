@@ -93,6 +93,10 @@ entity onward:
 - Use dotted nesting for sub-scopes the way `sdlc.python` does upstream, not ad hoc flat names.
 - Prefer extending or reusing an existing definition over introducing a near-duplicate with a
   slightly different name.
+- When an entity needs new capability, choose one of four mechanisms — extend the schema
+  directly, nest into a deeper folder, compose via a field typed as another schema, or extend via
+  a process's own `requires:` + a sibling `extension/<name>.yaml` — never a fifth ad hoc, and never
+  a pre-built category × dimension grid. See `docs/proposals/schema-evolution-principles.md`.
 
 ## Workflow with the user
 

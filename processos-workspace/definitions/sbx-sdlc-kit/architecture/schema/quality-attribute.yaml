@@ -1,0 +1,11 @@
+# One quality attribute a guideline can protect. Records under this schema ARE the closed list -
+# check what's recorded here before using a new category value; if it's not here, that's the
+# signal to add a record (discussed first), not to freelance a name.
+# Informed by ISO/IEC 25010's product quality model (minus functional suitability, which functional
+# correctness already covers elsewhere) - named plainly here, the ISO reference stays a citation,
+# never the identifier.
+name: quality-attribute
+type: mapping
+fields:
+  name:        {type: string, required: true}
+  description: {type: string, required: true}
