@@ -1,0 +1,103 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-3-config.md — Config.load(file): every path, resolved.
+# Paths in expect are relative to the folder the case is written into.
+- id: V1
+  folders: [defs]
+  files:
+    processos.yaml: |
+      definitions: defs
+      runtime:
+        root: .
+  expect: {definitions: defs, root: ".", records: records, output: output, runs: runs}
+- id: V2
+  folders: [definitions]
+  files:
+    processos.yaml: |
+      definitions: definitions
+      runtime:
+        root: .
+        records: .processos/records
+        output: .
+        runs: .processos/runs
+  expect: {definitions: definitions, root: ".", records: .processos/records, output: ".", runs: .processos/runs}
+- id: V3
+  folders: [definitions]
+  file: a/b/processos.yaml
+  files:
+    a/b/processos.yaml: |
+      definitions: ../../definitions
+      runtime:
+        root: .
+  expect: {definitions: definitions, root: a/b, records: a/b/records, output: a/b/output, runs: a/b/runs}
+- id: V4
+  folders: [defs, work]
+  files:
+    processos.yaml: |
+      definitions: defs
+      runtime:
+        root: work
+  expect: {definitions: defs, root: work, records: work/records, output: work/output, runs: work/runs}
+- id: V5
+  folders: [defs, work]
+  files:
+    processos.yaml: |
+      definitions: defs
+      runtime:
+        root: work
+        records: ./x/../y
+  expect: {definitions: defs, root: work, records: work/y, output: work/output, runs: work/runs}
+- id: V6
+  folders: [defs, sdlc]
+  file: a/b/processos.yaml
+  files:
+    a/b/processos.yaml: |
+      definitions: ../../defs
+      runtime:
+        root: .
+      libraries:
+        - {name: sdlc, path: ../../sdlc}
+  expect: {definitions: defs, root: a/b, records: a/b/records, output: a/b/output, runs: a/b/runs, libraries: [[sdlc, sdlc, readonly, null]]}
+- id: V7
+  folders: [defs, sdlc]
+  files:
+    processos.yaml: |
+      definitions: defs
+      runtime:
+        root: .
+      libraries:
+        - {name: sdlc, path: sdlc, access: readwrite, version: 0.2.0}
+  expect: {definitions: defs, root: ".", records: records, output: output, runs: runs, libraries: [[sdlc, sdlc, readwrite, 0.2.0]]}
+- id: V8
+  folders: [defs]
+  files:
+    processos.yaml: |
+      definitions: defs
+      runtime:
+        root: .
+      libraries: []
+  expect: {definitions: defs, root: ".", records: records, output: output, runs: runs, libraries: []}
+- id: V9
+  folders: [defs]
+  files:
+    processos.yaml: |
+      definitions: defs
+      runtime:
+        root: .
+  expect: {definitions: defs, root: ".", records: records, output: output, runs: runs, libraries: []}
+- id: V10
+  folders: [defs]
+  files:
+    processos.yaml: |
+      version: 0.1.0
+      definitions: defs
+      runtime:
+        root: .
+  expect: {definitions: defs, root: ".", records: records, output: output, runs: runs, version: 0.1.0}
+- id: V11
+  folders: [defs]
+  files:
+    processos.yaml: |
+      definitions: defs
+      runtime:
+        root: .
+        history: 3
+  expect: {definitions: defs, root: ".", records: records, output: output, runs: runs, history: 3}

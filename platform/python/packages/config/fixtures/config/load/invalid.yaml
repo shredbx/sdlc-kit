@@ -1,0 +1,88 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-3-config.md — Config.load(file): every error, in order, by path and code.
+# The first step of a path is the file, written relative to the folder the case is written into.
+- id: I1
+  files: {processos.yaml: ""}
+  expect: [{path: [processos.yaml], code: wrong_type}]
+- id: I2
+  files: {processos.yaml: "- a\n- b\n"}
+  expect: [{path: [processos.yaml], code: wrong_type}]
+- id: I3
+  files: {processos.yaml: "definitions: [a"}
+  expect: [{path: [processos.yaml], code: invalid}]
+- id: I4
+  files: {processos.yaml: "definitions: a\ndefinitions: b\nruntime:\n  root: .\n"}
+  expect: [{path: [processos.yaml], code: invalid}]
+- id: I5
+  files: {processos.yaml: "runtime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, definitions], code: missing}]
+- id: I6
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\n"}
+  expect: [{path: [processos.yaml, runtime], code: missing}]
+- id: I7
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime: {}\n"}
+  expect: [{path: [processos.yaml, runtime, root], code: missing}]
+- id: I8
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nextra: 1\nruntime:\n  root: .\n  colour: red\n"}
+  expect: [{path: [processos.yaml, extra], code: unexpected}, {path: [processos.yaml, runtime, colour], code: unexpected}]
+- id: I9
+  files: {processos.yaml: "definitions: 3\nruntime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, definitions], code: wrong_type}]
+- id: I10
+  files: {processos.yaml: "definitions: \"\"\nruntime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, definitions], code: min_length}]
+- id: I11
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, definitions], code: not_found}]
+- id: I12
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n", defs: "a file, not a folder"}
+  expect: [{path: [processos.yaml, definitions], code: not_found}]
+- id: I13
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: nowhere\n"}
+  expect: [{path: [processos.yaml, runtime, root], code: not_found}]
+- id: I14
+  folders: [defs, work]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: work\n  records: ../elsewhere\n"}
+  expect: [{path: [processos.yaml, runtime, records], code: outside_root}]
+- id: I15
+  folders: [defs, work]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: work\n  runs: /elsewhere\n"}
+  expect: [{path: [processos.yaml, runtime, runs], code: outside_root}]
+- id: I16
+  files: {processos.yaml: "extra: 1\nruntime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, extra], code: unexpected}, {path: [processos.yaml, definitions], code: missing}]
+- id: I17
+  folders: [defs, work]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: work\n  records: ../a\n  output: ../b\n"}
+  expect: [{path: [processos.yaml, runtime, records], code: outside_root}, {path: [processos.yaml, runtime, output], code: outside_root}]
+- id: I18
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries: {}\n"}
+  expect: [{path: [processos.yaml, libraries], code: wrong_type}]
+- id: I19
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - path: sdlc\n"}
+  expect: [{path: [processos.yaml, libraries, 0, name], code: missing}]
+- id: I20
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: sdlc, path: ''}\n"}
+  expect: [{path: [processos.yaml, libraries, 0, path], code: min_length}]
+- id: I21
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: sdlc, path: sdlc, access: sometimes}\n"}
+  expect: [{path: [processos.yaml, libraries, 0, access], code: enum}]
+- id: I22
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: '', path: sdlc}\n"}
+  expect: [{path: [processos.yaml, libraries, 0, name], code: min_length}]
+- id: I23
+  folders: [defs]
+  files: {processos.yaml: "version: v1\ndefinitions: defs\nruntime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, version], code: pattern}]
+- id: I24
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n  history: -1\n"}
+  expect: [{path: [processos.yaml, runtime, history], code: minimum}]

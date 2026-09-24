@@ -1,0 +1,4 @@
+# definitions stays the default folder; libraries lists the others.
+name: libraries
+type: sequence
+items: library

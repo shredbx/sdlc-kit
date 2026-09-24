@@ -1,0 +1,8 @@
+# One entry of `libraries`: a scope kept in another folder.
+name: library
+type: mapping
+fields:
+  name:    {type: text, required: true}    # the scope's name; must equal scope.yaml's own name
+  path:    {type: path, required: true}    # its folder, relative to the config's folder
+  access:  {type: access}                  # readonly (the default) or readwrite
+  version: {type: string}                  # optional: the version its scope.yaml must say

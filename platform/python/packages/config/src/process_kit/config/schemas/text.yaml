@@ -1,0 +1,4 @@
+# Non-empty text written in the config, that is not a path.
+name: text
+type: string
+min_length: 1

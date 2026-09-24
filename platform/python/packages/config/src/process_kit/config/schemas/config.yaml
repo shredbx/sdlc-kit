@@ -1,0 +1,8 @@
+# processos.yaml: where the definitions are, and where runs work.
+name: config
+type: mapping
+fields:
+  version:     {type: version}                    # the shape of this file; absent in one written before it existed
+  definitions: {type: path, required: true}      # the folder of scopes, relative to the config's folder
+  runtime:     {type: runtime, required: true}
+  libraries:   {type: libraries}                  # scopes kept in other folders

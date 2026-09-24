@@ -1,0 +1,4 @@
+# A library's access: whether the CLI may write into it. readonly is the default.
+name: access
+type: string
+enum: [readonly, readwrite]

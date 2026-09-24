@@ -1,0 +1,4 @@
+# How many of the most recent done runs to keep. Not negative.
+name: history
+type: integer
+minimum: 0

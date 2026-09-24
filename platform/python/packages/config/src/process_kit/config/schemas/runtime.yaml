@@ -1,0 +1,9 @@
+# Where runs work. records, output and runs sit inside root, and default to their own names.
+name: runtime
+type: mapping
+fields:
+  root:    {type: path, required: true}      # relative to the config's folder
+  records: {type: path}                      # relative to root; the records given to runs
+  output:  {type: path}                      # relative to root; where actions write
+  runs:    {type: path}                      # relative to root; one folder for each run
+  history: {type: history}                   # the most recent done runs kept; left out, 10

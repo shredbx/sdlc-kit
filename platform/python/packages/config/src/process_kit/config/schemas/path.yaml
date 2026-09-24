@@ -1,0 +1,4 @@
+# A path written in the config: not empty. It is relative to the folder it is resolved against.
+name: path
+type: string
+min_length: 1
