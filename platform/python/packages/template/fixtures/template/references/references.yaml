@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-1-template-load.md §3 — Template.references() as (path, name)
+- {id: Q1, files: {x/template.yaml: "name: x\ninput: string\n", x/files/a.txt: ""}, expect: [{path: [input], name: string}]}
+- {id: Q2, namespace: sdlc.python, files: {x/template.yaml: "name: x\ninput: project-spec\n", x/files/a.txt: ""}, expect: [{path: [input], name: sdlc.python.project-spec}]}

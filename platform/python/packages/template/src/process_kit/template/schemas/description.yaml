@@ -1,0 +1,5 @@
+# A one-line summary of what a definition is for: not empty, at most 255 characters, no newline.
+name: description
+type: string
+max_length: 255
+pattern: '[^\n]*'

@@ -1,0 +1,45 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-2-render-conform.md §3 — Template.render(data, types) gives the files, in order
+- id: F1
+  files: {"a.txt": "hello\n"}
+  data: "x"
+  expect: [["a.txt", !!binary aGVsbG8K]]
+- id: F2
+  files: {"b.txt.jinja": "hi {{ name }}\n"}
+  data: {"name": "Ann"}
+  expect: [["b.txt", "hi Ann\n"]]
+- id: F3
+  files: {"src/{{name}}/a.py.jinja": "n = \"{{ name }}\""}
+  data: {"name": "ann"}
+  expect: [["src/ann/a.py", "n = \"ann\""]]
+- id: F4
+  files: {"blob": !!binary AP8Q}
+  data: "x"
+  expect: [["blob", !!binary AP8Q]]
+- id: F5
+  files: {"c.md": "{{ x }}"}
+  data: "x"
+  expect: [["c.md", !!binary e3sgeCB9fQ==]]
+- id: F6
+  files: {"d.txt.jinja": "a\r\n{{ name }}\r\n"}
+  data: {"name": "Ann"}
+  expect: [["d.txt", "a\nAnn\n"]]
+- id: F7
+  files: {"e.txt.jinja": "{% if kind == \"product\" %}P{% endif %}{% for u in uses %}{{ u }},{% endfor %}"}
+  data: {"kind": "product", "uses": ["a", "b"]}
+  expect: [["e.txt", "Pa,b,"]]
+- id: F8
+  files: {"a.txt": "", "__pycache__/x.pyc": "", ".DS_Store": ""}
+  data: "x"
+  expect: [["a.txt", !!binary ]]
+- id: F9
+  files: {"z.txt": "", "a.txt": "", "m/b.txt": ""}
+  data: "x"
+  expect: [["a.txt", !!binary ], ["m/b.txt", !!binary ], ["z.txt", !!binary ]]
+- id: F10
+  files: {"{{ name }}.txt.jinja": "x"}
+  data: {"name": "n"}
+  expect: [["n.txt", "x"]]
+- id: F11
+  files: {"a.txt": "", ".gitkeep": ""}
+  data: "x"
+  expect: [[".gitkeep", !!binary ""], ["a.txt", !!binary ""]]

@@ -1,0 +1,4 @@
+# The lines a file must hold, each written as a template.
+name: lines
+type: sequence
+items: string

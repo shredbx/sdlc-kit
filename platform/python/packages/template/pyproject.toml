@@ -1,0 +1,25 @@
+[project]
+name = "process-kit-template"
+version = "0.1.0"
+description = "Templates: render files from data, and check that existing files still conform to a template."
+requires-python = ">=3.13"
+dependencies = ["process-kit-types", "process-kit-schema", "jinja2>=3"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pyyaml>=6"]
+
+[tool.uv.sources]
+process-kit-types = { workspace = true }
+process-kit-schema = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src/process_kit/template"]
+sources = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]

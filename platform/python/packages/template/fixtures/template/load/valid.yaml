@@ -1,0 +1,36 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-1-template-load.md §3 — Template.load(folder, namespace) gives a Template
+- id: V1
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/a.txt": ""}
+  expect: {"id": "x", "input": "string"}
+- id: V2
+  folder: x
+  namespace: sdlc.python
+  files: {"x/template.yaml": "name: x\ninput: project-spec\npattern:\n  \"src/{{module}}/a.py\": [\"def a(\", \"x = 1\"]\n  b.txt: []\n", "x/files/a.txt": ""}
+  expect: {"id": "sdlc.python.x", "input": "sdlc.python.project-spec", "pattern": [{"path": "src/{{module}}/a.py", "lines": ["def a(", "x = 1"]}, {"path": "b.txt", "lines": []}]}
+- id: V3
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/src/{{module}}/__init__.py.jinja": "v = \"{{ version }}\"\n"}
+  expect: {"id": "x", "input": "string"}
+- id: V4
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/README.md": "{{ not jinja\n"}
+  expect: {"id": "x", "input": "string"}
+- id: V5
+  folder: x
+  folders: ["x/files"]
+  files: {"x/template.yaml": "name: x\ninput: string\n"}
+  expect: {"id": "x", "input": "string"}
+- id: V6
+  folder: x
+  namespace: sdlc
+  files: {"x/template.yaml": "name: x\ninput: std.relative-path\n", "x/files/a.txt": ""}
+  expect: {"id": "sdlc.x", "input": "std.relative-path"}
+- id: V7
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/a.txt": "", "x/files/__pycache__/x.jinja": "{{ x", "x/files/.DS_Store": "", "x/files/.gitkeep": ""}
+  expect: {"id": "x", "input": "string"}
+- id: V8
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\ndescription: a package's own skeleton\n", "x/files/a.txt": ""}
+  expect: {"id": "x", "input": "string", "description": "a package's own skeleton"}

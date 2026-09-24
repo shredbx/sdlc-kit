@@ -1,0 +1,4 @@
+# A path, written as a template: not empty. It is rendered with the data.
+name: path-template
+type: string
+min_length: 1

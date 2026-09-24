@@ -1,0 +1,8 @@
+# template.yaml: a template, the type of the data it is rendered with, and what conform requires.
+name: template
+type: mapping
+fields:
+  name:        {type: name, required: true}         # the folder's name
+  description: {type: description}
+  input:       {type: type-name, required: true}    # the type of the data
+  pattern:     {type: pattern}

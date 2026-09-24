@@ -1,0 +1,14 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-1-template-load.md §3 — Template.load raises
+- {id: W1, folder: nowhere, raises: FileNotFoundError}
+- {id: W2, folder: x, folders: [x], raises: FileNotFoundError}
+- {id: W3, folder: x, files: {x: ""}, raises: NotADirectoryError}
+- id: W4
+  folder: x
+  namespace: .a
+  files: {x/template.yaml: "name: x\ninput: string\n", x/files/a.txt: ""}
+  raises: ValueError
+- id: W5
+  folder: x
+  namespace: 3
+  files: {x/template.yaml: "name: x\ninput: string\n", x/files/a.txt: ""}
+  raises: TypeError

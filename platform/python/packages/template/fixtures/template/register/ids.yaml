@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-1-template-load.md §3 — register(types)
+- id: R1
+  prefix: "process_kit.template."
+  expect:
+    ids: [process_kit.template.template, process_kit.template.description, process_kit.template.name, process_kit.template.type-name, process_kit.template.pattern, process_kit.template.path-template, process_kit.template.lines]

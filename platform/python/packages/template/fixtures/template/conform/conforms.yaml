@@ -1,0 +1,31 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-2-render-conform.md §3 — Template.conform(data, source, types) gives no errors
+- id: C1
+  pattern: {"a.txt": ["one", "two"]}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {"a.txt": "one\ntwo\n"}
+- id: C2
+  pattern: {"a.txt": ["name = \"x\""]}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {"a.txt": "name = \"x\"  # note"}
+- id: C3
+  pattern: {"a.txt": []}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {"a.txt": "anything"}
+- id: C4
+  pattern: {"a.txt": ["one"]}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {"a.txt": "zero\none\ntwo\n"}
+- id: C5
+  pattern: {"src/{{name}}/m.py": ["def m("]}
+  files: {"a.txt": ""}
+  data: {"name": "ann"}
+  source: {"src/ann/m.py": "def m(x):"}
+- id: C6
+  pattern: {"a.txt": ["{{ name }}!"]}
+  files: {"a.txt": ""}
+  data: {"name": "Ann"}
+  source: {"a.txt": "Ann!"}

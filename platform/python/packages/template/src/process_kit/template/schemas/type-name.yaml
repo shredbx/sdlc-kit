@@ -1,0 +1,4 @@
+# The name of a type as a template writes it: bare, or with its scope and namespaces before it.
+name: type-name
+type: string
+pattern: '[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)*'

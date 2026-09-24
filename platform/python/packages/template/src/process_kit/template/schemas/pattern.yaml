@@ -1,0 +1,5 @@
+# What conform requires: for each file, the lines it must hold. An empty list only requires the file.
+name: pattern
+type: mapping
+keys: path-template
+values: lines

@@ -1,0 +1,97 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-1-template-load.md §3 — Template.load(folder): every error, in order, by path and code. The first path step is the file, from the temporary folder.
+- id: I1
+  folder: x
+  files: {"x/template.yaml": ""}
+  expect: [{"path": ["x/template.yaml"], "code": "wrong_type"}]
+- id: I2
+  folder: x
+  files: {"x/template.yaml": "name: [x"}
+  expect: [{"path": ["x/template.yaml"], "code": "invalid"}]
+- id: I3
+  folder: x
+  files: {"x/template.yaml": "name: x\nname: x\ninput: string\n"}
+  expect: [{"path": ["x/template.yaml"], "code": "invalid"}]
+- id: I4
+  folder: x
+  files: {"x/template.yaml": "input: string\n"}
+  expect: [{"path": ["x/template.yaml", "name"], "code": "missing"}]
+- id: I5
+  folder: x
+  files: {"x/template.yaml": "name: x\n"}
+  expect: [{"path": ["x/template.yaml", "input"], "code": "missing"}]
+- id: I6
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\nowner: me\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "owner"], "code": "unexpected"}]
+- id: I7
+  folder: x
+  files: {"x/template.yaml": "name: other\ninput: string\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "name"], "code": "invalid"}]
+- id: I8
+  folder: Bad
+  files: {"Bad/template.yaml": "name: Bad\ninput: string\n", "Bad/files/a.txt": ""}
+  expect: [{"path": ["Bad/template.yaml", "name"], "code": "pattern"}]
+- id: I9
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: Not A Type\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "input"], "code": "pattern"}]
+- id: I10
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\npattern: [a]\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "pattern"], "code": "wrong_type"}]
+- id: I11
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\npattern:\n  a: x\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "pattern", "a"], "code": "wrong_type"}]
+- id: I12
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\npattern:\n  a: [1]\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "pattern", "a", 0], "code": "wrong_type"}]
+- id: I13
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\npattern:\n  \"\": []\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "pattern", ""], "code": "min_length"}]
+- id: I14
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n"}
+  expect: [{"path": ["x/files"], "code": "missing"}]
+- id: I15
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/a.txt.jinja": "{% if x %}"}
+  expect: [{"path": ["x/files/a.txt.jinja"], "code": "invalid"}]
+- id: I16
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/{{a.txt": ""}
+  expect: [{"path": ["x/files/{{a.txt"], "code": "invalid"}]
+- id: I17
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\npattern:\n  a.txt: [\"{{ x\"]\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "pattern", "a.txt", 0], "code": "invalid"}]
+- id: I18
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\npattern:\n  \"{{ x\": []\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "pattern", "{{ x"], "code": "invalid"}]
+- id: I19
+  folder: x
+  files: {"x/template.yaml": "name: other\ninput: string\n"}
+  expect: [{"path": ["x/template.yaml", "name"], "code": "invalid"}, {"path": ["x/files"], "code": "missing"}]
+- id: I20
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\npattern:\n  p: [\"{{ x\"]\n", "x/files/b.txt.jinja": "{{ b", "x/files/a.txt.jinja": "{{ a"}
+  expect: [{"path": ["x/files/a.txt.jinja"], "code": "invalid"}, {"path": ["x/files/b.txt.jinja"], "code": "invalid"}, {"path": ["x/template.yaml", "pattern", "p", 0], "code": "invalid"}]
+- id: I21
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/a.txt.jinja": !!binary //4=}
+  expect: [{"path": ["x/files/a.txt.jinja"], "code": "invalid"}]
+- id: I22
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\n", "x/files/.env.jinja": "{{ x"}
+  expect: [{"path": ["x/files/.env.jinja"], "code": "invalid"}]
+- id: I23
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\ndescription: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "description"], "code": "max_length"}]
+- id: I24
+  folder: x
+  files: {"x/template.yaml": "name: x\ninput: string\ndescription: \"line one\\nline two\"\n", "x/files/a.txt": ""}
+  expect: [{"path": ["x/template.yaml", "description"], "code": "pattern"}]

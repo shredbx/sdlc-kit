@@ -1,0 +1,4 @@
+# The name of a definition: lower case words joined by hyphens.
+name: name
+type: string
+pattern: '[a-z][a-z0-9-]*'

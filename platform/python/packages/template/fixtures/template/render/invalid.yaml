@@ -1,0 +1,53 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-2-render-conform.md §3 — Template.render: every error, in order, by path and code
+- id: E1
+  files: {"{{ nope }}.txt": ""}
+  data: 3
+  expect: [{"path": [], "code": "wrong_type"}]
+- id: E2
+  input: "spec"
+  types: ["name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n"]
+  files: {"a.txt": ""}
+  data: {}
+  expect: [{"path": ["name"], "code": "missing"}]
+- id: E3
+  files: {"{{ nope }}.txt": ""}
+  data: {"name": "a"}
+  expect: [{"path": ["x/files/{{ nope }}.txt"], "code": "undefined"}]
+- id: E4
+  files: {"a.txt.jinja": "{{ nope }}"}
+  data: {"name": "a"}
+  expect: [{"path": ["x/files/a.txt.jinja"], "code": "undefined"}]
+- id: E5
+  files: {"a.txt.jinja": "{{ a.b }}"}
+  data: {"a": {}}
+  expect: [{"path": ["x/files/a.txt.jinja"], "code": "undefined"}]
+- id: E6
+  files: {"{{ p }}/a.txt": ""}
+  data: {"p": ""}
+  expect: [{"path": ["x/files/{{ p }}/a.txt"], "code": "invalid"}]
+- id: E7
+  files: {"{{ p }}/a.txt": ""}
+  data: {"p": ".."}
+  expect: [{"path": ["x/files/{{ p }}/a.txt"], "code": "invalid"}]
+- id: E8
+  files: {"{{ p }}": ""}
+  data: {"p": ""}
+  expect: [{"path": ["x/files/{{ p }}"], "code": "invalid"}]
+- id: E9
+  files: {"{{ a }}.txt": "", "{{ b }}.txt": ""}
+  data: {"a": "x", "b": "x"}
+  expect: [{"path": ["x/files/{{ b }}.txt"], "code": "duplicate"}]
+- id: E10
+  files: {"a.txt.jinja": "{{ n1 }}", "b.txt.jinja": "{{ n2 }}"}
+  data: {}
+  expect: [{"path": ["x/files/a.txt.jinja"], "code": "undefined"}, {"path": ["x/files/b.txt.jinja"], "code": "undefined"}]
+- id: E11
+  files: {"a.txt.jinja": "x"}
+  after: {"a.txt.jinja": !!binary //4=}
+  data: "x"
+  expect: [{"path": ["x/files/a.txt.jinja"], "code": "invalid"}]
+- id: E12
+  input: "nope"
+  files: {"a.txt": ""}
+  data: "x"
+  expect: [{"path": [], "code": "unknown_type"}]

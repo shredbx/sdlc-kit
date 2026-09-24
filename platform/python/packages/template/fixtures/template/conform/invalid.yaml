@@ -1,0 +1,50 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-2-render-conform.md §3 — Template.conform: every error, in order, by path and code
+- id: D1
+  pattern: {"a.txt": []}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {}
+  expect: [{"path": ["a.txt"], "code": "missing"}]
+- id: D2
+  pattern: {"a.txt": ["one"]}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {"a.txt": "two"}
+  expect: [{"path": ["a.txt"], "code": "missing_line"}]
+- id: D3
+  pattern: {"a.txt": ["one", "two"]}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {"a.txt": "zero"}
+  expect: [{"path": ["a.txt"], "code": "missing_line"}, {"path": ["a.txt"], "code": "missing_line"}]
+- id: D4
+  pattern: {"a.txt": [], "b.txt": ["x"]}
+  files: {"a.txt": ""}
+  data: "x"
+  source: {"b.txt": "y"}
+  expect: [{"path": ["a.txt"], "code": "missing"}, {"path": ["b.txt"], "code": "missing_line"}]
+- id: D5
+  input: "string"
+  pattern: {"a.txt": []}
+  files: {"a.txt": ""}
+  data: 3
+  source: {}
+  expect: [{"path": [], "code": "wrong_type"}]
+- id: D6
+  pattern: {"{{ nope }}.txt": []}
+  files: {"a.txt": ""}
+  data: {"n": "a"}
+  source: {}
+  expect: [{"path": ["x/template.yaml", "pattern", "{{ nope }}.txt"], "code": "undefined"}]
+- id: D7
+  pattern: {"a.txt": ["{{ nope }}"]}
+  files: {"a.txt": ""}
+  data: {"n": "a"}
+  source: {"a.txt": "x"}
+  expect: [{"path": ["x/template.yaml", "pattern", "a.txt", 0], "code": "undefined"}]
+- id: D8
+  pattern: {"{{ p }}/a.txt": []}
+  files: {"a.txt": ""}
+  data: {"p": ".."}
+  source: {}
+  expect: [{"path": ["x/template.yaml", "pattern", "{{ p }}/a.txt"], "code": "invalid"}]
