@@ -1,0 +1,10 @@
+# action.yaml: an action, and the shape of what it takes and gives.
+name: action
+type: mapping
+fields:
+  name:        {type: name, required: true}     # the folder's name
+  type:        {type: kind, required: true}
+  description: {type: description}
+  input:       {type: ports}                    # name -> type name
+  output:      {type: ports}
+  timeout:     {type: timeout}                  # seconds one hook may run; left out, 60; 0 means no limit

@@ -106,7 +106,12 @@ workflow: discuss intent → plan the shape (type/schema/template/action/process
 `processos-workspace/definitions/sbx-sdlc-kit/` → `process-cli check` → confirm before moving to the
 next one. Approval is per-definition, not a one-time sign-off on a plan that then lets many
 definitions get built unattended — the user has been explicit about this. Don't pre-build entities
-the user hasn't asked to model yet. Deliverables (proposals, write-ups, diagrams) are written as real
+the user hasn't asked to model yet.
+
+**Before implementing any task, show the before/after file structure of exactly what will be
+created or changed** — new files/folders only, nothing else implied — and wait for confirmation
+before writing anything. This is how the user verifies the plan is understood correctly and catches
+drift before it happens, not after. Deliverables (proposals, write-ups, diagrams) are written as real
 files in this repo, never published via the Artifact tool.
 
 **We do not build a fully automated, step-catalogue SDLC pipeline** — not shredbx's FDD1–FDD5 step

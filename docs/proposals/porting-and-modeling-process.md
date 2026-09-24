@@ -75,6 +75,15 @@ it" — i.e., the check is only trustworthy if it's been proven to actually catc
 process-os definition the same way you'd treat any other code: revisable on evidence, not a
 one-time-only spec that's embarrassing to admit was wrong.
 
+## Governance rules surface the same way — noticed, drafted, graduated
+
+The same discipline applies to the governance layer itself (`decision`, `guideline`,
+`quality-attribute`), not just packages: don't stop mid-task to model a `guideline` the moment
+something rule-like is noticed. Jot a one-line draft note in the current plan/milestone doc instead,
+and only turn matured notes into real records at a milestone's wrap-up — or when a second real
+instance of the same rule shows up. "We build what we use, and we instantly use what we build"
+applies to governance exactly like it applies to `create-package`.
+
 ## The house rule (proposed addition to `CLAUDE.md`, pending your approval)
 
 > **Build to prove, then model — never the reverse, and never from one example.** Where the shape is
@@ -84,4 +93,6 @@ one-time-only spec that's embarrassing to admit was wrong.
 > formalize the type/schema/action/process once it's demonstrably real — and only once the same
 > shape has shown up at least twice, not from a single instance. A definition that stops matching
 > reality is a normal, cheap-to-catch maintenance event (`process-cli check`, a failing fixture) —
-> not proof the modeling was wrong forever.
+> not proof the modeling was wrong forever. The same applies to governance rules noticed mid-task:
+> note them where the work is happening, graduate the real ones into `decision`/`guideline` records
+> at a milestone's wrap-up, not the instant they're spotted.

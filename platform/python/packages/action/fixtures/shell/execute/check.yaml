@@ -1,0 +1,14 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-3-action-run.md §3 — check.sh. The action script, when a case gives none, is: echo ran > ran.txt
+- id: C1
+  scripts: {check: exit 0}
+  expect: {outcome: done, files: {out/ran.txt: "ran\n"}}
+- id: C2
+  output: {count: integer}
+  scripts: {check: 'echo 7 > "$ACTION_OUTPUTS/count.yaml"; exit 77'}
+  expect: {outcome: skipped, outputs: {count: 7}, files: {out/ran.txt: null}}
+- id: C3
+  scripts: {check: 'echo "no line x" >&2; exit 3'}
+  expect: {outcome: stopped, reason: no line x, files: {out/ran.txt: null}}
+- id: C4
+  scripts: {check: exit 2}
+  expect: {outcome: stopped, reason: check.sh exited 2, files: {out/ran.txt: null}}

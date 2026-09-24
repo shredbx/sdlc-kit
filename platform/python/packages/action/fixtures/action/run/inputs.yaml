@@ -1,0 +1,25 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-3-action-run.md §3 — the inputs are checked before anything runs. The action takes a: string and b: integer.
+- id: N1
+  input: {a: string, b: integer}
+  inputs: {a: x, b: 1}
+  expect: {outcome: done, files: {out/ran.txt: "ran\n"}}
+- id: N2
+  input: {a: string, b: integer}
+  inputs: {a: 3, b: 1}
+  expect: {outcome: failed, reason: the inputs are wrong, errors: [{path: [a], code: wrong_type}], files: {out/ran.txt: null}}
+- id: N3
+  input: {a: string, b: integer}
+  inputs: {a: x}
+  expect: {outcome: failed, reason: the inputs are wrong, errors: [{path: [b], code: missing}], files: {out/ran.txt: null}}
+- id: N4
+  input: {a: string, b: integer}
+  inputs: {a: x, b: 1, c: 1}
+  expect: {outcome: failed, reason: the inputs are wrong, errors: [{path: [c], code: unexpected}], files: {out/ran.txt: null}}
+- id: N5
+  input: {a: string, b: integer}
+  inputs: {a: 3, c: 1}
+  expect:
+    outcome: failed
+    reason: the inputs are wrong
+    errors: [{path: [a], code: wrong_type}, {path: [b], code: missing}, {path: [c], code: unexpected}]
+    files: {out/ran.txt: null}

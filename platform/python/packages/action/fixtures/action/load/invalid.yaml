@@ -1,0 +1,97 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-2-action-load.md §3 — Action.load(folder): every error, in order, by path and code. The first path step is the file, from the temporary folder.
+- id: I1
+  folder: x
+  files: {"x/action.yaml": "", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml"], "code": "wrong_type"}]
+- id: I2
+  folder: x
+  files: {"x/action.yaml": "- a\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml"], "code": "wrong_type"}]
+- id: I3
+  folder: x
+  files: {"x/action.yaml": "name: [x", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml"], "code": "invalid"}]
+- id: I4
+  folder: x
+  files: {"x/action.yaml": "name: x\nname: x\ntype: shell\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml"], "code": "invalid"}]
+- id: I5
+  folder: x
+  files: {"x/action.yaml": "type: shell\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "name"], "code": "missing"}]
+- id: I6
+  folder: x
+  files: {"x/action.yaml": "name: x\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "type"], "code": "missing"}]
+- id: I7
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: python\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "type"], "code": "enum"}]
+- id: I8
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ncheck: yes\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "check"], "code": "unexpected"}]
+- id: I9
+  folder: x
+  files: {"x/action.yaml": "name: other\ntype: shell\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "name"], "code": "invalid"}]
+- id: I10
+  folder: Bad
+  files: {"Bad/action.yaml": "name: Bad\ntype: shell\n", "Bad/action.sh": ""}
+  expect: [{"path": ["Bad/action.yaml", "name"], "code": "pattern"}]
+- id: I11
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ninput: [a]\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "input"], "code": "wrong_type"}]
+- id: I12
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ninput:\n  Bad: string\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "input", "Bad"], "code": "pattern"}]
+- id: I13
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ninput:\n  a: 3\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "input", "a"], "code": "wrong_type"}]
+- id: I14
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ninput:\n  a: Not A Type\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "input", "a"], "code": "pattern"}]
+- id: I15
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ninput:\n  1: string\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "input", 1], "code": "wrong_type"}]
+- id: I16
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ndescription: 3\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "description"], "code": "wrong_type"}]
+- id: I17
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\n"}
+  expect: [{"path": ["x/action.sh"], "code": "missing"}]
+- id: I18
+  folder: x
+  files: {"x/action.yaml": "name: other\ntype: shell\n"}
+  expect: [{"path": ["x/action.yaml", "name"], "code": "invalid"}, {"path": ["x/action.sh"], "code": "missing"}]
+- id: I19
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: python\nextra: 1\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "extra"], "code": "unexpected"}, {"path": ["x/action.yaml", "type"], "code": "enum"}]
+- id: I20
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: python\n"}
+  expect: [{"path": ["x/action.yaml", "type"], "code": "enum"}]
+- id: I21
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ninput:\n  Bad: 3\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "input", "Bad"], "code": "pattern"}, {"path": ["x/action.yaml", "input", "Bad"], "code": "wrong_type"}]
+- id: I22
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ntimeout: -1\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "timeout"], "code": "minimum"}]
+- id: I23
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ndescription: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "description"], "code": "max_length"}]
+- id: I24
+  folder: x
+  files: {"x/action.yaml": "name: x\ntype: shell\ndescription: \"line one\\nline two\"\n", "x/action.sh": ""}
+  expect: [{"path": ["x/action.yaml", "description"], "code": "pattern"}]

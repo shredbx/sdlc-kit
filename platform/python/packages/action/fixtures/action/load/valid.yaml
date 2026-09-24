@@ -1,0 +1,50 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-2-action-load.md §3 — Action.load(folder, namespace) gives an Action.
+# V7 (260923-process-cli-05's M4): timeout, left out (60) and given explicitly.
+- id: V1
+  folder: x
+  files:
+    x/action.yaml: "name: x\ntype: shell\n"
+    x/action.sh: ""
+  expect: {id: x, description: null, input: {}, output: {}, timeout: 60}
+- id: V2
+  folder: resolve-platform
+  namespace: sdlc
+  files:
+    resolve-platform/action.yaml: "name: resolve-platform\ntype: shell\ninput:\n  application: application\n  build: build\noutput:\n  platform: platform\n"
+    resolve-platform/action.sh: ""
+  expect: {id: sdlc.resolve-platform, description: null, input: {application: sdlc.application, build: sdlc.build}, output: {platform: sdlc.platform}, timeout: 60}
+- id: V3
+  folder: x
+  namespace: sdlc.python
+  files:
+    x/action.yaml: "name: x\ntype: shell\ninput:\n  path: std.relative-path\n  count: integer\n  project: project\n"
+    x/action.sh: ""
+  expect: {id: sdlc.python.x, description: null, input: {path: std.relative-path, count: integer, project: sdlc.python.project}, output: {}, timeout: 60}
+- id: V4
+  folder: x
+  files:
+    x/action.yaml: "name: x\ntype: shell\ndescription: A greeting.\n"
+    x/action.sh: ""
+  expect: {id: x, description: A greeting., input: {}, output: {}, timeout: 60}
+- id: V5
+  folder: x
+  files:
+    x/action.yaml: "name: x\ntype: shell\ninput:\n  zed: string\n  alpha: string\n  mid: string\n"
+    x/action.sh: ""
+  expect: {id: x, description: null, input: {zed: string, alpha: string, mid: string}, output: {}, timeout: 60}
+- id: V6
+  folder: x
+  files:
+    x/action.yaml: "name: x\ntype: shell\n"
+    x/action.sh: ""
+    x/check.sh: ""
+    x/pre.sh: ""
+    x/post.sh: ""
+    x/assets/lib.sh: ""
+  expect: {id: x, description: null, input: {}, output: {}, timeout: 60}
+- id: V7
+  folder: x
+  files:
+    x/action.yaml: "name: x\ntype: shell\ntimeout: 120\n"
+    x/action.sh: ""
+  expect: {id: x, description: null, input: {}, output: {}, timeout: 120}

@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-2-action-load.md §3 — register(types)
+- id: R1
+  prefix: "process_kit.action."
+  expect:
+    ids: [process_kit.action.action, process_kit.action.description, process_kit.action.kind, process_kit.action.name, process_kit.action.ports, process_kit.action.timeout, process_kit.action.type-name]

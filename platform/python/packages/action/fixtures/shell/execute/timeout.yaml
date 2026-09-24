@@ -1,0 +1,17 @@
+# docs/tasks/_done/260923-process-cli-05/steps/m4-1-shell-timeout.md §3 — a hook that runs longer than action.timeout
+- id: T1
+  timeout: 1
+  scripts: {action: "sleep 2"}
+  expect: {outcome: failed, reason: "action.sh timed out after 1s"}
+- id: T2
+  timeout: 1
+  scripts: {check: "sleep 2", action: "true"}
+  expect: {outcome: stopped, reason: "check.sh timed out after 1s"}
+- id: T3
+  timeout: 1
+  scripts: {pre: "sleep 2", action: "true"}
+  expect: {outcome: failed, reason: "pre.sh timed out after 1s"}
+- id: T4
+  timeout: 0
+  scripts: {action: "sleep 1; echo ran > ran.txt"}
+  expect: {outcome: done, files: {out/ran.txt: "ran\n"}}

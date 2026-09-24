@@ -1,0 +1,20 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-1-executor-and-record.md §3 — Result.stdout and Result.stderr
+- id: G1
+  scripts: {action: "echo hi"}
+  expect: {outcome: done, stdout: "hi\n", stderr: ""}
+- id: G2
+  scripts:
+    check: echo check-out
+    pre: echo pre-out
+    action: echo action-out
+    post: echo post-out
+  expect: {outcome: done, stdout: "check-out\npre-out\naction-out\npost-out\n", stderr: ""}
+- id: G3
+  scripts: {action: 'echo boom >&2; exit 1'}
+  expect: {outcome: failed, reason: "action.sh exited 1: boom", stdout: "", stderr: "boom\n"}
+- id: G4
+  scripts: {check: 'echo skip-out; exit 77'}
+  expect: {outcome: skipped, stdout: "skip-out\n", stderr: ""}
+- id: G5
+  scripts: {check: 'echo stop-out; echo stop-err >&2; exit 3'}
+  expect: {outcome: stopped, reason: stop-err, stdout: "stop-out\n", stderr: "stop-err\n"}

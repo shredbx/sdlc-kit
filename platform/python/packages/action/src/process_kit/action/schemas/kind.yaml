@@ -1,0 +1,4 @@
+# How an action runs. Every action is a shell script for now.
+name: kind
+type: string
+enum: [shell]

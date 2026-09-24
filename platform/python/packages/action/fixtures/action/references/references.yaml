@@ -1,0 +1,12 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-5-catalog-loads.md §3 — Action.references() as (path, name)
+- {id: R1, expect: []}
+- id: R2
+  namespace: sdlc
+  input: {application: application}
+  output: {platform: platform}
+  expect: [{path: [input, application], name: sdlc.application}, {path: [output, platform], name: sdlc.platform}]
+- id: R3
+  namespace: sdlc.python
+  input: {b: integer, a: std.relative-path}
+  output: {c: project}
+  expect: [{path: [input, b], name: integer}, {path: [input, a], name: std.relative-path}, {path: [output, c], name: sdlc.python.project}]

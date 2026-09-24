@@ -26,78 +26,83 @@ is "port, prove, fix tooling," not "port and then write two dozen new tests."
 
 ---
 
-### Task 1: copy `action` package source verbatim
+### Task 1: copy `action` package source verbatim — DONE
 
-```bash
-SRC=/Users/solo/Projects/workspaces/process-os/packages/process-kit/action
-DST=/Users/solo/Projects/workspaces/sdlc-kit/platform/python/packages/action
-mkdir -p "$DST/src/process_kit/action/schemas"
-cp "$SRC/pyproject.toml" "$SRC/README.md" "$DST/"
-cp "$SRC"/src/process_kit/action/*.py "$DST"/src/process_kit/action/
-cp "$SRC"/src/process_kit/action/schemas/*.yaml "$DST"/src/process_kit/action/schemas/
-```
-
----
-
-### Task 2: copy existing tests + fixtures verbatim
-
-`tests/{conftest.py, action/{load/{test_valid,test_invalid,test_wrong_call}, references/test_references,
-register/test_ids, run/{test_inputs,test_outputs,test_wrong_call}}, shell/execute/{test_check,test_log,
-test_scripts,test_timeout,test_variables}}.py` + matching `fixtures/**/*.yaml`.
+Done via a whole-directory `rsync -a` (excluding `__pycache__`/`.pytest_cache`/`*.pyc`/`.gitkeep`)
+rather than the hand-picked `cp` list originally drafted here — more robust against a layout this
+package's `schemas/` subfolder already showed differs from `types`/`schema`. 35 files copied intact.
+`action`'s own `pyproject.toml` was already shape-identical to `schema`'s (same `[project]` /
+`[build-system]` / `[tool.hatch.build]` / `[tool.pytest.ini_options]` structure) — no alignment edit
+needed. Modeling a reusable `copy-package-source` action was considered and explicitly deferred
+(decided in conversation, not written up as a decision record — the shape is already fully known for
+`process-kit`'s remaining packages; the real test of a generalized action is porting from a
+*different* repo's structure, which hasn't happened yet).
 
 ---
 
-### Task 3: prove the port — run ported tests as-is
+### Task 2: copy existing tests + fixtures verbatim — DONE
 
-```bash
-cd platform/python && uv sync
-uv run --package process-kit-action pytest packages/action
-```
-Expected: same pass count as source, unmodified. `shell/execute/test_timeout.py` genuinely sleeps
-(T1–T3 time out at 1s, T4 sleeps 1s) — expect this file alone to take a few real seconds, not a bug.
+Included in the same `rsync` as Task 1 (tests/fixtures live under the same package root) — 13 test
+files + 13 fixture files, all verbatim.
 
 ---
 
-### Task 4: ruff + mypy, fix real findings — and *check* for a coverage gap (don't assume none)
+### Task 3: prove the port — run ported tests as-is — DONE
 
-```bash
-cd platform/python
-uv run ruff check packages/action
-uv run ruff format --check packages/action
-```
-`mypy_path` needs `packages/action/src` added. Expect real findings similar in kind to Milestones 2–3
-— `Executor`'s `Protocol` + `ShellExecutor`'s structural conformance, `Result`'s `StrEnum`, dataclass
-defaults, subprocess typing (`subprocess.CompletedProcess` generics) are all plausible sources. Fix
-each the same way: config or minimal type-precision change, never a behavior change, tests re-run
-green after every fix.
-
-After tooling is clean, read `action.py`/`shell.py` against the copied tests once more (the same way
-`schema.py` was read against its tests before assuming coverage was fine) — if a real gap turns up,
-close it the same way Milestone 3 did; if not, say so plainly rather than manufacturing tests for
-their own sake.
+`uv sync` + `uv run --package process-kit-action pytest packages/action` → **80 passed in 5.19s**,
+unmodified. The `sleep`-based timeout tests accounted for the extra time as expected, not a bug.
 
 ---
 
-### Task 5: prove whatever Task 4 added, full green
+### Task 4: ruff + mypy, fix real findings — and *check* for a coverage gap — DONE
 
-```bash
-uv run --package process-kit-action pytest packages/action
-uv run mypy packages/types/src packages/schema/src packages/action/src
-```
+**ruff**: 10 findings, all mechanical (`UP035` `Mapping` import location ×4, `I001` import sort ×3,
+one `UP022` `capture_output` rewrite applied by hand after reading the exact call site rather than
+trusting `--unsafe-fixes` blindly). All auto-fixed or manually verified equivalent; zero behavior
+change.
+
+**mypy** (`packages/action/src` added to root `pyproject.toml`'s `mypy_path`): 12 findings, all in
+`shell.py` — `subprocess.CompletedProcess` needed its type argument (`[str]`, since the function
+returns a *re-built* `CompletedProcess` with decoded `str` stdout/stderr, not the raw `bytes` one);
+`**captured()` (a `dict[str, str]` unpacked into `Result(...)`, a dataclass with heterogeneous field
+types) confused mypy's keyword-matching — fixed by giving `captured()` a precise `TypedDict` return
+type instead of a bare `dict[str, str]`, so mypy matches its two keys exactly rather than checking
+the value type against every remaining parameter; one bare `errors = []` needed
+`errors: list[Error] = []`. Genuinely new pattern this port (not seen in `types`/`schema`): the
+`TypedDict`-for-`**kwargs`-unpacking fix.
+
+**Coverage check**: read `action.py`, `context.py`, `executor.py` in full against the fixtures.
+Every branch in `Action.load()` (24 cases) and `Action.run()` — including the `stopped`/`skipped`
+pass-through — traced to a real case; `check.yaml`'s C3/C4 confirmed even the pass-through runs
+through the *same* `built.run(...)` fixture as every other test, not a shell-layer shortcut.
+**No real gap found** — matches the plan's own stated expectation. Nothing added.
 
 ---
 
-### Task 6: wrap-up
+### Task 5: prove whatever Task 4 added, full green — DONE
 
-- Update `.github/workflows/python-ci.yml`: add `packages/action` to the combined `mypy` call and its
-  own `pytest` step.
-- Confirm again: no new process-os type/schema/action/process modeled this round.
-- **Rule-of-three check, for real this time**: three ports done (`types`, `schema`, `action`). Look at
-  whether `process-os.create-package`/`port-package` (already read as prior art, `docs/research/
-  python-implementation-quality-comparison.md` and this session's own exploration) is now a shape
-  worth modeling as `sbx-sdlc-kit`'s own action — or whether the three ports still differ enough
-  (verbatim copy vs. copy of package-embedded schema data vs. differing gap-closing effort) that it's
-  still one more port away from being a real pattern. Bring the answer to the user before modeling
-  anything, per the usual discussion-then-approval discipline — this task is "decide whether to ask,"
-  not "build."
-- Ask the user whether to `git commit`.
+`ruff check` clean, `ruff format --check` clean, `mypy packages/types/src packages/schema/src
+packages/action/src` clean, `pytest packages/action` — 80/80 passing.
+
+---
+
+### Task 6: wrap-up — DONE
+
+- `.github/workflows/python-ci.yml` updated: `packages/action/src` added to the combined `mypy` call,
+  its own `pytest packages/action` step added.
+- No new process-os type/schema/action/process modeled this round.
+- **Rule-of-three verdict**: not yet, and the reason is more specific than "wait for a fourth."
+  The copy step is genuinely mechanical and identical in shape across all three ports (proven again
+  this round — a whole-directory copy is strictly better than any of the three hand-picked `cp` lists
+  written so far). But the *fixing* work — the actual reason a port takes real effort — has been
+  different every time: 4 mypy findings (types, pydantic `validate()` collision), 16 (schema, missing
+  stubs + `Protocol`/`BaseModel` casting), 12 (action, `CompletedProcess` generics + a `TypedDict`
+  fix never seen before). Modeling `port-package` now would template the 20% that's already trivial
+  and leave the 80% that's real judgment untouched — not worth it yet. Decided in conversation (not
+  written up as a decision record): defer a generalized copy action until porting from a genuinely
+  *different* repo's structure, where the generalization would face real diversity instead of three
+  copies of the same shape.
+- No rule-like governance pattern surfaced this port worth a `guideline` — the new mypy pattern
+  (`TypedDict` for `**dict` unpacked into a heterogeneous dataclass constructor) is a technical
+  troubleshooting note, not a rule of conduct; it's captured in Task 4 above, not graduated further.
+- Commit: pending user go-ahead.

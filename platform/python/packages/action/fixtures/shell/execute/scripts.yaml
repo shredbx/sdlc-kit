@@ -1,0 +1,27 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-3-action-run.md §3 — pre.sh, action.sh and post.sh
+- id: S1
+  input: {msg: string}
+  output: {echoed: string}
+  scripts: {action: 'echo "$INPUT_MSG" > "$ACTION_OUTPUTS/echoed.yaml"'}
+  inputs: {msg: hi}
+  expect: {outcome: done, outputs: {echoed: hi}}
+- id: S2
+  scripts: {action: "true"}
+  expect: {outcome: done}
+- id: S3
+  scripts:
+    check: echo check >> order.txt
+    pre: echo pre >> order.txt
+    action: echo action >> order.txt
+    post: echo post >> order.txt
+  expect: {outcome: done, files: {out/order.txt: "check\npre\naction\npost\n"}}
+- id: S4
+  scripts: {pre: exit 5}
+  expect: {outcome: failed, reason: pre.sh exited 5, files: {out/ran.txt: null}}
+- id: S5
+  scripts: {action: 'echo boom >&2; exit 1'}
+  expect: {outcome: failed, reason: "action.sh exited 1: boom"}
+- id: S6
+  output: {count: integer}
+  scripts: {action: 'echo 1 > "$ACTION_OUTPUTS/count.yaml"', post: exit 1}
+  expect: {outcome: failed, reason: post.sh exited 1}

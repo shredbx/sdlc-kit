@@ -1,0 +1,29 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-3-action-run.md §3 — the outputs are read, then checked. The action declares count: integer.
+- id: O1
+  output: {count: integer}
+  scripts: {action: 'echo 3 > "$ACTION_OUTPUTS/count.yaml"'}
+  expect: {outcome: done, outputs: {count: 3}}
+- id: O2
+  output: {count: integer}
+  scripts: {action: 'echo x > "$ACTION_OUTPUTS/count.yaml"'}
+  expect: {outcome: failed, reason: the outputs are wrong, errors: [{path: [count], code: wrong_type}]}
+- id: O3
+  output: {count: integer}
+  scripts: {action: "true"}
+  expect: {outcome: failed, reason: the outputs are wrong, errors: [{path: [count], code: missing}]}
+- id: O4
+  output: {count: integer}
+  scripts: {action: 'echo "[a" > "$ACTION_OUTPUTS/count.yaml"'}
+  expect: {outcome: failed, reason: the outputs are wrong, errors: [{path: [count], code: invalid}]}
+- id: O5
+  output: {count: integer}
+  scripts: {check: 'echo x > "$ACTION_OUTPUTS/count.yaml"; exit 77'}
+  expect: {outcome: failed, reason: the outputs are wrong, errors: [{path: [count], code: wrong_type}]}
+- id: O6
+  output: {count: integer}
+  scripts: {check: exit 77}
+  expect: {outcome: failed, reason: the outputs are wrong, errors: [{path: [count], code: missing}]}
+- id: O7
+  output: {count: integer}
+  scripts: {action: 'echo 3 > "$ACTION_OUTPUTS/count.yaml"; echo 4 > "$ACTION_OUTPUTS/extra.yaml"'}
+  expect: {outcome: done, outputs: {count: 3}}

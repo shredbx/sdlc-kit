@@ -1,0 +1,5 @@
+# What an action takes or gives: any names, each with the name of its type.
+name: ports
+type: mapping
+keys: name
+values: type-name
