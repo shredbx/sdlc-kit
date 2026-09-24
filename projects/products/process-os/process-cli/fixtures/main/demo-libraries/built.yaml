@@ -1,0 +1,5 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m2-4-libraries-trial.md §3 — the real build, run once, from a config whose
+# default folder holds only main, with sdlc and std given as libraries. Skipped where uv is not installed.
+- id: B1
+  runs:
+    - {"args": ["run", "sdlc.build-application", "--records", "application=hello-app"], "expect": {"code": 0, "stdout": ["  sdlc.resolve-platform: done", "    sdlc.python.create-project: done", "    sdlc.python.install: done", "    sdlc.python.test: done", "    sdlc.python.package: done", "  sdlc.python.build-application: done", "sdlc.build-application: done", "  artifact: {\"path\": \"apps/hello-app\", \"files\": [\"dist/hello_app-0.1.0-py3-none-any.whl\", \"dist/hello_app-0.1.0.tar.gz\"]}"], "starts": []}}

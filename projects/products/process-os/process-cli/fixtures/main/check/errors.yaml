@@ -1,0 +1,22 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-4-framework-cli.md — process-cli check: a config with errors.
+# expect.starts: how each line of stderr begins; a message must follow.
+- id: C10
+  files: {processos.yaml: "runtime:\n  root: .\n"}
+  args: [check]
+  expect: {starts: ["processos.yaml: definitions: missing: "]}
+- id: C11
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n"}
+  args: [check]
+  expect: {starts: ["processos.yaml: definitions: not_found: "]}
+- id: C12
+  files: {processos.yaml: "extra: 1\nruntime:\n  root: .\n"}
+  args: [check]
+  expect: {starts: ["processos.yaml: extra: unexpected: ", "processos.yaml: definitions: missing: "]}
+- id: C16
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n", defs/std/scope.yaml: "name: std\nversion: 0.1.0\n", defs/std/notes.txt: ""}
+  args: [check]
+  expect: {starts: ["defs/std/notes.txt: unexpected: "]}
+- id: C17
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n", defs/std/scope.yaml: "name: std\nversion: 0.1.0\n", defs/std/type/a.yaml: "name: a\ntype: string\nmin_length: two\n"}
+  args: [check]
+  expect: {starts: ["defs/std/type/a.yaml: min_length: wrong_type: "]}

@@ -1,0 +1,33 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m3-1-show-write-remove-action.md §3 — write action: the bounded
+# named-file shape, created, replaced (not merged), round-tripped through show, and run afterward.
+- id: A1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "new/action.yaml": "name: greet\ntype: shell\noutput:\n  text: string\n"
+    "new/action.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\n"
+  runs:
+    - args: ["write", "action", "sdlc.greet", "new"]
+      expect: {code: 0, stdout: ["action sdlc.greet: written"]}
+    - args: ["run", "sdlc.greet"]
+      expect: {code: 0, stdout: ["sdlc.greet: done", "  text: hi"]}
+  file: "defs/sdlc/action/greet"
+  files_after: {"action.yaml": "name: greet\ntype: shell\noutput:\n  text: string\n", "action.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\n"}
+- id: A2
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "defs/sdlc/action/greet/check.sh": "exit 0\n"
+    "new/action.yaml": "name: greet\ntype: shell\noutput:\n  text: string\n"
+    "new/action.sh": "echo bye > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "new/assets/lib.sh": "helper() { :; }\n"
+  runs:
+    - args: ["write", "action", "sdlc.greet", "new"]
+      expect: {code: 0, stdout: ["action sdlc.greet: written"]}
+    - args: ["run", "sdlc.greet"]
+      expect: {code: 0, stdout: ["sdlc.greet: done", "  text: bye"]}
+  file: "defs/sdlc/action/greet"
+  files_after: {"action.yaml": "name: greet\ntype: shell\noutput:\n  text: string\n", "action.sh": "echo bye > \"$ACTION_OUTPUTS/text.yaml\"\n", "assets/lib.sh": "helper() { :; }\n"}
+  gone: ["check.sh"]

@@ -1,0 +1,90 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m6-2-json.md §3 — process-cli --json: the one document each call answers with. The world is anchored in J1 (`base`).
+- id: J1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/style.yaml": "name: style\ntype: mapping\nfields:\n  mark: {type: string, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo noise\necho \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "defs/sdlc/action/shout/action.yaml": "name: shout\ntype: shell\ninput:\n  text: string\noutput:\n  loud: string\n"
+    "defs/sdlc/action/shout/action.sh": "[ -e fail.flag ] && exit 4\necho \"$INPUT_TEXT\" | tr a-z A-Z > \"$ACTION_OUTPUTS/loud.yaml\"\n"
+    "defs/sdlc/action/mark/action.yaml": "name: mark\ntype: shell\ninput:\n  text: string\n  style: style\noutput:\n  marked: string\n"
+    "defs/sdlc/action/mark/action.sh": "echo \"$INPUT_TEXT$INPUT_STYLE_MARK\" > \"$ACTION_OUTPUTS/marked.yaml\"\n"
+    "defs/sdlc/process/hello.yaml": "name: hello\ninput: {msg: message}\noutput: {loud: string}\nsteps: [greet, shout]\n"
+    "defs/sdlc/template/note/template.yaml": "name: note\ninput: style\npattern:\n  note.txt: [\"mark !\"]\n"
+    "defs/sdlc/template/note/files/note.txt.jinja": "mark {{ mark }}\n"
+    "records/hi/msg.yaml": "hello\n"
+  files: {<<: *base}
+  runs:
+    - {"args": ["--json", "check"], "expect": {"code": 0, "doc": {"ok": true, "config": "{tree}/processos.yaml", "errors": []}}}
+- id: J2
+  files: {<<: *base, "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/std/type/a.yaml": "{{{"}
+  runs:
+    - {"args": ["--json", "check"], "expect": {"code": 1, "doc": {"ok": false, "errors": [{"path": ["{tree}/defs/std/type/a.yaml"], "code": "invalid"}]}}}
+- id: J3
+  files: {<<: *base}
+  runs:
+    - {"args": ["--json", "list", "action"], "expect": {"code": 0, "doc": {"ok": true, "entries": [{"kind": "action", "id": "sdlc.greet"}, {"kind": "action", "id": "sdlc.mark"}, {"kind": "action", "id": "sdlc.shout"}], "errors": []}}}
+- id: J4
+  files: {<<: *base, "data.yaml": "hello\n"}
+  runs:
+    - {"args": ["--json", "validate", "sdlc.message", "data.yaml"], "expect": {"code": 0, "doc": {"ok": true, "file": "{tree}/data.yaml", "errors": []}}}
+- id: J5
+  files: {<<: *base, "data.yaml": "NOT-lower\n"}
+  runs:
+    - {"args": ["--json", "validate", "sdlc.message", "data.yaml"], "expect": {"code": 1, "doc": {"ok": false, "errors": [{"path": ["{tree}/data.yaml"], "code": "pattern"}]}}}
+- id: J6
+  files: {<<: *base}
+  runs:
+    - {"args": ["--json", "run", "sdlc.greet", "--records", "msg=hi"], "expect": {"code": 0, "doc": {"ok": true, "run": {"process": "sdlc.greet", "status": "done", "done": ["sdlc.greet"], "output": {"text": "hello"}}, "events": [], "errors": []}, "stderr_has": ["noise"]}}
+- id: J7
+  files: {<<: *base}
+  runs:
+    - {"args": ["--json", "run", "sdlc.hello", "--records", "msg=hi"], "expect": {"code": 0, "doc": {"ok": true, "run": {"status": "done", "output": {"loud": "HELLO"}}, "events": [{"node": "sdlc.greet", "state": "started"}, {"state": "done"}, {"node": "sdlc.shout", "state": "started"}, {"node": "sdlc.shout", "state": "done"}]}, "stderr_has": ["noise"]}}
+- id: J8
+  files: {<<: *base, "records/hi/msg.yaml": "NOT-lower\n"}
+  runs:
+    - {"args": ["--json", "run", "sdlc.hello", "--records", "msg=hi"], "expect": {"code": 1, "doc": {"ok": false, "errors": [{"path": ["{tree}/records/hi/msg.yaml"], "code": "pattern"}]}}}
+- id: J9
+  files: {<<: *base, "output/fail.flag": ""}
+  runs:
+    - {"args": ["--json", "run", "sdlc.hello", "--records", "msg=hi"], "expect": {"code": 1, "doc": {"ok": false, "run": {"status": "failed", "reason": "action.sh exited 4", "done": ["sdlc.greet"]}}}}
+- id: J10
+  files: {<<: *base, "output/fail.flag": ""}
+  runs:
+    - {"args": ["--json", "run", "sdlc.hello", "--records", "msg=hi"], "expect": {"code": 1, "doc": {"ok": false, "run": {"status": "failed"}}}}
+    - {"before": {"output/fail.flag": null}, "args": ["--json", "resume", "{run}"], "expect": {"code": 0, "doc": {"ok": true, "run": {"status": "done", "done": ["sdlc.greet", "sdlc.shout"]}, "events": [{"node": "sdlc.shout", "state": "started"}, {"node": "sdlc.shout", "state": "done"}]}}}
+- id: J11
+  files: {<<: *base}
+  runs:
+    - {"args": ["--json", "init", "sub"], "expect": {"code": 0, "doc": {"ok": true, "paths": ["processos.yaml", "processos-workspace/definitions/main/scope.yaml", "processos-workspace/.gitignore"], "errors": []}}}
+- id: J12
+  files: {<<: *base, "data.yaml": "mark: '!'\n"}
+  runs:
+    - {"args": ["--json", "render", "sdlc.note", "data.yaml"], "expect": {"code": 0, "doc": {"ok": true, "paths": ["note.txt"], "errors": []}}}
+- id: J13
+  files: {<<: *base, "data.yaml": "mark: '!'\n", "output/made/keep": ""}
+  runs:
+    - {"args": ["--json", "conform", "sdlc.note", "data.yaml", "made"], "expect": {"code": 1, "doc": {"ok": false, "errors": [{"code": "missing"}]}}}
+- id: J14
+  files: {<<: *base, "processos.yaml": "x: 1\n"}
+  runs:
+    - {"args": ["--json", "check"], "expect": {"code": 1, "doc": {"ok": false, "errors": [{"code": "unexpected"}, {"code": "missing"}, {"code": "missing"}]}}}
+- id: J15
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: std, path: lib/std, access: readwrite}\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "lib/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+  runs:
+    - {"args": ["--json", "check"], "expect": {"code": 0, "doc": {"ok": true, "scopes": [{"name": "sdlc", "access": "readwrite", "library": false}, {"name": "std", "access": "readwrite", "library": true}]}}}
+- id: J16
+  files: {<<: *base}
+  runs:
+    - {"args": ["--json", "run", "sdlc.greet", "--records", "msg=hi"], "expect": {"code": 0, "doc": {"ok": true}}, "stderr_has": ["noise"]}
+    - {"args": ["--json", "runs"], "expect": {"code": 0, "doc": {"ok": true, "runs": [{"process": "sdlc.greet", "status": "done"}], "errors": []}}}
+- id: J17
+  files: {<<: *base}
+  runs:
+    - {"args": ["--json", "run", "sdlc.greet", "--records", "msg=hi"], "expect": {"code": 0, "doc": {"ok": true}}, "stderr_has": ["noise"]}
+    - {"args": ["--json", "runs", "{run}"], "expect": {"code": 0, "doc": {"ok": true, "run": {"process": "sdlc.greet", "status": "done", "done": ["sdlc.greet"]}, "errors": []}}}

@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-4-framework-cli.md — process-cli with a wrong call: argparse's usage, exit 2
+- {id: C13, args: [], expect: {starts: ["usage: process-cli", "process-cli: error: "]}}
+- {id: C14, args: [frobnicate], expect: {starts: ["usage: process-cli", "process-cli: error: "]}}

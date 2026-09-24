@@ -1,0 +1,28 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m5-1-listing.md §3 — list --long: each id, plus its own one-line
+# description, or nothing extra when it has none; a broken definition still listed, no error.
+- id: G1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\ndescription: a lower-case word\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ndescription: says hello\n"
+    "defs/sdlc/action/greet/action.sh": "true\n"
+  files: {<<: *base}
+  args: ["list", "type", "--long"]
+  expect: {"stdout": ["sdlc.message  a lower-case word"]}
+- id: G2
+  files: {<<: *base}
+  args: ["list", "schema", "--long"]
+  expect: {"stdout": ["sdlc.greeting"]}
+- id: G3
+  files: {<<: *base}
+  args: ["list", "action", "--long"]
+  expect: {"stdout": ["sdlc.greet  says hello"]}
+- id: G4
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/action/broken/action.yaml": "name: broken\n"
+  args: ["list", "action", "--long"]
+  expect: {"stdout": ["sdlc.broken"]}

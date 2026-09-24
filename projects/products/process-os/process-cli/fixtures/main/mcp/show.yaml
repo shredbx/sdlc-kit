@@ -1,0 +1,33 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m6-1-mcp-tools.md §4 — process-os.show: framework.show, wrapped.
+- id: S1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\n"
+    "defs/sdlc/action/greet/action.sh": "true\n"
+    "records/g/hello.yaml": "text: hi\n"
+  files: {<<: *base}
+  kind: type
+  id: sdlc.message
+  expect: {text: "name: message\ntype: string\n"}
+- id: S2
+  files: {<<: *base}
+  kind: action
+  id: sdlc.greet
+  expect: {files: {"action.sh": "true\n", "action.yaml": "name: greet\ntype: shell\n"}}
+- id: S3
+  files: {<<: *base}
+  kind: record
+  id: g/hello.yaml
+  expect: {text: "text: hi\n"}
+- id: S4
+  files: {<<: *base}
+  kind: template
+  id: sdlc.x
+  errors: true
+- id: S5
+  files: {<<: *base}
+  kind: type
+  id: sdlc.nope
+  errors: true

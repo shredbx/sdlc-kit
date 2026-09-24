@@ -1,0 +1,47 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m2-1-show-write-remove-definitions.md §3 — process-cli write: rejected,
+# and the file left exactly as it was (absent, if new; unchanged, if it existed) — never half-written. The
+# definitions are anchored in E1 (`base`).
+- id: E1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+  files: {<<: *base, "new.yaml": "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.nope, required: true}\n"}
+  args: ["write", "schema", "sdlc.farewell", "new.yaml"]
+  expect: {"starts": ["defs/sdlc/schema/farewell.yaml: fields.text.type: unknown_id: "]}
+  not_written: ["defs/sdlc/schema/farewell.yaml"]
+- id: E2
+  files: {<<: *base, "new.yaml": "name: farewell\ntype: sequence\nitems: sdlc.message\n"}
+  args: ["write", "schema", "sdlc.farewell", "new.yaml"]
+  expect: {"starts": ["defs/sdlc/schema/farewell.yaml: type: invalid: "]}
+  not_written: ["defs/sdlc/schema/farewell.yaml"]
+- id: E3
+  files:
+    <<: *base
+    "defs/sdlc/schema/farewell.yaml": "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.message, required: true}\n"
+    "new.yaml": "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.nope, required: true}\n"
+  args: ["write", "schema", "sdlc.farewell", "new.yaml"]
+  expect: {"starts": ["defs/sdlc/schema/farewell.yaml: fields.text.type: unknown_id: "]}
+  unchanged: {"defs/sdlc/schema/farewell.yaml": "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.message, required: true}\n"}
+- id: E4
+  files: {<<: *base, "new.yaml": "name: hi\nsteps:\n  - sdlc.nope\n"}
+  args: ["write", "process", "sdlc.hi", "new.yaml"]
+  expect: {"starts": ["defs/sdlc/process/hi.yaml: steps[0]: unknown_id: "]}
+  not_written: ["defs/sdlc/process/hi.yaml"]
+- id: E5
+  files:
+    processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: sdlc, path: sdlc}\n"
+    defs/std/scope.yaml: "name: std\nversion: 0.1.0\n"
+    sdlc/scope.yaml: "name: sdlc\nversion: 0.1.0\n"
+    new.yaml: "name: farewell\ntype: mapping\nfields:\n  x: {type: string}\n"
+  args: ["write", "schema", "sdlc.farewell", "new.yaml"]
+  expect: {"starts": ["readonly: "]}
+  not_written: ["sdlc/schema/farewell.yaml"]
+- id: E6
+  files: {<<: *base, "new.yaml": "name: x\ntype: mapping\nfields:\n  a: {type: string}\n"}
+  args: ["write", "schema", "nope.x", "new.yaml"]
+  expect: {"starts": ["unknown_scope: "]}
+- id: E7
+  files: {<<: *base, "new.yaml": "name: x\ntype: mapping\nfields:\n  a: {type: string}\n"}
+  args: ["write", "schema", "Bad", "new.yaml"]
+  expect: {"starts": ["invalid: "]}

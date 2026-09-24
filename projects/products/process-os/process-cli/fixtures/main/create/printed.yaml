@@ -1,0 +1,18 @@
+# docs/tasks/_done/260923-process-cli-05/steps/m3-1-create.md §3 — process-cli create: written. The definitions are anchored in C1 (`base`).
+- id: C1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/count.yaml": "name: count\ntype: integer\nminimum: 0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/type/tags.yaml": "name: tags\ntype: sequence\nitems: message\n"
+    "defs/sdlc/schema/nested.yaml": "name: nested\ntype: mapping\nfields:\n  x: {type: message, required: true}\n"
+    "defs/sdlc/schema/person.yaml": "name: person\ntype: mapping\nfields:\n  name: {type: message, required: true}\n  age: {type: std.count}\n  tags: {type: tags}\n  friend: {type: nested}\n"
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--set", "name=alice", "--into", "people/alice"]
+  expect: {"stdout": ["records/people/alice/person.yaml: written"], "file": "records/people/alice/person.yaml", "text": "name: alice\n"}
+- id: C2
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--set", "name=bob", "--set", "age=30", "--set", "tags=x,y,z", "--into", "people/bob"]
+  expect: {"stdout": ["records/people/bob/person.yaml: written"], "file": "records/people/bob/person.yaml", "text": "name: bob\nage: 30\ntags:\n- x\n- y\n- z\n"}

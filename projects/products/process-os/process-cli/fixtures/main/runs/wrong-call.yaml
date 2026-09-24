@@ -1,0 +1,6 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-2-runs-commands.md §3 — a wrong call: exit 2
+- id: W1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+  args: ["runs", "a", "b"]

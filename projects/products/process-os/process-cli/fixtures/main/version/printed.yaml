@@ -1,0 +1,17 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m3-1-version-stamp.md §3 — process-cli --version
+- id: V1
+  args: ["--version"]
+  expect: "process-cli 0.1.0 (source checkout)"
+- id: V2
+  files: {"process-cli.build": "version: 0.2.0\ncommit: '1234567890'\ndate: 2026-09-22\n"}
+  args: ["--version"]
+  expect: "process-cli 0.2.0 (built 2026-09-22, commit 1234567)"
+- id: V3
+  files: {"process-cli.build": "version: 0.2.0\n"}
+  args: ["--version"]
+  expect: "process-cli 0.2.0"
+- id: V4
+  folders: [a/b]
+  cwd: a/b
+  args: ["--version"]
+  expect: "process-cli 0.1.0 (source checkout)"

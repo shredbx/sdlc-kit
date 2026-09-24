@@ -1,0 +1,7 @@
+# An application described before it exists. Checked against sdlc.application.
+name: hello-app
+description: A greeting from a generated application.
+version: 0.1.0
+platform: python
+language: python
+framework: typer

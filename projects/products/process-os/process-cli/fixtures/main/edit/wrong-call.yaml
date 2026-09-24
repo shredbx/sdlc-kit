@@ -1,0 +1,4 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m4-1-records-crud.md §3 — a wrong call: exit 2.
+- id: W1
+  files: {"processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"}
+  args: ["edit", "std.x"]

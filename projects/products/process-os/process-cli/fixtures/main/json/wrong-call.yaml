@@ -1,0 +1,2 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m6-2-json.md §3 — process-cli --json with no command: argparse's usage, exit 2
+- {id: W1, args: [--json], expect: {starts: ["usage: process-cli", "process-cli: error: "]}}

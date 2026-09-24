@@ -1,0 +1,21 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-2-runs-commands.md §3 — process-cli runs RUN: one run's status, its nodes, and where its logs are
+- id: U3
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+    "runs/250101-090000-hello/run.yaml": "id: 250101-090000-hello\nprocess: sdlc.hello\nscopes: {}\ndigest: d\nstatus: done\ndone: [sdlc.greet, sdlc.shout]\nskipped: [sdlc.greet]\ncontext: {}\nnested: {}\noutput: {}\n"
+  args: ["runs", "250101-090000-hello"]
+  expect: {"code": 0, "stdout": ["sdlc.hello: done", "  sdlc.greet: skipped", "  sdlc.shout: done", "logs: runs/250101-090000-hello"]}
+- id: U4
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+    "runs/250101-110000-hello/run.yaml": "id: 250101-110000-hello\nprocess: sdlc.hello\nscopes: {}\ndigest: d\nstatus: failed\nreason: boom\ndone: [sdlc.greet]\nskipped: []\ncontext: {}\nnested: {}\noutput: {}\n"
+  args: ["runs", "250101-110000-hello"]
+  expect: {"code": 0, "stdout": ["sdlc.hello: failed — boom", "  sdlc.greet: done", "logs: runs/250101-110000-hello"]}
+- id: U5
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+  args: ["runs", "nope"]
+  expect: {"code": 1, "stdout": [], "starts": ["unknown_id: "]}

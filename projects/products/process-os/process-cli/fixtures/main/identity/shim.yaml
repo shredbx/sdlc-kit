@@ -1,0 +1,16 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m3-1-version-stamp.md §5 — an action calls process-cli back through
+# $PROCESS_CLI_PROGRAM, however the program running now is named. The definitions are anchored in S1 (`base`).
+- id: S1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+    "defs/main/action/call/action.yaml": "name: call\ntype: shell\n"
+    "defs/main/action/call/action.sh": "process-cli one two\n"
+  files: {<<: *base, "launcher": "#!/usr/bin/env bash\necho \"$@\" >> called.txt\n"}
+  program: launcher
+  args: ["run", "main.call"]
+  expect: {code: 0, called: "one two\n"}
+- id: S2
+  files: {<<: *base}
+  args: ["run", "main.call"]
+  expect: {code: 1}

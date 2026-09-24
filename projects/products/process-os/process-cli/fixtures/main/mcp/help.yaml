@@ -1,0 +1,21 @@
+# docs/tasks/_done/260923-process-cli-08/steps/m4-1-help-tool.md §4 — _help(group): the group's own text
+# (tools/<group>.md, process-cli's own package data), or the same INVALID_PARAMS a call that never
+# starts already gives.
+- id: H1
+  group: schema
+  expect: {heading: "# schema — validate, create, edit"}
+- id: H2
+  group: template
+  expect: {heading: "# template — render, conform"}
+- id: H3
+  group: process
+  expect: {heading: "# process — run, resume, runs"}
+- id: H4
+  group: runtime
+  expect: {heading: "# runtime — init, check, list, show, write, remove, mcp"}
+- id: H5
+  group: bogus
+  errors: true
+- id: H6
+  group: null
+  errors: true

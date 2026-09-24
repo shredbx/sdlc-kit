@@ -1,0 +1,50 @@
+# docs/tasks/_done/260923-process-cli-05/steps/m3-1-create.md §3 — process-cli create: the errors, and nothing written. The
+# definitions are anchored in E1 (`base`).
+- id: E1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/count.yaml": "name: count\ntype: integer\nminimum: 0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/type/tags.yaml": "name: tags\ntype: sequence\nitems: message\n"
+    "defs/sdlc/schema/nested.yaml": "name: nested\ntype: mapping\nfields:\n  x: {type: message, required: true}\n"
+    "defs/sdlc/schema/person.yaml": "name: person\ntype: mapping\nfields:\n  name: {type: message, required: true}\n  age: {type: std.count}\n  tags: {type: tags}\n  friend: {type: nested}\n"
+  files: {<<: *base}
+  args: ["create", "sdlc.nope", "--set", "name=alice", "--into", "people/alice"]
+  expect: {"starts": ["unknown_id: "]}
+  not_written: ["records/people/alice/person.yaml"]
+- id: E2
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--into", "people/alice"]
+  expect: {"starts": ["name: missing: "]}
+  not_written: ["records/people/alice/person.yaml"]
+- id: E3
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--set", "name=alice", "--set", "nope=x", "--into", "people/alice"]
+  expect: {"starts": ["nope: unexpected: "]}
+  not_written: ["records/people/alice/person.yaml"]
+- id: E4
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--set", "name=alice", "--set", "age=old", "--into", "people/alice"]
+  expect: {"starts": ["age: wrong_type: "]}
+  not_written: ["records/people/alice/person.yaml"]
+- id: E5
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--set", "name=alice", "--set", "friend=x", "--into", "people/alice"]
+  expect: {"starts": ["friend: unsupported_type: "]}
+  not_written: ["records/people/alice/person.yaml"]
+- id: E6
+  files: {<<: *base, "records/people/alice/person.yaml": "name: alice\n"}
+  args: ["create", "sdlc.person", "--set", "name=alice", "--into", "people/alice"]
+  expect: {"starts": ["records/people/alice/person.yaml: exists: "]}
+- id: E7
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--set", "name=NOT-lower", "--into", "people/alice"]
+  expect: {"starts": ["name: pattern: "]}
+  not_written: ["records/people/alice/person.yaml"]
+- id: E8
+  files: {<<: *base}
+  args: ["create", "sdlc.person", "--set", "name=alice", "--into", "people/alice", "--name", "Bad_Name"]
+  expect: {"starts": ["--name: pattern: "]}
+  not_written: ["records/people/alice/Bad_Name.yaml"]

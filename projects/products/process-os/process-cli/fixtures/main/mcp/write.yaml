@@ -1,0 +1,28 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m6-1-mcp-tools.md §4 — process-os.write: framework.write, wrapped.
+- id: W1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+  files: {<<: *base}
+  kind: schema
+  id: sdlc.greeting
+  content: "name: greeting\ntype: mapping\nfields:\n  text: {type: string, required: true}\n"
+  expect: {text: "schema sdlc.greeting: written"}
+- id: W2
+  files: {<<: *base}
+  kind: action
+  id: sdlc.greet
+  content: {"action.yaml": "name: greet\ntype: shell\n", "action.sh": "true\n"}
+  expect: {text: "action sdlc.greet: written"}
+- id: W3
+  files: {<<: *base}
+  kind: record
+  id: g/hello.yaml
+  content: "text: hi\n"
+  errors: true
+- id: W4
+  files: {<<: *base}
+  kind: schema
+  id: sdlc.greeting
+  content: "name: greeting\ntype: mapping\nfields:\n  text: {type: sdlc.nope, required: true}\n"
+  errors: true

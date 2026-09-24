@@ -1,0 +1,25 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m2-1-show-write-remove-definitions.md §3 — process-cli write: creates,
+# replaces, and checks before it keeps either. The definitions are anchored in W1 (`base`).
+- id: W1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+  files: {<<: *base, "new.yaml": "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.message, required: true}\n"}
+  runs:
+    - args: ["write", "schema", "sdlc.farewell", "new.yaml"]
+      expect: {code: 0, stdout: ["schema sdlc.farewell: written"], text: "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.message, required: true}\n"}
+    - args: ["show", "schema", "sdlc.farewell"]
+      before: {"new.yaml": "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.message, required: true}\n  extra: {type: sdlc.message}\n"}
+      expect: {code: 0, stdout: ["name: farewell", "type: mapping", "fields:", "  text: {type: sdlc.message, required: true}", ""]}
+    - args: ["write", "schema", "sdlc.farewell", "new.yaml"]
+      expect: {code: 0, stdout: ["schema sdlc.farewell: written"], text: "name: farewell\ntype: mapping\nfields:\n  text: {type: sdlc.message, required: true}\n  extra: {type: sdlc.message}\n"}
+  file: "defs/sdlc/schema/farewell.yaml"
+- id: W2
+  files: {<<: *base, "new.yaml": "name: hi\nsteps: []\n"}
+  runs:
+    - args: ["write", "process", "sdlc.hi", "new.yaml"]
+      expect: {code: 0, stdout: ["process sdlc.hi: written"], text: "name: hi\nsteps: []\n"}
+    - args: ["run", "sdlc.hi"]
+      expect: {code: 0, stdout: ["sdlc.hi: done"]}
+  file: "defs/sdlc/process/hi.yaml"

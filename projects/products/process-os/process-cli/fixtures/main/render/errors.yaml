@@ -1,0 +1,26 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-4-cli-render-close.md §3 — process-cli render: errors, and nothing written. The definitions are anchored in U1 (`base`).
+- id: U1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n"
+    "defs/sdlc/template/pkg/template.yaml": "name: pkg\ninput: spec\npattern:\n  \"{{name}}/main.py\": [\"def main(\"]\n"
+    "defs/sdlc/template/pkg/files/README.md": "readme\n"
+    "defs/sdlc/template/pkg/files/{{name}}/main.py.jinja": "def main():\n    return '{{ name }}'\n"
+    "data.yaml": "name: app\n"
+  files: {<<: *base}
+  args: ["render", "sdlc.nope", "data.yaml"]
+  expect: {"starts": ["unknown_id: "]}
+- id: U2
+  files: {<<: *base, "data.yaml": "other: x\n"}
+  args: ["render", "sdlc.pkg", "data.yaml", "--into", "made"]
+  expect: {"starts": ["data.yaml: name: missing: "]}
+- id: U3
+  files: {<<: *base}
+  args: ["render", "sdlc.pkg", "data.yaml", "--into", "../x"]
+  expect: {"starts": ["../x: outside_root: "]}
+- id: U4
+  files: {<<: *base, "defs/sdlc/template/pkg/files/{{name}}/zz.txt.jinja": "{{ nope }}"}
+  args: ["render", "sdlc.pkg", "data.yaml", "--into", "made"]
+  expect: {"starts": ["defs/sdlc/template/pkg/files/{{name}}/zz.txt.jinja: undefined: "]}

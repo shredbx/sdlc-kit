@@ -1,0 +1,14 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m4-1-records-crud.md §3 — create --name: a folder holds more than
+# one instance of the same schema.
+- id: N1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n"
+  runs:
+    - args: ["create", "sdlc.greeting", "--set", "text=hi", "--into", "g", "--name", "hello"]
+      expect: {code: 0, stdout: ["records/g/hello.yaml: written"]}
+    - args: ["create", "sdlc.greeting", "--set", "text=bye", "--into", "g", "--name", "farewell"]
+      expect: {code: 0, stdout: ["records/g/farewell.yaml: written"]}
+  files_after: {"records/g/hello.yaml": "text: hi\n", "records/g/farewell.yaml": "text: bye\n"}

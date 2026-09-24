@@ -1,0 +1,18 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-8-cli-commands.md §3 — process-cli validate: ok. The definitions are anchored in V1 (`base`).
+- id: V1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/x.yaml": "name: x\ntype: string\n"
+    "defs/std/schema/y.yaml": "name: y\ntype: mapping\n"
+    "defs/std/action/z/action.yaml": "name: z\ntype: shell\n"
+    "defs/std/action/z/action.sh": "true\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "records/hi/msg.yaml": "hello\n"
+  files: {<<: *base, "data.yaml": "text: hello\n"}
+  args: ["validate", "sdlc.greeting", "data.yaml"]
+  expect: {"stdout": ["data.yaml: ok"]}

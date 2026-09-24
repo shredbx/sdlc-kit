@@ -1,0 +1,29 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m5-1-listing.md §3 — list records [prefix]: every record's own
+# path under runtime.records, sorted; a prefix narrows it; one outside the records folder, or that isn't
+# a folder there, is empty, not an error.
+- id: R1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "records/a/x.yaml": "text: 1\n"
+    "records/a/y.yaml": "text: 2\n"
+    "records/b/z.yaml": "text: 3\n"
+  files: {<<: *base}
+  args: ["list", "records"]
+  expect: {"stdout": ["a/x.yaml", "a/y.yaml", "b/z.yaml"]}
+- id: R2
+  files: {<<: *base}
+  args: ["list", "records", "a"]
+  expect: {"stdout": ["a/x.yaml", "a/y.yaml"]}
+- id: R3
+  files: {<<: *base}
+  args: ["list", "records", "nope"]
+  expect: {"stdout": []}
+- id: R4
+  files: {<<: *base}
+  args: ["list", "records", "--limit", "2"]
+  expect: {"stdout": ["a/x.yaml", "a/y.yaml"]}
+- id: R5
+  files: {<<: *base}
+  args: ["list", "records", "../outside"]
+  expect: {"stdout": []}

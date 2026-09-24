@@ -1,0 +1,29 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m2-1-show-write-remove-definitions.md §3 — process-cli remove: an unknown
+# id, and a readonly scope — refused, nothing removed either way.
+- id: E1
+  files: {"processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  args: ["remove", "type", "sdlc.nope"]
+  expect: {"starts": ["unknown_id: "]}
+- id: E5
+  files: {"processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  args: ["remove", "record", "g/nope.yaml"]
+  expect: {"starts": ["unknown_id: "]}
+- id: E2
+  files:
+    processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: sdlc, path: sdlc}\n"
+    defs/std/scope.yaml: "name: std\nversion: 0.1.0\n"
+    sdlc/scope.yaml: "name: sdlc\nversion: 0.1.0\n"
+    sdlc/type/message.yaml: "name: message\ntype: string\n"
+  args: ["remove", "type", "sdlc.message"]
+  expect: {"starts": ["readonly: "]}
+  unchanged: ["sdlc/type/message.yaml"]
+- id: E3
+  files:
+    processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: sdlc, path: sdlc}\n"
+    defs/std/scope.yaml: "name: std\nversion: 0.1.0\n"
+    sdlc/scope.yaml: "name: sdlc\nversion: 0.1.0\n"
+    sdlc/action/greet/action.yaml: "name: greet\ntype: shell\n"
+    sdlc/action/greet/action.sh: "echo hi\n"
+  args: ["remove", "action", "sdlc.greet"]
+  expect: {"starts": ["readonly: "]}
+  unchanged: ["sdlc/action/greet/action.yaml"]
