@@ -1,0 +1,22 @@
+# NOTE (2026-09-25): hand-written in the port worktree and NOT yet validated. After merging, run
+# `process-cli check`, validate this record against the `decision` schema, then refine the wording.
+# Source: docs/plans/2026-09-25-process-os-apps-import-milestones-11-12.md
+topic: process-os-product-layout
+question: >-
+  Where do process-os's framework, CLI and plugin live in this repo, and how do they join the Python workspace?
+status: decided
+resolution: >-
+  Product process-os at projects/products/process-os/, with its applications process-cli and process-claude-plugin
+  directly inside it (following the decided filestructure-nesting). process-framework, a library, at
+  platform/python/frameworks/process-framework, mirroring upstream's frameworks/ tier; the kit packages stay at
+  platform/python/packages/. The uv workspace root stays platform/python. The CLI joins it as a member from outside
+  the root, with process-framework as a path source in its pyproject.toml instead of `workspace = true`; the plugin has
+  no pyproject.toml and is excluded from the workspace.
+rationale: >-
+  Preserves the projects/products structure the user asked for. A uv member outside the workspace root cannot see that
+  workspace from its own folder, so `workspace = true` fails there (reproduced) and a path source is the smallest
+  reversible fix. Open refinement, deferred as a structural change: moving the uv workspace root to the repo root would
+  keep `workspace = true` untouched and give one ruff/mypy config and CI scope for both trees. Note that "framework" here
+  (process-os's frameworks/ tier) is a different sense from the third-party frameworks of
+  namespace-dispatch-within-capability.
+date: '2026-09-25'

@@ -1,5 +1,6 @@
 [tool.uv.workspace]
 members = ["packages/*", "frameworks/*", "../../projects/products/process-os/*"]
+exclude = ["../../projects/products/process-os/process-claude-plugin"]  # a plugin has no pyproject.toml, so it is not a member
 
 [dependency-groups]
 dev = ["ruff>=0.6", "mypy>=1.11", "types-PyYAML"]

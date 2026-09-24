@@ -1,0 +1,11 @@
+{
+  "name": "process-claude-plugin",
+  "version": "0.2.0",
+  "description": "This repository's own Claude Code plugin — process-cli over MCP and its own command reference (schema, template, process, runtime), and a skill for when to reach for each.",
+  "mcpServers": {
+    "process-claude-plugin": {
+      "command": "process-cli",
+      "args": ["mcp"]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# NOTE (2026-09-25): hand-written in the port worktree and NOT yet validated. After merging, run
+# `process-cli check`, validate this record against the `decision` schema, then refine the wording.
+# Source: docs/plans/2026-09-25-definitions-library-milestone-9.md
+topic: definitions-as-verbatim-library
+question: >-
+  How does this workspace get process-os's sdlc, std and process-os definitions: reuse them cross-repo, adapt
+  them into our own namespace, or something else?
+status: decided
+resolution: >-
+  Ported verbatim (98 files, byte-identical to upstream) into processos-workspace/libraries/{std,sdlc,process-os}/
+  and referenced through `libraries:` entries in processos.yaml. Libraries are readonly (the default) and are never
+  edited in place; they are refined later by forking into definitions/ under this repo's own namespace rules, or
+  adopted through `uses:`. The process-os.* actions hard-code upstream's folder layout (products/, packages/process-kit/,
+  frameworks/, dist/) and must not be run here until refined.
+rationale: >-
+  Avoids a live cross-repo dependency (CI and other machines would need the upstream checkout) and avoids importing
+  sdlc.python's platform-first shape against the decided framework-first rule (namespace-dispatch-within-capability),
+  while preserving 100 percent of the current definitions. Evidence from Milestone 9: process-cli check passes with the
+  three entries, their content appears in list, readonly is enforced (a write into a library scope is refused), and
+  the sbx-sdlc-kit scope is unchanged.
+date: '2026-09-25'
