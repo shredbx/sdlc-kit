@@ -1,0 +1,5 @@
+# Every process-cli command, gathered for process-os.skill-reference's own template input — the
+# whole set of process-os.command records, filtered by group inside each of that template's files.
+name: command-list
+type: sequence
+items: command

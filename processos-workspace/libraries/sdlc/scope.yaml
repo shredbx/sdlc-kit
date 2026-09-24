@@ -1,0 +1,5 @@
+# Each platform is a namespace folder here, holding all it needs: everything Python is in python/.
+name: sdlc
+version: 0.1.0
+description: Describe an application, then build it.
+uses: [std]                    # the scopes whose definitions this one may name

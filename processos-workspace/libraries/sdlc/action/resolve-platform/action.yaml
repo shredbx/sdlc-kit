@@ -1,0 +1,9 @@
+# The platform profile of an application. Platform, language and framework are written in the
+# application today; if they move to an extension, only this action changes.
+name: resolve-platform
+type: shell
+input:
+  application: application
+  build: build
+output:
+  platform: platform

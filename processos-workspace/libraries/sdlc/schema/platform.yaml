@@ -1,0 +1,11 @@
+# What the build actions need to know about an application's platform, in one value.
+# sdlc.resolve-platform makes it from the application and its build extension, so no build
+# action depends on where these facts are written.
+name: platform
+type: mapping
+fields:
+  name:      {type: platform-name, required: true}
+  language:  {type: language, required: true}
+  framework: {type: framework, required: true}
+  runtime:   {type: runtime-version, required: true}
+  tool:      {type: string, required: true}           # what builds it: uv, npm

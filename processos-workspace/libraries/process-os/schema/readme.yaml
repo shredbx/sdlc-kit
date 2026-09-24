@@ -1,0 +1,14 @@
+# What a README says, structured, rendered by the template process-os.readme instead of hand-written
+# prose — a product's or a package's own real content, moved into fields, not summarised. overview,
+# commands and sections are optional — give [] or "" when a README does not need one, not by leaving
+# the key out (the render context has no default: an absent key is genuinely undefined).
+name: readme
+type: mapping
+fields:
+  name:     {type: string, required: true}       # the title
+  tagline:  {type: string, required: true}        # one line, under the title
+  commands: {type: readme-command-list, required: true}   # the quick-reference block; [] for none
+  overview: {type: string, required: true}        # what it is, how it fits; "" for none
+  install:  {type: string, required: true}        # real commands, real prose
+  usage:    {type: string, required: true}        # real, worked examples
+  sections: {type: readme-section-list, required: true}   # further named sections, in order; [] for none

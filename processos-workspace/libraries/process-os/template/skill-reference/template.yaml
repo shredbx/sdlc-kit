@@ -1,0 +1,16 @@
+# One file per capability group, for the skill's own subfolder (task 08): schema.md, template.md,
+# process.md, runtime.md, each the process-os.command records of that group alone, rendered from
+# the same records process-os.readme's own command table comes from — the skill's own "load only
+# the file the request needs" reference material, never the whole subfolder at once. Under files/,
+# a file ending in .jinja is rendered and loses the ending.
+name: skill-reference
+input: command-reference
+pattern:
+  tools/schema.md:
+    - '# schema'
+  tools/template.md:
+    - '# template'
+  tools/process.md:
+    - '# process'
+  tools/runtime.md:
+    - '# runtime'

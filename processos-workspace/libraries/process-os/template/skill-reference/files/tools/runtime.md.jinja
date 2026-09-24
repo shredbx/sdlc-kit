@@ -1,0 +1,15 @@
+# runtime — init, check, list, show, write, remove, mcp
+
+process-cli's own workspace commands: start one, check every definition in it, list what it holds,
+read or create-or-replace-or-delete one definition or record by id or path, or serve it all over
+MCP. Two of these have their own slash command — `/check`, and `/init` (which also installs
+`process-cli` itself first, if it is not already here) — the rest are reached for less often, by
+name, than the schema/template/process commands are. `process-os.help` (group `runtime`) serves
+this same content live, for an MCP client with no skill to read a bundled file from.
+{% for c in commands if c.group == "runtime" %}
+## `process-cli {{ c.usage }}`
+
+{{ c.does }}
+
+Prints: {{ c.prints }}
+{% endfor -%}

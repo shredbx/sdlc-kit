@@ -1,0 +1,4 @@
+# What an application runs on. Only python has a build process yet.
+name: platform-name
+type: string
+enum: [python, node]

@@ -1,0 +1,8 @@
+# The wrapper process-os.skill-reference renders from: a template's own context comes from a
+# mapping's top-level keys (process_kit.template's own rule — a bare list gives an empty context),
+# so the list of commands needs one field to sit under, the same shape package-spec already uses
+# for process-os.package.
+name: command-reference
+type: mapping
+fields:
+  commands: {type: command-list, required: true}

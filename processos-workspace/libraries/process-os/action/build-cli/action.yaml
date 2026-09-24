@@ -1,0 +1,9 @@
+# Builds this repository's own CLI: the nine wheels, a zipapp made with shiv (decision 59, form
+# B), and the stamp process-cli.build names (--version's shape, M3.1). check.sh skips once a build
+# already matches the sources it would build from. M5.2 adds the config and the std library.
+name: build-cli
+type: shell
+input:
+  target: std.relative-path        # the folder to build into, from the repository root
+output:
+  path: std.relative-path          # where it was built

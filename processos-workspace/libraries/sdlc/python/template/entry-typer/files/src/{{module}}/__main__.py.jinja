@@ -1,0 +1,16 @@
+import typer
+
+app = typer.Typer()
+
+
+@app.command()
+def hello(name: str = "world") -> None:
+    typer.echo(f"Hello {name}, from {{ application.name }}")
+
+
+def main() -> None:
+    app()
+
+
+if __name__ == "__main__":
+    main()

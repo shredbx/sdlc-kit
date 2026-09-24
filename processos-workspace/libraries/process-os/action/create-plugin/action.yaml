@@ -1,0 +1,11 @@
+# A new Claude Code plugin of this repository, made from the template process-os.claude-plugin,
+# always in products/<name>/. check.sh keeps it from writing over a plugin that is already there;
+# post.sh registers it in this repository's own root .claude-plugin/marketplace.json (creating that
+# file if this is the first plugin) and excludes its folder from the uv workspace, since a plugin
+# has no pyproject.toml to join it with.
+name: create-plugin
+type: shell
+input:
+  plugin: plugin
+output:
+  path: std.relative-path                  # where the plugin is, from the repository root

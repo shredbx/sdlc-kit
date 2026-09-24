@@ -1,0 +1,11 @@
+{
+  "name": "{{ name }}",
+  "version": "{{ version }}",
+  "description": "{{ description }}",
+  "mcpServers": {
+    "{{ name }}": {
+      "command": "{{ server }}"{% if arguments is defined %},
+      "args": [{% for arg in arguments %}"{{ arg }}"{% if not loop.last %}, {% endif %}{% endfor %}]{% endif %}
+    }
+  }
+}

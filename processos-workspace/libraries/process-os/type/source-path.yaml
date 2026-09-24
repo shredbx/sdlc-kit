@@ -1,0 +1,5 @@
+# The folder under src/ that holds a package's code: process_kit/action for a kit package, which
+# shares the namespace process_kit, or process_framework for a package of its own.
+name: source-path
+type: string
+pattern: '[a-z_][a-z0-9_]*(/[a-z_][a-z0-9_]*)?'

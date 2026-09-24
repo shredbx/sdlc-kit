@@ -1,0 +1,8 @@
+# The build extension of an application: where it is built, and with which runtime. The
+# application provides it as extension/build.yaml, beside its application.yaml, and a process
+# that builds names it in requires. The application schema does not change for it (n15).
+name: build
+type: mapping
+fields:
+  target:  {type: std.relative-path, required: true}  # a folder inside the output
+  runtime: {type: runtime-version, required: true}

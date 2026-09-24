@@ -1,0 +1,4 @@
+# The framework an application is written with. none is a plain application.
+name: framework
+type: string
+enum: [none, typer]

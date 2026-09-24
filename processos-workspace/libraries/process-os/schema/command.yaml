@@ -1,0 +1,14 @@
+# What one process-cli command is, described once, rendered by process-os.readme (the command table)
+# and process-os.skill-reference (the skill's own subfolder), and read live by the MCP tool
+# process-os.help — task 08. does/prints are transcribed from commands.py's own docstrings and
+# main.py's own --help text (task 08 analysis.md §3), not invented, and checked against the real code
+# they describe, not copied from a README that may itself have drifted.
+name: command
+type: mapping
+fields:
+  name:    {type: string, required: true}          # the command's own word: init, check, validate, ...
+  group:   {type: command-group, required: true}    # schema | template | process | runtime
+  usage:   {type: string, required: true}           # the argument shape alone, e.g. "validate TYPE FILE" — no "process-cli " prefix
+  summary: {type: string, required: true}           # one sentence — commands.py's own docstring, MCP tool description length
+  does:    {type: string, required: true}           # the longer paragraph, grounded in the real code, not only the docstring
+  prints:  {type: string, required: true}           # what it prints, or writes to stdout/stderr

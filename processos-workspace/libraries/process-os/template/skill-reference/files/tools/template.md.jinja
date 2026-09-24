@@ -1,0 +1,13 @@
+# template — render, conform
+
+process-cli's own template commands: make the files a template produces from a data file, or check
+that files already written still hold what a template requires. Read this file for a `/template`
+request; `process-os.help` (group `template`) serves the same content live, for an MCP client with
+no skill to read a bundled file from.
+{% for c in commands if c.group == "template" %}
+## `process-cli {{ c.usage }}`
+
+{{ c.does }}
+
+Prints: {{ c.prints }}
+{% endfor -%}

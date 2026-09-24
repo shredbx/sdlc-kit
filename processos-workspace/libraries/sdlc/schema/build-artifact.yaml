@@ -1,0 +1,6 @@
+# What a build produced: the application's folder in the output, and the files built in it.
+name: build-artifact
+type: mapping
+fields:
+  path:  {type: std.relative-path, required: true}
+  files: {type: std.file-list, required: true}        # relative to path

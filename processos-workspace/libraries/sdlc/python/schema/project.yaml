@@ -1,0 +1,6 @@
+# A Python project in the output: where it is, and its module.
+name: project
+type: mapping
+fields:
+  path:   {type: std.relative-path, required: true}   # inside the output
+  module: {type: module-name, required: true}

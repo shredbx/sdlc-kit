@@ -1,0 +1,4 @@
+# major.minor of a runtime: "3.13".
+name: runtime-version
+type: string
+pattern: '[0-9]+\.[0-9]+'

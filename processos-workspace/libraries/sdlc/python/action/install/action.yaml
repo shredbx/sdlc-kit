@@ -1,0 +1,6 @@
+# The environment of a Python project, made with uv: the runtime, then its framework's package.
+name: install
+type: shell
+input:
+  project: project
+  platform: sdlc.platform

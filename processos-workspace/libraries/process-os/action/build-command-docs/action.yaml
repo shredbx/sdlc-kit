@@ -1,0 +1,10 @@
+# Regenerates process-cli's own readme.yaml "commands:" quick-reference list and "## The commands"
+# section body from the process-os.command records (task 08) — describe once, consumed here,
+# render/conform picks the result up exactly as task 06 left them. Nothing else in readme.yaml
+# changes. Idempotent: running it again with unchanged records changes nothing.
+name: build-command-docs
+type: shell
+input:
+  product: package-name    # process-cli, today; the folder under records/command/<product>/
+output:
+  path: std.relative-path  # the readme.yaml patched

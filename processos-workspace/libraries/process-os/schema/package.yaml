@@ -1,0 +1,13 @@
+# A package of this repository, described before its files exist. A kit package goes in
+# packages/<module>/<name>/, a framework in frameworks/<name>/ and a product in products/<name>/.
+# The input of process-os.create-package.
+name: package
+type: mapping
+fields:
+  kind:         {type: package-kind}                      # left out, it is a kit package
+  module:       {type: package-name}                      # a kit package's module folder: process-kit. The others have none
+  name:         {type: package-name, required: true}      # the package's folder: action, or process-cli
+  version:      {type: std.version, required: true}
+  description:  {type: string, required: true}            # one sentence: what it is for
+  uses:         {type: package-list, required: true}      # the packages it is built on, by what uv installs: process-kit-types
+  dependencies: {type: requirement-list, required: true}  # anything else it needs installed

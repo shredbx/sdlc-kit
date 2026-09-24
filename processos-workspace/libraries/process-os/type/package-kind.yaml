@@ -1,0 +1,5 @@
+# What a package is: a kit package (in packages/<module>/), a framework (in frameworks/) or a
+# product (in products/). They are laid out alike; they differ in where they live and how they are named.
+name: package-kind
+type: string
+enum: [kit, framework, product]

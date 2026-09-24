@@ -1,0 +1,6 @@
+# The processes process-os runs on itself. The first makes a package of process-kit, laid out like
+# the others.
+name: process-os
+version: 0.1.0
+description: Build process-os itself, starting with its packages.
+uses: [std]                    # the scopes whose definitions this one may name

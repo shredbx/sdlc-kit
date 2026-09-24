@@ -1,0 +1,8 @@
+# A wheel and a source archive of the application's version, built into the project's dist/.
+name: package
+type: shell
+input:
+  project: project
+  application: sdlc.application
+output:
+  artifact: sdlc.build-artifact

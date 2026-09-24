@@ -32,7 +32,7 @@ added on top of a complete base. `process-kit` (7 packages) is already ported, M
 | Framework | `frameworks/process-framework` | 1,523 src + 800 test LOC, 79 tests | the 7 kit packages |
 | CLI | `products/process-cli` | 747 src + 704 test LOC, 74 tests, YAML fixtures | process-framework, `mcp>=1.12` |
 | Plugin | `products/process-claude-plugin` | 12 files, no Python | process-cli at runtime |
-| Definitions | `processos-workspace/definitions/{process-os, sdlc (incl. sdlc.python), std}` | roughly 85 files | — |
+| Definitions | `processos-workspace/definitions/{process-os, sdlc (incl. sdlc.python), std}` | 98 files (`std` 4, `sdlc` 37, `process-os` 57) | — |
 
 ## Layout and workspace changes
 

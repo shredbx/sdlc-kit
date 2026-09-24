@@ -1,0 +1,4 @@
+# Dependencies, each as pyproject.toml writes it.
+name: requirement-list
+type: sequence
+items: requirement

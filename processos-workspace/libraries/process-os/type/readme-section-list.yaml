@@ -1,0 +1,4 @@
+# Every further, named section of a README, in the order they are written. [] when there are none.
+name: readme-section-list
+type: sequence
+items: readme-section

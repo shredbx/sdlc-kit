@@ -1,0 +1,11 @@
+# Renders process-os.skill-reference into two places — the plugin's own skill subfolder, and
+# process-cli's own package data (read by process-os.help at runtime, task 08 M4) — one file per
+# capability group, from the same process-os.command records process-os.build-command-docs already
+# reads. The two consumers this repository ships; both targets are fixed, not an input (see action.sh).
+name: build-skill-reference
+type: shell
+input:
+  product: package-name       # process-cli, today; the folder under records/command/<product>/
+output:
+  path: std.relative-path     # the plugin's own skill subfolder, rendered into
+  cli-path: std.relative-path # process-cli's own package copy, rendered into
