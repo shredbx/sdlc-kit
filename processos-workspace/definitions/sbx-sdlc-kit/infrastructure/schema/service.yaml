@@ -1,0 +1,12 @@
+# One infrastructure thing — postgres, pgAdmin, redis, mongo, or (later) a service we build
+# ourselves. kind determines what management_tool means: only meaningful on a datastore.
+name: service
+type: mapping
+fields:
+  name:            {type: string, required: true}
+  kind:            {type: service-kind, required: true}
+  description:     {type: string, required: true}
+  image:           {type: string, required: true}
+  ports:           {type: port-list, required: false}
+  env:             {type: env-var-list, required: false}
+  management_tool: {type: string, required: false}

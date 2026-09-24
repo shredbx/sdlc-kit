@@ -1,0 +1,9 @@
+# A service-bundle's own docker-compose.yml + .env.example, from its resolved
+# service-bundle-spec (bundle + every member service's full record). Real secret values are
+# never in this input — only variable names, referenced as ${VAR} in the compose file, read from
+# a gitignored .env sibling Docker Compose picks up automatically.
+name: bundle-compose
+input: service-bundle-spec
+pattern:
+  docker-compose.yml: []
+  .env.example: []

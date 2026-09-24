@@ -1,0 +1,18 @@
+services:
+{% for s in services %}
+  {{ s.name }}:
+    image: {{ s.image }}
+    container_name: {{ bundle.name }}-{{ s.name }}
+{%- if s.ports | default([]) %}
+    ports:
+{%- for p in s.ports %}
+      - "{{ p }}"
+{%- endfor %}
+{%- endif %}
+{%- if s.env | default([]) %}
+    environment:
+{%- for e in s.env %}
+      {{ e }}: {{ '${' ~ e ~ '}' }}
+{%- endfor %}
+{%- endif %}
+{% endfor %}

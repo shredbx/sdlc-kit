@@ -1,0 +1,7 @@
+# What a service is, for how it composes and what fields apply. datastore: stores data, may
+# declare a management_tool. tool: a web UI/utility that manages another service. application:
+# a service we build ourselves — its code lives in platform/<lang>/apps/, this record is just
+# its deployable-as-a-service shape.
+name: service-kind
+type: string
+enum: [datastore, tool, application]

@@ -1,0 +1,7 @@
+name: postgres
+kind: datastore
+description: Postgres database for local development.
+image: postgres:16
+ports: ["54321:5432"]
+env: [POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB]
+management_tool: pgadmin

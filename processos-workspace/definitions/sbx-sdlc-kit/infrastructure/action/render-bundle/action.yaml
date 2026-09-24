@@ -1,0 +1,8 @@
+# The compose files of a service-bundle: reads its member services, joins them into a
+# service-bundle-spec, renders docker-compose.yml + .env.example through bundle-compose, and
+# copies the result from scratch into projects/services/<bundle-name>/ — render's own --into
+# can't write there directly (confined to processos-workspace/output/).
+name: render-bundle
+type: shell
+input:
+  bundle: service-bundle

@@ -1,0 +1,4 @@
+# Full service mappings, resolved — render-time only, never a stored record.
+name: service-list
+type: sequence
+items: service

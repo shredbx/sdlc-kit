@@ -1,0 +1,5 @@
+# Env var NAMES a service requires, never values — e.g. [POSTGRES_USER, POSTGRES_PASSWORD].
+# Real values live in a gitignored .env sibling to the rendered bundle, never in this record.
+name: env-var-list
+type: sequence
+items: string

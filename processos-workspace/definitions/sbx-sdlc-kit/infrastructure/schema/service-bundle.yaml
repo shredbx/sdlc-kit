@@ -1,0 +1,8 @@
+# A named group of services that run together as one docker-compose stack — e.g. postgres +
+# its own pgAdmin. Only holds service ids; the full join happens at render time.
+name: service-bundle
+type: mapping
+fields:
+  name:        {type: string, required: true}
+  description: {type: string, required: true}
+  services:    {type: service-ref-list, required: true}

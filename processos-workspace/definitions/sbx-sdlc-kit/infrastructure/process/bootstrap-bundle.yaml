@@ -1,0 +1,8 @@
+# Bootstrap a service-bundle from nothing running: render its compose files, then start it and
+# verify every member service is reachable.
+name: bootstrap-bundle
+input:
+  bundle: service-bundle
+steps:
+  - render-bundle
+  - run-bundle

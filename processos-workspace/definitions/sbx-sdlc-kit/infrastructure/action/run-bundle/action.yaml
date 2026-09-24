@@ -1,0 +1,8 @@
+# Starts a service-bundle's docker-compose stack in the background, then verifies every member
+# service's own host port actually accepts a connection. Needs render-bundle to have already
+# produced projects/services/<bundle-name>/docker-compose.yml, and a real .env beside it.
+name: run-bundle
+type: shell
+timeout: 300  # a first run pulls images (postgres, pgadmin) over the network; 60s default is too tight
+input:
+  bundle: service-bundle

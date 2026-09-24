@@ -75,11 +75,19 @@ new key before calling `render`) rather than guessed:
 
 - `infrastructure/template/bundle-compose/` — `files/docker-compose.yml.jinja` (one compose
   service block per member, referencing `${POSTGRES_PASSWORD}` etc.) + `files/.env.example.jinja`
-  (one line per env var name, no values)
+  (one line per env var name, no values). Tested by rendering a real `service-bundle-spec`
+  through it (`process-cli render`, `--into` a scratch folder) — output is valid, correct YAML.
 - `infrastructure/action/render-bundle` (shell) — reads the bundle record, resolves each member
   service id via `process-cli show record`, assembles the temp `bundle-spec` YAML the same way
-  `create-project` assembles `project-spec`, then `process-cli render ... --into
-  projects/services/<bundle-name>/`
+  `create-project` assembles `project-spec`, renders with `process-cli render --into` a scratch
+  folder under `processos-workspace/output/`, then copies the result into
+  `projects/services/<bundle-name>/`. **Correction from the original draft of this doc:**
+  `--into` is hard-constrained to `runtime.output` (confirmed in `process_framework/framework.py`
+  — "not inside the output folder" — not any real path). `sdlc.python.create-project`'s own
+  `--into "$INPUT_BUILD_TARGET"` only looks like it writes anywhere because process-os's *own*
+  `processos.yaml` sets `runtime.output: .` (the whole repo) — a workspace-specific choice we
+  haven't made and aren't making here, to keep `processos-workspace/output/` as scratch-only per
+  this repo's existing governance. Render-then-copy is the fix, confirmed working.
 - `infrastructure/action/run-bundle` (shell) — `docker compose up -d` in that folder (Compose
   auto-reads a sibling `.env`); `post.sh` verifies with `pg_isready` + a pgAdmin health check —
   this is the "test with terminal tools" step closing out the milestone

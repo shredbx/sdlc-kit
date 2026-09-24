@@ -1,0 +1,4 @@
+# Other service records' ids, e.g. a bundle's own member list: [postgres, pgadmin].
+name: service-ref-list
+type: sequence
+items: string

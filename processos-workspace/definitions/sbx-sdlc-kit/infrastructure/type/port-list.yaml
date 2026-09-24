@@ -1,0 +1,4 @@
+# Docker-style "host:container" port mappings for a service, e.g. ["54320:5432"].
+name: port-list
+type: sequence
+items: string

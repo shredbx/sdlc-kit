@@ -1,0 +1,7 @@
+# The joined, resolved form of a service-bundle: its own fields plus every member service's
+# full record. Built ephemerally by render-bundle from a bundle's service ids — never stored.
+name: service-bundle-spec
+type: mapping
+fields:
+  bundle:   {type: service-bundle, required: true}
+  services: {type: service-list, required: true}
