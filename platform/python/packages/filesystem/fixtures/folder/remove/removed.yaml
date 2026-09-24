@@ -1,0 +1,21 @@
+# docs/tasks/_done/260922-process-cli-04/steps/m3-1-folder-remove.md §3 — remove(relative) on Folder(<tmp>/work)
+- id: RM1
+  files: {work/a.txt: hi, work/b.txt: keep}
+  relative: a.txt
+  expect: {files: [work/b.txt]}
+- id: RM2
+  files: {work/d/x.txt: one, work/d/y.txt: two, work/keep.txt: k}
+  relative: d
+  expect: {files: [work/keep.txt]}
+- id: RM3
+  files: {work/keep.txt: k}
+  relative: missing.txt
+  expect: {files: [work/keep.txt]}
+- id: RM4
+  files: {work/a.txt: hi}
+  relative: .
+  expect: {files: []}
+- id: RM5
+  files: {work/b.txt: hi, work/a/keep.txt: k}
+  relative: a/../b.txt
+  expect: {files: [work/a/keep.txt]}

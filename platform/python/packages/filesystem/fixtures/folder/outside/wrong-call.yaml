@@ -1,0 +1,12 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-1-filesystem.md §3 — each method raises for a path it must refuse; nothing is written beside work
+- {id: W1, call: path, args: [../x], raises: ValueError}
+- {id: W2, call: exists, args: [../x], raises: ValueError}
+- {id: W3, call: read, args: [../x], raises: ValueError}
+- {id: W4, call: write, args: [../x, a], raises: ValueError}
+- {id: W5, call: folder, args: [../x], raises: ValueError}
+- {id: W6, call: path, args: [/abs], raises: ValueError}
+- {id: W7, call: write, args: [a/../../x, a], raises: ValueError}
+- {id: W8, call: path, args: [3], raises: TypeError}
+- {id: W9, call: write, args: [a.txt, 3], raises: TypeError}
+- {id: W10, call: remove, args: [../x], raises: ValueError}
+- {id: W11, call: remove, args: [3], raises: TypeError}

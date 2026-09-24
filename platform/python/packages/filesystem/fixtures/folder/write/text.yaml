@@ -1,0 +1,7 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-1-filesystem.md §3 — write(relative, text) on Folder(<tmp>/work), then the file read back as bytes
+- {id: F1, write: [a.txt, hello], expect: {file: work/a.txt, text: hello}}
+- {id: F2, folders: [work], write: [x/y/z.txt, deep], expect: {file: work/x/y/z.txt, text: deep}}
+- {id: F3, files: {work/a.txt: old}, write: [a.txt, new], expect: {file: work/a.txt, text: new}}
+- {id: F4, folders: [work], write: [é.txt, "café ✓"], expect: {file: work/é.txt, text: "café ✓"}}
+- {id: F5, folders: [work], write: [a/../b.txt, x], expect: {file: work/b.txt, text: x}}
+- {id: F6, folders: [work], write: [a.txt, "a\r\nb\n"], expect: {file: work/a.txt, text: "a\r\nb\n"}}

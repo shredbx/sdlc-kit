@@ -1,0 +1,4 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 — Folder(<tmp>/<root>).make()
+- {id: MK1, root: work}
+- {id: MK2, root: a/b/work}
+- {id: MK3, root: work, files: {work/x: "kept\n"}}

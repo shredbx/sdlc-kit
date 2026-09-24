@@ -1,0 +1,21 @@
+[project]
+name = "process-kit-filesystem"
+version = "0.1.0"
+description = "Filesystem: a root folder that refuses any path outside it, and writes files inside it."
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8", "pyyaml>=6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src/process_kit/filesystem"]
+sources = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]

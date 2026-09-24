@@ -1,0 +1,7 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-1-filesystem.md §3 — read(relative) of Folder(<tmp>/work)
+- {id: R1, files: {work/a.txt: hi}, relative: a.txt, expect: hi}
+- {id: R2, folders: [work], relative: a.txt, expect: null}
+- {id: R3, folders: [work/d], relative: d, expect: null}
+- {id: R4, files: {work/a.txt: hi}, relative: a/../a.txt, expect: hi}
+- {id: R5, files: {work/a.txt: "café ✓"}, relative: a.txt, expect: "café ✓"}
+- {id: R6, files: {work/a.txt: "a\r\nb"}, relative: a.txt, expect: "a\r\nb"}

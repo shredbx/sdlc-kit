@@ -1,0 +1,4 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-1-filesystem.md §3 — Folder(root) raises
+- {id: K1, root: work, raises: ValueError}
+- {id: K2, root: "", raises: ValueError}
+- {id: K3, root: 3, raises: TypeError}

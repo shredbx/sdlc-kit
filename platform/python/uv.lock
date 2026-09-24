@@ -9,6 +9,7 @@ resolution-markers = [
 [manifest]
 members = [
     "process-kit-action",
+    "process-kit-filesystem",
     "process-kit-schema",
     "process-kit-types",
 ]
@@ -303,6 +304,25 @@ requires-dist = [
     { name = "process-kit-types", editable = "packages/types" },
     { name = "pyyaml", specifier = ">=6" },
 ]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8" },
+    { name = "pyyaml", specifier = ">=6" },
+]
+
+[[package]]
+name = "process-kit-filesystem"
+version = "0.1.0"
+source = { editable = "packages/filesystem" }
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
 
 [package.metadata.requires-dev]
 dev = [

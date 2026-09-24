@@ -1,0 +1,14 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-1-filesystem.md §3 — inside(relative) of Folder(<tmp>/work)
+- {id: N1, relative: "a", expect: true}
+- {id: N2, relative: "a/b/c.txt", expect: true}
+- {id: N3, relative: ".", expect: true}
+- {id: N4, relative: "", expect: true}
+- {id: N5, relative: "a/../b", expect: true}
+- {id: N6, relative: "a/..", expect: true}
+- {id: N7, relative: "a/./b", expect: true}
+- {id: N8, relative: "..", expect: false}
+- {id: N9, relative: "a/../..", expect: false}
+- {id: N10, relative: "../sibling", expect: false}
+- {id: N11, relative: "/etc/hosts", expect: false}
+- {id: N12, relative: "../work-other/x", expect: false}
+- {id: N13, relative: "../work/x", expect: true}

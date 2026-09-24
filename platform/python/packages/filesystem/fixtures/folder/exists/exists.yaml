@@ -1,0 +1,6 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-1-filesystem.md §3 — exists(relative) of Folder(<tmp>/work)
+- {id: E1, files: {work/a.txt: hi}, relative: a.txt, expect: true}
+- {id: E2, folders: [work/d], relative: d, expect: true}
+- {id: E3, folders: [work], relative: a.txt, expect: false}
+- {id: E4, folders: [work], relative: ., expect: true}
+- {id: E5, relative: ., expect: false}
