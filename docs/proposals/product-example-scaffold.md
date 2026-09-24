@@ -1,5 +1,10 @@
 # First product scaffold: process-os reuse assessment + MCP/FastAPI/plugin shape
 
+> **Superseded 2026-09-25** by `docs/plans/2026-09-25-process-os-port-completion-design.md`, which
+> works through this doc's three open decisions. The reconnaissance facts below stay accurate; the
+> "example product" framing (FastAPI + HTTP MCP) does not — the example product became the rest of
+> process-os, and MCP is stdio-only for now.
+
 **Status:** reconnaissance only, gathered in an isolated worktree — no schemas, code, or plugins
 implemented. This is grounding for a discuss-first design pass with the user, mirroring how
 `docs/proposals/infrastructure-services-design.md` was built up this same session, not a plan
