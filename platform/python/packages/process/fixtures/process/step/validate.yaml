@@ -1,0 +1,24 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-1-process-load.md §3 — StepType().validate(value, path, Types()): every error, in order, by path and code
+- {id: S1, value: "create-project", expect: []}
+- {id: S2, value: "std.other", expect: []}
+- {id: S3, value: {"switch": "platform.name", "cases": {"python": ["a"]}, "default": [{"stop": "no"}]}, expect: []}
+- {id: S4, value: {"stop": "because"}, expect: []}
+- {id: S5, value: {"switch": "a", "cases": {}}, expect: []}
+- {id: S6, value: 3, expect: [{"path": [], "code": "wrong_type"}]}
+- {id: S7, value: "Bad", expect: [{"path": [], "code": "pattern"}]}
+- {id: S8, value: {}, expect: [{"path": [], "code": "invalid"}]}
+- {id: S9, value: {"switch": "a", "cases": {}, "stop": "x"}, expect: [{"path": [], "code": "invalid"}]}
+- {id: S10, value: {"switch": "a"}, expect: [{"path": ["cases"], "code": "missing"}]}
+- {id: S11, value: {"switch": "Bad", "cases": {}}, expect: [{"path": ["switch"], "code": "pattern"}]}
+- {id: S12, value: {"switch": "a", "cases": {"x": "b"}}, expect: [{"path": ["cases", "x"], "code": "wrong_type"}]}
+- {id: S13, value: {"switch": "a", "cases": {"x": [3]}}, expect: [{"path": ["cases", "x", 0], "code": "wrong_type"}]}
+- {id: S14, path: ["steps", 1], value: {"switch": "a", "cases": {"x": ["Bad"]}}, expect: [{"path": ["steps", 1, "cases", "x", 0], "code": "pattern"}]}
+- {id: S15, value: {"switch": "a", "cases": {}, "default": 3}, expect: [{"path": ["default"], "code": "wrong_type"}]}
+- {id: S16, value: {"switch": "a", "cases": {}, "default": [{"stop": ""}]}, expect: [{"path": ["default", 0, "stop"], "code": "min_length"}]}
+- {id: S17, value: {"switch": "a", "cases": {}, "extra": 1}, expect: [{"path": ["extra"], "code": "unexpected"}]}
+- {id: S18, value: {"stop": 3}, expect: [{"path": ["stop"], "code": "wrong_type"}]}
+- {id: S19, value: {"stop": ""}, expect: [{"path": ["stop"], "code": "min_length"}]}
+- {id: S20, value: {"stop": "a", "extra": 1}, expect: [{"path": ["extra"], "code": "unexpected"}]}
+- {id: S22, value: {"switch": "a", "cases": {"x": [{"switch": "b", "cases": {"y": [{"stop": "z"}]}}]}}, expect: []}
+- {id: S23, value: {"switch": "a", "cases": {"x": ["Bad"], "y": [3]}}, expect: [{"path": ["cases", "x", 0], "code": "pattern"}, {"path": ["cases", "y", 0], "code": "wrong_type"}]}
+- {id: S21, value: {switch: a, cases: {true: []}}, expect: [{path: [cases, "True"], code: wrong_type}]}

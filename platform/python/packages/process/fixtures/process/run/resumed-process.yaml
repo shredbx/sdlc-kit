@@ -1,0 +1,13 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — Runner.start(Process.of_action(a1), ...), then the case's change, then Runner.resume(run, that process)
+- id: RP1
+  inputs: {"t": "hi"}
+  fail: ["a1"]
+  flag: true
+  remove: ["out/fail.flag"]
+  expect: {"status": "done", "done": ["a1"], "skipped": [], "context": {"t": "hi", "t1": "hi-1"}, "trace": ["a1", "a1"]}
+- id: RP2
+  inputs: {"t": "hi"}
+  checks: {"a1": "[ -e fail.flag ] && { echo held >&2; exit 3; }; exit 0"}
+  flag: true
+  remove: ["out/fail.flag"]
+  expect: {"status": "done", "done": ["a1"], "skipped": [], "trace": ["a1"]}

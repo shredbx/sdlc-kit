@@ -1,0 +1,40 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-1-executor-and-record.md §3 — what Runner._call logs, by the node's own key
+- id: L1
+  inputs: {t: hi}
+  process: "name: x\ninput: {t: text}\nsteps: [log1]\n"
+  actions: {log1: {input: {t: text}, output: {}, script: "echo hello"}}
+  expect: {status: done, logged: {log1: {stdout: "hello\n", stderr: ""}}}
+- id: L2
+  inputs: {t: hi}
+  process: "name: x\ninput: {t: text}\nsteps: [log1]\n"
+  actions: {log1: {input: {t: text}, output: {}, script: "echo oops >&2"}}
+  expect: {status: done, logged: {log1: {stdout: "", stderr: "oops\n"}}}
+- id: L3
+  inputs: {t: hi}
+  process: "name: x\ninput: {t: text}\nsteps: [log1]\n"
+  actions: {log1: {input: {t: text}, output: {}, script: "echo boom >&2; exit 1"}}
+  expect: {status: failed, reason: "action.sh exited 1: boom", logged: {log1: {stdout: "", stderr: "boom\n"}}}
+- id: L4
+  inputs: {t: hi}
+  process: "name: x\ninput: {t: text}\nsteps: [log1]\n"
+  actions: {log1: {input: {t: text}, output: {}, script: "true"}}
+  checks: {log1: "echo skipping; exit 77"}
+  expect: {status: done, done: [log1], skipped: [log1], logged: {log1: {stdout: "skipping\n", stderr: ""}}}
+- id: L5
+  inputs: {t: hi}
+  process: "name: x\ninput: {t: text}\noutput: {t2: text}\nsteps: [n]\n"
+  processes: {n: "name: n\ninput: {t: text}\noutput: {t2: text}\nsteps: [a1, a2]\n"}
+  actions:
+    a1: {input: {t: text}, output: {t1: text}, script: "echo \"$INPUT_T-1\" > \"$ACTION_OUTPUTS/t1.yaml\"\necho from-a1"}
+  expect: {status: done, logged: {"n/a1": {stdout: "from-a1\n", stderr: ""}, "n/a2": {stdout: "", stderr: ""}}}
+- id: L6
+  inputs: {t: hi}
+  process: "name: x\ninput: {t: text}\nsteps: [log1]\n"
+  actions: {log1: {input: {t: text}, output: {}, script: "true"}}
+  checks: {log1: "echo stop-out; echo stop-err >&2; exit 3"}
+  expect: {status: stopped, reason: stop-err, logged: {log1: {stdout: "stop-out\n", stderr: "stop-err\n"}}}
+- id: L7
+  inputs: {t: hi}
+  process: "name: x\ninput: {t: text}\nsteps: [log1]\n"
+  actions: {log1: {input: {missing: text}, output: {}, script: "echo should-not-run"}}
+  expect: {status: failed, reason: "the inputs are wrong", logged: {}}

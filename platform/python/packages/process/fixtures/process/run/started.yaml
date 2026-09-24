@@ -1,0 +1,61 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-3-runner.md §3 — Runner.start(process, inputs, scopes, digest). The default main process is in world.yaml.
+- id: S1
+  inputs: {"t": "hi"}
+  expect: {"status": "done", "reason": null, "done": ["a1", "a2"], "skipped": [], "context": {"t": "hi", "t1": "hi-1", "t2": "hi-1-2"}, "output": {"t2": "hi-1-2"}, "events": [["a1", "started"], ["a1", "done"], ["a2", "started"], ["a2", "done"]], "trace": ["a1", "a2"], "saves": [["running", []], ["running", ["a1"]], ["running", ["a1", "a2"]], ["done", ["a1", "a2"]]]}
+- id: S2
+  inputs: {"t": "hi"}
+  checks: {"a1": "echo X > \"$ACTION_OUTPUTS/t1.yaml\"; exit 77"}
+  expect: {"status": "done", "done": ["a1", "a2"], "skipped": ["a1"], "context": {"t": "hi", "t1": "X", "t2": "X-2"}, "events": [["a1", "started"], ["a1", "skipped"], ["a2", "started"], ["a2", "done"]], "trace": ["a2"]}
+- id: S3
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\nsteps:\n  - a1\n  - stop: because\n  - a2\n"
+  expect: {"status": "stopped", "reason": "because", "done": ["a1"], "context": {"t": "hi", "t1": "hi-1"}, "events": [["a1", "started"], ["a1", "done"]], "trace": ["a1"]}
+- id: S4
+  inputs: {"t": "hi"}
+  fail: ["a2"]
+  flag: true
+  expect: {"status": "failed", "reason": "action.sh exited 4", "done": ["a1"], "context": {"t": "hi", "t1": "hi-1"}, "events": [["a1", "started"], ["a1", "done"], ["a2", "started"], ["a2", "failed"]], "trace": ["a1", "a2"]}
+- id: S5
+  inputs: {"t": "hi"}
+  checks: {"a1": "echo no >&2; exit 3"}
+  expect: {"status": "stopped", "reason": "no", "done": [], "context": {"t": "hi"}, "events": [["a1", "started"], ["a1", "stopped"]], "trace": []}
+- id: S6
+  inputs: {"t": "hi", "b": {"kind": "b"}}
+  process: "name: x\ninput: {t: text, b: box}\nsteps:\n  - switch: b.kind\n    cases: {a: [a1], b: [a3]}\n"
+  expect: {"status": "done", "done": ["a3"], "context": {"t": "hi", "b": {"kind": "b"}, "t3": "hi-3"}, "events": [["a3", "started"], ["a3", "done"]], "trace": ["a3"]}
+- id: S7
+  inputs: {"t": "hi", "b": {"kind": "c"}}
+  process: "name: x\ninput: {t: text, b: box}\nsteps:\n  - switch: b.kind\n    cases: {a: [a1], b: [a3]}\n    default: [{stop: other}]\n"
+  expect: {"status": "stopped", "reason": "other", "done": [], "context": {"t": "hi", "b": {"kind": "c"}}, "events": [], "trace": []}
+- id: S8
+  inputs: {"t": "hi", "b": {"kind": "b"}}
+  process: "name: x\ninput: {t: text, b: box}\nsteps:\n  - switch: b.kind\n    cases: {a: [a1]}\n"
+  expect: {"status": "failed", "reason": "no case for b, and no default", "done": [], "context": {"t": "hi", "b": {"kind": "b"}}, "events": [], "trace": []}
+- id: S9
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\noutput: {t2: count}\nsteps: [a1, a2]\n"
+  expect: {"status": "failed", "reason": "the outputs are wrong", "done": ["a1", "a2"], "context": {"t": "hi", "t1": "hi-1", "t2": "hi-1-2"}, "errors": [[["t2"], "wrong_type"]]}
+- id: S10
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\noutput: {t2: text}\nsteps: [n]\n"
+  processes: {"n": "name: n\ninput: {t: text}\noutput: {t2: text}\nsteps: [a1, a2]\n"}
+  expect: {"status": "done", "done": ["n/a1", "n/a2", "n"], "context": {"t": "hi", "t2": "hi-1-2"}, "nested": {}, "events": [["n", "started"], ["n/a1", "started"], ["n/a1", "done"], ["n/a2", "started"], ["n/a2", "done"], ["n", "done"]], "trace": ["a1", "a2"]}
+- id: S11
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\noutput: {t2: text}\nsteps: [n]\n"
+  processes: {"n": "name: n\ninput: {t: text}\noutput: {t2: text}\nsteps: [a1, a2]\n"}
+  fail: ["a2"]
+  flag: true
+  expect: {"status": "failed", "reason": "action.sh exited 4", "done": ["n/a1"], "context": {"t": "hi"}, "nested": {"n": {"t": "hi", "t1": "hi-1"}}, "events": [["n", "started"], ["n/a1", "started"], ["n/a1", "done"], ["n/a2", "started"], ["n/a2", "failed"]], "trace": ["a1", "a2"]}
+- id: S12
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\noutput: {t2: text}\nsteps: [n]\n"
+  processes: {"n": "name: n\ninput: {t: text}\noutput: {t2: text}\nsteps: [a1, a2]\n"}
+  checks: {"a1": "echo X > \"$ACTION_OUTPUTS/t1.yaml\"; exit 77", "a2": "echo Y > \"$ACTION_OUTPUTS/t2.yaml\"; exit 77"}
+  expect: {"status": "done", "done": ["n/a1", "n/a2", "n"], "skipped": ["n/a1", "n/a2", "n"], "context": {"t": "hi", "t2": "Y"}, "events": [["n", "started"], ["n/a1", "started"], ["n/a1", "skipped"], ["n/a2", "started"], ["n/a2", "skipped"], ["n", "skipped"]], "trace": []}
+- id: S13
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\noutput: {t2: text}\nsteps: [n]\n"
+  processes: {"n": "name: n\ninput: {t: text}\noutput: {t2: text}\nsteps: [a1, a2]\n"}
+  checks: {"a1": "echo X > \"$ACTION_OUTPUTS/t1.yaml\"; exit 77"}
+  expect: {"status": "done", "done": ["n/a1", "n/a2", "n"], "skipped": ["n/a1"], "events": [["n", "started"], ["n/a1", "started"], ["n/a1", "skipped"], ["n/a2", "started"], ["n/a2", "done"], ["n", "done"]], "trace": ["a2"]}

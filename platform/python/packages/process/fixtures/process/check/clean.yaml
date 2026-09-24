@@ -1,0 +1,19 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-2-graph-check.md §3 — check(main, resolver, types) gives [] . `name: x` is added to every process.
+- id: C1
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\noutput: {artifact: artifact}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [py]}\n    default: [{stop: because}]\n"
+- id: C2
+  process: "name: x\ninput: {app: app, build: build, platform: platform}\noutput: {artifact: artifact}\nsteps: [create, pack]\n"
+- id: C3
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\noutput: {artifact: artifact}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [create, pack], node: [create, pack]}\n"
+- id: C4
+  process: "name: x\nsteps: []\n"
+- id: C5
+  process: "name: x\ninput: {app: app}\noutput: {app: app}\nsteps: []\n"
+- id: C6
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\noutput: {artifact: artifact}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [create], node: [{stop: because}]}\n  - pack\n"
+- id: C7
+  process: "name: x\ninput: {build: build}\nsteps:\n  - switch: build.target\n    cases: {a: [noop], b: [noop]}\n"
+- id: C8
+  process: "name: x\noutput: {artifact: artifact}\nsteps: [{stop: because}]\n"
+- id: C9
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\noutput: {artifact: artifact}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [create, pack]}\n    default: [create, pack]\n"

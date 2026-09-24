@@ -1,0 +1,10 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — Process.of_action(action)
+- id: A1
+  files: {"a1/action.yaml": "name: a1\ntype: shell\ninput: {t: text}\noutput: {t1: text}\n", "a1/action.sh": "true\n"}
+  expect: {"id": "a1", "input": {"t": "text"}, "requires": {}, "output": {"t1": "text"}, "steps": ["Call:a1"]}
+- id: A2
+  files: {"a1/action.yaml": "name: a1\ntype: shell\n", "a1/action.sh": "true\n"}
+  expect: {"id": "a1", "input": {}, "requires": {}, "output": {}, "steps": ["Call:a1"]}
+- id: A3
+  files: {"a1/action.yaml": "name: a1\ntype: shell\ndescription: says hello\n", "a1/action.sh": "true\n"}
+  expect: {"id": "a1", "input": {}, "requires": {}, "output": {}, "steps": ["Call:a1"]}

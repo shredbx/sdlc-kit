@@ -1,0 +1,49 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-1-process-load.md §3 — Process.load: every error, in order, by path and code. The first path step is the file, from the temporary folder.
+- id: I1
+  files: {"x.yaml": ""}
+  expect: [{"path": ["x.yaml"], "code": "wrong_type"}]
+- id: I2
+  files: {"x.yaml": "name: [x"}
+  expect: [{"path": ["x.yaml"], "code": "invalid"}]
+- id: I3
+  files: {"x.yaml": "name: x\nname: x\nsteps: []\n"}
+  expect: [{"path": ["x.yaml"], "code": "invalid"}]
+- id: I4
+  files: {"x.yaml": "steps: []\n"}
+  expect: [{"path": ["x.yaml", "name"], "code": "missing"}]
+- id: I5
+  files: {"x.yaml": "name: x\n"}
+  expect: [{"path": ["x.yaml", "steps"], "code": "missing"}]
+- id: I6
+  files: {"x.yaml": "name: other\nsteps: []\n"}
+  expect: [{"path": ["x.yaml", "name"], "code": "invalid"}]
+- id: I7
+  files: {"x.yaml": "name: x\nsteps: []\nowner: me\n"}
+  expect: [{"path": ["x.yaml", "owner"], "code": "unexpected"}]
+- id: I8
+  files: {"x.yaml": "name: x\nsteps: a\n"}
+  expect: [{"path": ["x.yaml", "steps"], "code": "wrong_type"}]
+- id: I9
+  files: {"x.yaml": "name: x\nsteps: [3, Bad]\n"}
+  expect: [{"path": ["x.yaml", "steps", 0], "code": "wrong_type"}, {"path": ["x.yaml", "steps", 1], "code": "pattern"}]
+- id: I10
+  files: {"x.yaml": "name: x\nsteps:\n  - switch: a\n"}
+  expect: [{"path": ["x.yaml", "steps", 0, "cases"], "code": "missing"}]
+- id: I11
+  files: {"x.yaml": "name: x\ninput: {Bad: string}\nsteps: []\n"}
+  expect: [{"path": ["x.yaml", "input", "Bad"], "code": "pattern"}]
+- id: I12
+  files: {"x.yaml": "name: x\noutput: {a: 3}\nsteps: []\n"}
+  expect: [{"path": ["x.yaml", "output", "a"], "code": "wrong_type"}]
+- id: I13
+  files: {"x.yaml": "name: x\nrequires: [a]\nsteps: []\n"}
+  expect: [{"path": ["x.yaml", "requires"], "code": "wrong_type"}]
+- id: I14
+  files: {"x.yaml": "name: x\ndescription: 3\nsteps: []\n"}
+  expect: [{"path": ["x.yaml", "description"], "code": "wrong_type"}]
+- id: I15
+  files: {"x.yaml": "name: x\ndescription: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nsteps: []\n"}
+  expect: [{"path": ["x.yaml", "description"], "code": "max_length"}]
+- id: I16
+  files: {"x.yaml": "name: x\ndescription: \"line one\\nline two\"\nsteps: []\n"}
+  expect: [{"path": ["x.yaml", "description"], "code": "pattern"}]

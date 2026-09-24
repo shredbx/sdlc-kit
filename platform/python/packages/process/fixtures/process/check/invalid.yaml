@@ -1,0 +1,58 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-2-graph-check.md §3 — check: every error, in order, by path and code. `name: x` is added to every process.
+- id: E1
+  process: "name: x\ninput: {app: app}\nsteps: [nope]\n"
+  expect: [{"path": ["x.yaml", "steps", 0], "code": "unknown_id"}]
+- id: E2
+  process: "name: x\ninput: {app: app}\nsteps: [pack]\n"
+  expect: [{"path": ["x.yaml", "steps", 0], "code": "missing"}]
+- id: E3
+  process: "name: x\ninput: {app: build, build: build, platform: platform}\nsteps: [create]\n"
+  expect: [{"path": ["x.yaml", "steps", 0], "code": "type_mismatch"}]
+- id: E4
+  process: "name: x\noutput: {artifact: artifact}\nsteps: []\n"
+  expect: [{"path": ["x.yaml", "output", "artifact"], "code": "not_produced"}]
+- id: E5
+  process: "name: x\ninput: {app: app, build: build, platform: platform}\noutput: {artifact: project}\nsteps: [create, pack]\n"
+  expect: [{"path": ["x.yaml", "output", "artifact"], "code": "type_mismatch"}]
+- id: E6
+  process: "name: x\ninput: {app: app}\nsteps:\n  - switch: nope.name\n    cases: {}\n"
+  expect: [{"path": ["x.yaml", "steps", 0, "switch"], "code": "missing"}]
+- id: E7
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\nsteps:\n  - resolve\n  - switch: platform.nope\n    cases: {}\n"
+  expect: [{"path": ["x.yaml", "steps", 1, "switch"], "code": "unknown_field"}]
+- id: E8
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\noutput: {artifact: artifact}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [py], ruby: [py]}\n    default: [{stop: because}]\n"
+  expect: [{"path": ["x.yaml", "steps", 1, "cases", "ruby"], "code": "invalid"}]
+- id: E9
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [py]}\n"
+  expect: [{"path": ["x.yaml", "steps", 1, "cases"], "code": "unhandled"}]
+- id: E10
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\noutput: {artifact: artifact}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [create], node: []}\n  - pack\n"
+  expect: [{"path": ["x.yaml", "steps", 2], "code": "missing"}]
+- id: E11
+  process: "name: x\nsteps: [{stop: because}, noop]\n"
+  expect: [{"path": ["x.yaml", "steps", 1], "code": "unreachable"}]
+- id: E12
+  process: "name: x\nsteps: [x]\n"
+  expect: [{"path": ["x.yaml", "steps", 0], "code": "cycle"}]
+- id: E13
+  process: "name: x\nsteps: [noop, noop]\n"
+  expect: [{"path": ["x.yaml", "steps", 1], "code": "duplicate"}]
+- id: E14
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\noutput: {artifact: artifact}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [py]}\n    default: [{stop: because}]\n"
+  processes: {"py": "name: py\ninput: {app: app, build: build, platform: platform}\noutput: {artifact: artifact}\nsteps: [pack]\n"}
+  expect: [{"path": ["p/py.yaml", "steps", 0], "code": "missing"}]
+- id: E15
+  process: "name: x\ninput: {app: app}\nrequires: {app: app}\nsteps: []\n"
+  expect: [{"path": ["x.yaml", "requires", "app"], "code": "duplicate"}]
+- id: E16
+  process: "name: x\ninput: {app: app}\nrequires: {build: build}\nsteps:\n  - resolve\n  - switch: platform.name\n    cases: {python: [ma], node: [mb]}\n"
+  actions: {"ma": {"output": {"thing": "app"}}, "mb": {"output": {"thing": "build"}}}
+  expect: [{"path": ["x.yaml", "steps", 1], "code": "type_mismatch"}]
+- id: E17
+  process: "name: x\ninput: {app: app}\nsteps: [bad]\n"
+  actions: {"bad": {"output": {"app": "build"}}}
+  expect: [{"path": ["x.yaml", "steps", 0], "code": "type_mismatch"}]
+- id: E18
+  process: "name: x\ninput: {app: app}\nsteps: [nope, pack]\n"
+  expect: [{"path": ["x.yaml", "steps", 0], "code": "unknown_id"}, {"path": ["x.yaml", "steps", 1], "code": "missing"}]

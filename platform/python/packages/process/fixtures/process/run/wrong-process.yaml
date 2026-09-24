@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — Runner.resume(run, process) with a process that is wrong: a wrong call
+- {id: W2, target: y, given: main, raises: ValueError}
+- {id: W3, target: x, given: x, raises: TypeError}

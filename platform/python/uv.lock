@@ -11,6 +11,7 @@ members = [
     "process-kit-action",
     "process-kit-config",
     "process-kit-filesystem",
+    "process-kit-process",
     "process-kit-schema",
     "process-kit-template",
     "process-kit-types",
@@ -416,6 +417,35 @@ dev = [
 ]
 
 [package.metadata]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8" },
+    { name = "pyyaml", specifier = ">=6" },
+]
+
+[[package]]
+name = "process-kit-process"
+version = "0.1.0"
+source = { editable = "packages/process" }
+dependencies = [
+    { name = "process-kit-action" },
+    { name = "process-kit-schema" },
+    { name = "process-kit-types" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pyyaml" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "process-kit-action", editable = "packages/action" },
+    { name = "process-kit-schema", editable = "packages/schema" },
+    { name = "process-kit-types", editable = "packages/types" },
+]
 
 [package.metadata.requires-dev]
 dev = [

@@ -1,0 +1,91 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-2-graph-check.md §3 — the world every case starts from
+{
+ "types": [
+  {
+   "name": "app",
+   "type": "mapping",
+   "fields": {
+    "name": {
+     "type": "string"
+    }
+   }
+  },
+  {
+   "name": "build",
+   "type": "mapping",
+   "fields": {
+    "target": {
+     "type": "string"
+    }
+   }
+  },
+  {
+   "name": "artifact",
+   "type": "mapping",
+   "fields": {
+    "path": {
+     "type": "string"
+    }
+   }
+  },
+  {
+   "name": "project",
+   "type": "mapping",
+   "fields": {
+    "path": {
+     "type": "string"
+    }
+   }
+  },
+  {
+   "name": "platform-name",
+   "type": "string",
+   "enum": [
+    "python",
+    "node"
+   ]
+  },
+  {
+   "name": "platform",
+   "type": "mapping",
+   "fields": {
+    "name": {
+     "type": "platform-name"
+    }
+   }
+  }
+ ],
+ "actions": {
+  "resolve": {
+   "input": {
+    "app": "app",
+    "build": "build"
+   },
+   "output": {
+    "platform": "platform"
+   }
+  },
+  "create": {
+   "input": {
+    "app": "app",
+    "build": "build",
+    "platform": "platform"
+   },
+   "output": {
+    "project": "project"
+   }
+  },
+  "pack": {
+   "input": {
+    "project": "project"
+   },
+   "output": {
+    "artifact": "artifact"
+   }
+  },
+  "noop": {}
+ },
+ "processes": {
+  "py": "name: py\ninput: {app: app, build: build, platform: platform}\noutput: {artifact: artifact}\nsteps: [create, pack]\n"
+ }
+}

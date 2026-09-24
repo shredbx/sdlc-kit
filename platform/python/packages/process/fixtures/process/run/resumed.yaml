@@ -1,0 +1,27 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-3-runner.md §3 — Runner.start, then the case's change, then Runner.resume(run)
+- id: R1
+  inputs: {"t": "hi"}
+  fail: ["a2"]
+  flag: true
+  remove: ["out/fail.flag"]
+  expect: {"status": "done", "done": ["a1", "a2"], "context": {"t": "hi", "t1": "hi-1", "t2": "hi-1-2"}, "trace": ["a1", "a2", "a2"]}
+- id: R2
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\noutput: {t2: text}\nsteps: [n]\n"
+  processes: {"n": "name: n\ninput: {t: text}\noutput: {t2: text}\nsteps: [a1, a2]\n"}
+  fail: ["a2"]
+  flag: true
+  remove: ["out/fail.flag"]
+  expect: {"status": "done", "done": ["n/a1", "n/a2", "n"], "context": {"t": "hi", "t2": "hi-1-2"}, "nested": {}, "trace": ["a1", "a2", "a2"]}
+- id: R3
+  inputs: {"t": "hi"}
+  expect: {"status": "done", "done": ["a1", "a2"], "trace": ["a1", "a2"]}
+- id: R4
+  inputs: {"t": "hi"}
+  process: "name: x\ninput: {t: text}\nsteps:\n  - a1\n  - stop: because\n  - a2\n"
+  expect: {"status": "stopped", "reason": "because", "done": ["a1"], "trace": ["a1"]}
+- id: R5
+  inputs: {"t": "hi"}
+  checks: {"a1": "echo no >&2; exit 3"}
+  remove: ["actions/a1/check.sh"]
+  expect: {"status": "done", "done": ["a1", "a2"], "trace": ["a1", "a2"]}

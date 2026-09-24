@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-1-process-load.md §3 — Process.references() as (path, name)
+- id: Q1
+  namespace: sdlc.python
+  files: {x.yaml: "name: x\ninput: {a: string}\nrequires: {b: sdlc.build}\noutput: {c: out}\nsteps: []\n"}
+  expect: [{path: [input, a], name: string}, {path: [requires, b], name: sdlc.build}, {path: [output, c], name: sdlc.python.out}]

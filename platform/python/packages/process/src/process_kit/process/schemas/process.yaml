@@ -1,0 +1,10 @@
+# A process: what it takes, what it needs beside that, what it gives, and the steps that make it.
+name: process
+type: mapping
+fields:
+  name:        {type: process_kit.action.name, required: true}    # the file's name
+  description: {type: process_kit.action.description}
+  input:       {type: process_kit.action.ports}                   # name -> type name
+  requires:    {type: process_kit.action.ports}                   # found beside the input it extends
+  output:      {type: process_kit.action.ports}
+  steps:       {type: steps, required: true}

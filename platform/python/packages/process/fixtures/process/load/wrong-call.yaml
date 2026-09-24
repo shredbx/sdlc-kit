@@ -1,0 +1,6 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-1-process-load.md §3 — Process.load raises
+- {id: W1, file: nowhere.yaml, raises: FileNotFoundError}
+- {id: W2, file: x.yaml, folders: [x.yaml], raises: IsADirectoryError}
+- {id: W3, file: x.txt, files: {x.txt: "name: x\nsteps: []\n"}, raises: ValueError}
+- {id: W4, file: x.yaml, namespace: .a, files: {x.yaml: "name: x\nsteps: []\n"}, raises: ValueError}
+- {id: W5, file: x.yaml, namespace: 3, files: {x.yaml: "name: x\nsteps: []\n"}, raises: TypeError}

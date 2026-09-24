@@ -1,0 +1,4 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-3-runner.md §3 — Run.from_data(run.to_data()) == run
+- {id: D1, run: {"id": "r9", "target": "sdlc.build", "scopes": {"std": "0.1.0", "sdlc": "0.1.0"}, "digest": "abc123", "status": "failed", "done": ["sdlc.a", "n/sdlc.b"], "skipped": ["sdlc.a"], "context": {"t": "hi", "b": {"kind": "a", "tags": ["x", "y"]}}, "nested": {"n": {"t": "hi", "t1": "hi-1"}}, "output": {"t2": "hi-1-2"}, "reason": "action.sh exited 4", "errors": [{"path": ["msg"], "code": "pattern", "message": "no"}, {"path": ["a", 1], "code": "wrong_type", "message": "no"}]}}
+- {id: D2, run: {"id": "r1", "target": "x", "scopes": {}, "digest": "", "status": "running", "done": [], "context": {}, "nested": {}, "output": {}}}
+- {id: D3, run: {"id": "r2", "target": "sdlc.build", "scopes": {}, "digest": "d", "status": "done", "done": ["n/a1", "n"], "skipped": ["n/a1", "n"], "context": {}, "nested": {}, "output": {}}}

@@ -1,0 +1,4 @@
+# The steps of a process, in order, or of a case of a switch.
+name: steps
+type: sequence
+items: step

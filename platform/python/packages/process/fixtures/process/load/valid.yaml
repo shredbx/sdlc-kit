@@ -1,0 +1,27 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-1-process-load.md §3 — Process.load(file, namespace) gives a Process
+- id: V1
+  files: {"x.yaml": "name: x\nsteps: [a]\n"}
+  expect: {"id": "x", "steps": [{"call": "a"}]}
+- id: V2
+  namespace: sdlc
+  files: {"x.yaml": "name: x\ninput:\n  application: application\nrequires:\n  build: build\noutput:\n  artifact: build-artifact\nsteps:\n  - resolve-platform\n  - switch: platform.name\n    cases:\n      python: [sdlc.python.build-application]\n    default:\n      - stop: no build process for this platform yet\n"}
+  expect: {"id": "sdlc.x", "input": {"application": "sdlc.application"}, "requires": {"build": "sdlc.build"}, "output": {"artifact": "sdlc.build-artifact"}, "steps": [{"call": "sdlc.resolve-platform"}, {"switch": "platform.name", "cases": {"python": [{"call": "sdlc.python.build-application"}]}, "default": [{"stop": "no build process for this platform yet"}]}]}
+- id: V3
+  namespace: sdlc.python
+  files: {"x.yaml": "name: x\ninput: {a: sdlc.application, b: integer, c: local}\nsteps: [create-project, std.other]\n"}
+  expect: {"id": "sdlc.python.x", "input": {"a": "sdlc.application", "b": "integer", "c": "sdlc.python.local"}, "steps": [{"call": "sdlc.python.create-project"}, {"call": "std.other"}]}
+- id: V4
+  files: {"x.yaml": "name: x\nsteps:\n  - switch: a.b\n    cases:\n      x:\n        - switch: c\n          cases: {y: [d]}\n"}
+  expect: {"id": "x", "steps": [{"switch": "a.b", "cases": {"x": [{"switch": "c", "cases": {"y": [{"call": "d"}]}, "default": null}]}, "default": null}]}
+- id: V5
+  files: {"x.yaml": "name: x\nsteps: []\n"}
+  expect: {"id": "x", "steps": []}
+- id: V6
+  files: {"x.yaml": "name: x\nsteps: [z, a, m]\n"}
+  expect: {"id": "x", "steps": [{"call": "z"}, {"call": "a"}, {"call": "m"}]}
+- id: V7
+  files: {"x.yaml": "name: x\nsteps:\n  - switch: a\n    cases: {q: [b], p: [c]}\n"}
+  expect: {"id": "x", "steps": [{"switch": "a", "cases": {"q": [{"call": "b"}], "p": [{"call": "c"}]}, "default": null}]}
+- id: V8
+  files: {"x.yaml": "name: x\ndescription: what it does\nsteps: []\n"}
+  expect: {"id": "x", "description": "what it does", "steps": []}

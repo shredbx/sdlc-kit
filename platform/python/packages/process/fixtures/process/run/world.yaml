@@ -1,0 +1,61 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-3-runner.md §3 — the world every case starts from
+{
+ "types": [
+  {
+   "name": "text",
+   "type": "string"
+  },
+  {
+   "name": "count",
+   "type": "integer"
+  },
+  {
+   "name": "kind",
+   "type": "string",
+   "enum": [
+    "a",
+    "b",
+    "c"
+   ]
+  },
+  {
+   "name": "box",
+   "type": "mapping",
+   "fields": {
+    "kind": {
+     "type": "kind"
+    }
+   }
+  }
+ ],
+ "actions": {
+  "a1": {
+   "input": {
+    "t": "text"
+   },
+   "output": {
+    "t1": "text"
+   },
+   "script": "echo \"$INPUT_T-1\" > \"$ACTION_OUTPUTS/t1.yaml\""
+  },
+  "a2": {
+   "input": {
+    "t1": "text"
+   },
+   "output": {
+    "t2": "text"
+   },
+   "script": "echo \"$INPUT_T1-2\" > \"$ACTION_OUTPUTS/t2.yaml\""
+  },
+  "a3": {
+   "input": {
+    "t": "text"
+   },
+   "output": {
+    "t3": "text"
+   },
+   "script": "echo \"$INPUT_T-3\" > \"$ACTION_OUTPUTS/t3.yaml\""
+  }
+ },
+ "main": "name: x\ninput: {t: text}\noutput: {t2: text}\nsteps: [a1, a2]\n"
+}
