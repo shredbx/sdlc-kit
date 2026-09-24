@@ -161,6 +161,18 @@ decided, read them directly instead of this file:
 - **Proposals** (design write-ups pending or past approval): `docs/proposals/`.
 - **Plans** (task-by-task implementation logs, one per milestone): `docs/plans/`.
 
-Next step: decide with the user which real work follows the architecture governance milestone —
-`docs/proposals/porting-and-modeling-process.md` names porting `types` into `platform/python/` as
-what's next in line.
+**As of 2026-09-24**: all seven `process-os` `process-kit` packages (`types`, `schema`, `action`,
+`filesystem`, `config`, `template`, `process`) are ported verbatim into
+`platform/python/packages/`, each proven against its own ported test suite, ruff/mypy-clean, and
+wired into `.github/workflows/python-ci.yml` as its own step — see `docs/plans/2026-09-24-*-milestone-{2..8}.md`
+for the per-package detail (what was copied, what ruff/mypy found, the coverage-gap check each one
+got). `platform/python/pyproject.toml`'s workspace covers all seven; nothing in `process-kit` is
+left unported. A combined `pytest packages/` across all of them fails at collection (shared relative
+test paths collide) — expected, not a bug, which is exactly why CI runs one `pytest` step per
+package.
+
+Next step: **model a real product on this foundation** — the user wants to introduce the actual
+workflow, schemas and code a specific product needs, discussed and modeled the normal way (per
+"Workflow with the user" above: discuss intent → plan the shape → per-definition approval → before/
+after file tree → implement → `process-cli check`). Nothing about that product is decided yet as of
+this note — pick it up fresh with the user rather than assuming scope from here.
