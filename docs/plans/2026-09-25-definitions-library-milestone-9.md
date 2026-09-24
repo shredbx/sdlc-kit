@@ -76,10 +76,26 @@ M10/M11.
 
 ## Retrospective note (process-os tooling)
 
-All M9 proof ran through `process-cli` directly, not the MCP round-trip. The CLI's `--config FILE`
-was what made a scratch negative control possible without editing the real `processos.yaml`; whether
-the MCP tools offer an equivalent was not checked. Leaning CLI-first for proof work that needs a
-throwaway config.
+All M9 proof ran through `process-cli` directly. Afterwards the MCP server was checked against the
+worktree, with two findings:
+
+1. **The MCP server loads its catalog once, at startup.** This session's `process-cli mcp` (its
+   parent process is this session's `claude`; its cwd is the worktree) started 03:44:29; M9's libraries landed
+   04:29:15. Through the MCP, `list` returned 6 definitions and `list --scope sdlc` returned nothing;
+   the CLI returned 58 and 22 for the same calls. Not a filter quirk (same filter, CLI side works) —
+   staleness. Its records read correctly (8 decisions, without the `main`-only
+   `nested-claude-md-governance`), so it was the right workspace, just an old snapshot of it.
+2. **Which workspace the server reads is whichever folder it was launched from** — `plugin.json`
+   sets no `cwd` and no `--config`. Correct here because the session started in the worktree. A
+   session started in `main` and moved into a worktree afterwards would keep `main`'s folder; that
+   part is reasoning from cwd inheritance, not observed.
+
+Working rule adopted: for anything depending on definitions or config changed this session, use
+`process-cli` with `--config` pinned to this worktree's `processos.yaml`; no MCP until it is
+reconnected. The CLI re-reads everything per call; its `--config FILE` also made the scratch
+negative controls possible without touching the real config. Concrete recommendation for the
+standing MCP retrospective: CLI-first for authoring and porting work, MCP only for reads after a
+restart, and compare the MCP's `list` count with the CLI's before trusting it.
 
 ## Draft notes for wrap-up (not yet records)
 

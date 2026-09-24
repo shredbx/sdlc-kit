@@ -137,12 +137,15 @@ conflict only if both add the same topic). `uv.lock` is generated — on conflic
 instead of hand-merging.
 
 **Sync protocol:**
-1. Merge `main` into this branch at each milestone boundary (M9, M10, M11, M12), so drift stays one
-   small step.
-2. After each merge, run `process-cli check` and the scoped tests of what was just ported.
-3. After M12, integrate into `main` (merge or PR — the user's call).
-4. Never use bare `git stash` (the stash stack is shared across worktrees); never work inside
-   `main`'s checkout from here.
+1. **Integration happens from `main`'s side** (user's instruction, 2026-09-25): this branch does not
+   merge `main` in, and nothing here touches `main`'s checkout. A read-only
+   `git merge-tree --write-tree HEAD main` at each milestone boundary is still worth running to see
+   drift early (at M9: one commit behind, clean).
+2. Whoever integrates runs `process-cli check` and the scoped tests of what was ported.
+3. Use `process-cli` with `--config` pinned to this worktree's `processos.yaml` — not the process
+   MCP, which loads its catalog once at startup and goes stale mid-session (see the M9 plan's
+   retrospective note).
+4. Never use bare `git stash` (the stash stack is shared across worktrees).
 
 ## Decision-record candidates
 
