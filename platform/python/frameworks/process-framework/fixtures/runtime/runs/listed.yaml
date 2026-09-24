@@ -1,0 +1,10 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-2-runs-commands.md §3 — Runs.list(): every run's id, most recent first
+- id: LS1
+  files: {"runs/250101-090000-x/run.yaml": "status: done\n", "runs/250101-100000-x/run.yaml": "status: done\n"}
+  expect: ["250101-100000-x", "250101-090000-x"]
+- id: LS2
+  expect: []
+- id: LS3
+  files: {"runs/250101-090000-x/run.yaml": "status: done\n"}
+  folders: ["runs/not-a-run"]
+  expect: ["250101-090000-x"]

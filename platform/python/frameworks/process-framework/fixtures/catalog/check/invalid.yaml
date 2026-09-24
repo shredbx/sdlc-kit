@@ -1,0 +1,115 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-6-catalog-check.md §3 — check(): every error, in order, by path and code. Each case adds files to the anchored base (the key `base` of F1).
+- id: F1
+  base: &base
+    "defs/README": "notes\n"
+    "defs/sdlc/.DS_Store": ""
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": "name: relative-path\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/platform-name.yaml": "name: platform-name\ntype: string\nenum: [python, node]\n"
+    "defs/sdlc/schema/platform.yaml": "name: platform\ntype: mapping\nfields:\n  name: {type: platform-name}\n  path: {type: std.relative-path}\n"
+    "defs/sdlc/action/resolve-platform/action.yaml": "name: resolve-platform\ntype: shell\ninput:\n  platform: platform\noutput:\n  path: std.relative-path\n"
+    "defs/sdlc/action/resolve-platform/action.sh": ""
+    "defs/sdlc/python/action/create-project/action.yaml": "name: create-project\ntype: shell\ninput:\n  platform: sdlc.platform\n"
+    "defs/sdlc/python/action/create-project/action.sh": ""
+    "defs/other/scope.yaml": "name: other\nversion: 0.1.0\n"
+    "defs/other/type/x.yaml": "name: x\ntype: string\n"
+  files: {<<: *base, "defs/std/notes.txt": ""}
+  expect: [{"path": ["defs/std/notes.txt"], "code": "unexpected"}]
+- id: F2
+  files: {<<: *base, "defs/sdlc/python/notes.txt": ""}
+  expect: [{"path": ["defs/sdlc/python/notes.txt"], "code": "unexpected"}]
+- id: F3
+  files: {<<: *base, "defs/sdlc/Bad_ns/type/x.yaml": "name: x\ntype: string\n"}
+  expect: [{"path": ["defs/sdlc/Bad_ns"], "code": "unexpected"}]
+- id: F4
+  files: {<<: *base, "defs/std/type/notes.txt": ""}
+  expect: [{"path": ["defs/std/type/notes.txt"], "code": "unexpected"}]
+- id: F5
+  files: {<<: *base, "defs/std/type/sub/x.yaml": "name: x\ntype: string\n"}
+  expect: [{"path": ["defs/std/type/sub"], "code": "unexpected"}]
+- id: F6
+  files: {<<: *base, "defs/std/type/Bad.yaml": "name: Bad\ntype: string\n"}
+  expect: [{"path": ["defs/std/type/Bad.yaml"], "code": "unexpected"}]
+- id: F7
+  files: {<<: *base, "defs/sdlc/action/loose.yaml": ""}
+  expect: [{"path": ["defs/sdlc/action/loose.yaml"], "code": "unexpected"}]
+- id: F8
+  files: {<<: *base, "defs/sdlc/action/Bad/action.yaml": ""}
+  expect: [{"path": ["defs/sdlc/action/Bad"], "code": "unexpected"}]
+- id: F9
+  files: {<<: *base, "defs/sdlc/python/scope.yaml": "name: python\nversion: 0.1.0\n"}
+  expect: [{"path": ["defs/sdlc/python/scope.yaml"], "code": "unexpected"}]
+- id: F10
+  folders: ["defs/std/.git"]
+  files: {<<: *base, "defs/std/type/.DS_Store": ""}
+  expect: []
+- id: F11
+  files: {<<: *base, "defs/std/type/x.yml": "name: x\ntype: string\n"}
+  expect: [{"path": ["defs/std/type/x.yml"], "code": "unexpected"}]
+- id: D1
+  files: {<<: *base, "defs/std/type/a.yaml": "{{{"}
+  expect: [{"path": ["defs/std/type/a.yaml"], "code": "invalid"}]
+- id: D2
+  files: {<<: *base, "defs/std/type/a.yaml": "name: a\ntype: string\nmin_length: two\n"}
+  expect: [{"path": ["defs/std/type/a.yaml", "min_length"], "code": "wrong_type"}]
+- id: D3
+  files: {<<: *base, "defs/std/type/a.yaml": "name: b\ntype: string\n"}
+  expect: [{"path": ["defs/std/type/a.yaml", "name"], "code": "invalid"}]
+- id: D4
+  files: {<<: *base, "defs/std/type/m.yaml": "name: m\ntype: mapping\n"}
+  expect: [{"path": ["defs/std/type/m.yaml", "type"], "code": "invalid"}]
+- id: D5
+  files: {<<: *base, "defs/sdlc/schema/s.yaml": "name: s\ntype: string\n"}
+  expect: [{"path": ["defs/sdlc/schema/s.yaml", "type"], "code": "invalid"}]
+- id: D6
+  files: {<<: *base, "defs/sdlc/type/dup.yaml": "name: dup\ntype: string\n", "defs/sdlc/schema/dup.yaml": "name: dup\ntype: mapping\n"}
+  expect: [{"path": ["defs/sdlc/schema/dup.yaml", "name"], "code": "duplicate"}]
+- id: D7
+  files: {<<: *base, "defs/sdlc/schema/p.yaml": "name: p\ntype: mapping\nfields:\n  x: {type: nope}\n"}
+  expect: [{"path": ["defs/sdlc/schema/p.yaml", "fields", "x", "type"], "code": "unknown_id"}]
+- id: D8
+  files: {<<: *base, "defs/std/schema/p.yaml": "name: p\ntype: mapping\nfields:\n  x: {type: sdlc.platform-name}\n"}
+  expect: [{"path": ["defs/std/schema/p.yaml", "fields", "x", "type"], "code": "not_used"}]
+- id: D9
+  files: {<<: *base, "defs/sdlc/schema/p.yaml": "name: p\ntype: mapping\nfields:\n  x: {type: other.x}\n"}
+  expect: [{"path": ["defs/sdlc/schema/p.yaml", "fields", "x", "type"], "code": "not_used"}]
+- id: A1
+  files: {<<: *base, "defs/sdlc/action/a/action.yaml": "{{{", "defs/sdlc/action/a/action.sh": ""}
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml"], "code": "invalid"}]
+- id: A2
+  files: {<<: *base, "defs/sdlc/action/empty/notes.txt": ""}
+  expect: [{"path": ["defs/sdlc/action/empty/action.yaml"], "code": "missing"}]
+- id: A3
+  files: {<<: *base, "defs/sdlc/action/a/action.yaml": "name: b\ntype: shell\n", "defs/sdlc/action/a/action.sh": ""}
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "name"], "code": "invalid"}]
+- id: A4
+  files: {<<: *base, "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\n"}
+  expect: [{"path": ["defs/sdlc/action/a/action.sh"], "code": "missing"}]
+- id: A5
+  files: {<<: *base, "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput:\n  x: nope\n", "defs/sdlc/action/a/action.sh": ""}
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "x"], "code": "unknown_id"}]
+- id: A6
+  files: {<<: *base, "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput:\n  x: other.x\n", "defs/sdlc/action/a/action.sh": ""}
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "x"], "code": "not_used"}]
+- id: A7
+  files: {<<: *base, "defs/sdlc/action/x/action.yaml": "name: x\ntype: shell\n", "defs/sdlc/action/x/action.sh": "", "defs/sdlc/process/x.yaml": "name: x\nsteps: []\n"}
+  expect: [{"path": ["defs/sdlc/process/x.yaml", "name"], "code": "duplicate"}]
+- id: O1
+  files: {<<: *base, "defs/std/notes.txt": "", "defs/std/type/a.yaml": "{{{", "defs/std/type/b.yaml": "name: b\ntype: sequence\nitems: nope\n", "defs/sdlc/action/x/action.yaml": "name: x\ntype: shell\ninput:\n  p: nope\n", "defs/sdlc/action/x/action.sh": "", "defs/sdlc/action/y/action.yaml": "type: shell\n", "defs/sdlc/action/y/action.sh": ""}
+  expect: [{"path": ["defs/std/notes.txt"], "code": "unexpected"}, {"path": ["defs/std/type/a.yaml"], "code": "invalid"}, {"path": ["defs/sdlc/action/y/action.yaml", "name"], "code": "missing"}, {"path": ["defs/std/type/b.yaml", "items"], "code": "unknown_id"}, {"path": ["defs/sdlc/action/x/action.yaml", "input", "p"], "code": "unknown_id"}]
+- id: T1
+  files: {<<: *base, "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n", "defs/sdlc/template/pkg/template.yaml": "{{{", "defs/sdlc/template/pkg/files/README.md": "readme\n", "defs/sdlc/template/pkg/files/{{name}}/main.py.jinja": "def main():\n    return '{{ name }}'\n"}
+  expect: [{"path": ["defs/sdlc/template/pkg/template.yaml"], "code": "invalid"}]
+- id: T2
+  files: {<<: *base, "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n", "defs/sdlc/template/pkg/template.yaml": "name: pkg\ninput: spec\n"}
+  expect: [{"path": ["defs/sdlc/template/pkg/files"], "code": "missing"}]
+- id: T3
+  files: {<<: *base, "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n", "defs/sdlc/template/pkg/template.yaml": "name: pkg\ninput: nope\n", "defs/sdlc/template/pkg/files/a.txt": ""}
+  expect: [{"path": ["defs/sdlc/template/pkg/template.yaml", "input"], "code": "unknown_id"}]
+- id: T4
+  files: {<<: *base, "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n", "defs/std/template/t/template.yaml": "name: t\ninput: sdlc.spec\n", "defs/std/template/t/files/a.txt": ""}
+  expect: [{"path": ["defs/std/template/t/template.yaml", "input"], "code": "not_used"}]
+- id: T5
+  files: {<<: *base, "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n", "defs/sdlc/template/pkg/template.yaml": "name: other\ninput: spec\n", "defs/sdlc/template/pkg/files/a.txt": ""}
+  expect: [{"path": ["defs/sdlc/template/pkg/template.yaml", "name"], "code": "invalid"}]

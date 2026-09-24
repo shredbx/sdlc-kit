@@ -1,0 +1,9 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-5-catalog-loads.md §3 — Catalog.node(ident): the action, with its types in full
+- id: A1
+  ident: sdlc.resolve-platform
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/sdlc/action/resolve-platform/action.yaml": "name: resolve-platform\ntype: shell\ninput:\n  application: application\n  build: build\noutput:\n  platform: platform\n", "defs/sdlc/action/resolve-platform/action.sh": ""}
+  expect: {"input": {"application": "sdlc.application", "build": "sdlc.build"}, "output": {"platform": "sdlc.platform"}}
+- id: A2
+  ident: sdlc.python.create-project
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/sdlc/python/action/create-project/action.yaml": "name: create-project\ntype: shell\ninput:\n  platform: sdlc.platform\noutput:\n  project: project\n", "defs/sdlc/python/action/create-project/action.sh": ""}
+  expect: {"input": {"platform": "sdlc.platform"}, "output": {"project": "sdlc.python.project"}}

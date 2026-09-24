@@ -1,0 +1,12 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m3-1-version-stamp.md §3 — read_build(file): what a stamp holds, or None
+- id: R1
+  files: {"process-cli.build": "version: 0.2.0\ncommit: abc123\ndate: 2026-09-22\ndigest: deadbeef\n"}
+  expect: {version: 0.2.0, commit: abc123, date: 2026-09-22, digest: deadbeef}
+- id: R2
+  expect: null
+- id: R3
+  files: {"process-cli.build": "- a\n- b\n"}
+  expect: null
+- id: R4
+  files: {"process-cli.build": "{{{"}
+  expect: null

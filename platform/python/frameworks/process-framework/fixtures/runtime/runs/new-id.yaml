@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 — Runs.new_id(target), at 21 September 2026, 14:30:00
+- {id: N1, target: sdlc.resolve-platform, expect: 260921-143000-resolve-platform}
+- {id: N2, folders: [runs/260921-143000-resolve-platform], target: sdlc.resolve-platform, expect: 260921-143000-resolve-platform-2}
+- {id: N3, folders: [runs/260921-143000-resolve-platform, runs/260921-143000-resolve-platform-2], target: sdlc.resolve-platform, expect: 260921-143000-resolve-platform-3}
+- {id: N4, target: x, expect: 260921-143000-x}

@@ -1,0 +1,36 @@
+# docs/tasks/260922-process-cli-03/steps/m2-1-type-mapping.md §4 — input_schema against the real repository's definitions/
+- id: D1
+  node: sdlc.resolve-platform
+  expect:
+    type: object
+    properties:
+      application: {$ref: "#/$defs/sdlc.application"}
+      build: {$ref: "#/$defs/sdlc.build"}
+    required: [application, build]
+    additionalProperties: false
+    $defs:
+      sdlc.application:
+        type: object
+        properties:
+          name: {$ref: "#/$defs/sdlc.application-name"}
+          description: {type: string}
+          version: {$ref: "#/$defs/std.version"}
+          platform: {$ref: "#/$defs/sdlc.platform-name"}
+          language: {$ref: "#/$defs/sdlc.language"}
+          framework: {$ref: "#/$defs/sdlc.framework"}
+        required: [name, description, version, platform, language, framework]
+        additionalProperties: false
+      sdlc.application-name: {type: string, pattern: '[a-z][a-z0-9]*(-[a-z0-9]+)*'}
+      std.version: {type: string, pattern: '[0-9]+\.[0-9]+\.[0-9]+'}
+      sdlc.platform-name: {type: string, enum: [python, node]}
+      sdlc.language: {type: string, enum: [python, typescript, javascript]}
+      sdlc.framework: {type: string, enum: [none, typer]}
+      sdlc.build:
+        type: object
+        properties:
+          target: {$ref: "#/$defs/std.relative-path"}
+          runtime: {$ref: "#/$defs/sdlc.runtime-version"}
+        required: [target, runtime]
+        additionalProperties: false
+      std.relative-path: {type: string, pattern: '(?!\.\.?(/|$))[A-Za-z0-9_.-]+(/(?!\.\.?(/|$))[A-Za-z0-9_.-]+)*'}
+      sdlc.runtime-version: {type: string, pattern: '[0-9]+\.[0-9]+'}

@@ -1,0 +1,9 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m6-1-init.md §3, revised by 260922-process-cli-04's m1-2 —
+# create_workspace: nothing is written over, and the files that are there are named
+- {id: E1, files: {processos.yaml: "keep\n"}, expect: [{path: [processos.yaml], code: exists}]}
+- {id: E2, files: {processos-workspace/definitions/main/scope.yaml: "keep\n"}, expect: [{path: [processos-workspace/definitions/main/scope.yaml], code: exists}]}
+- {id: E3, files: {processos-workspace/.gitignore: "keep\n"}, expect: [{path: [processos-workspace/.gitignore], code: exists}]}
+- id: E4
+  files: {processos.yaml: "keep\n", processos-workspace/definitions/main/scope.yaml: "keep\n", processos-workspace/.gitignore: "keep\n"}
+  expect: [{path: [processos.yaml], code: exists}, {path: [processos-workspace/definitions/main/scope.yaml], code: exists}, {path: [processos-workspace/.gitignore], code: exists}]
+- {id: E5, scope: Bad_Name, expect: [{path: [scope], code: pattern}]}

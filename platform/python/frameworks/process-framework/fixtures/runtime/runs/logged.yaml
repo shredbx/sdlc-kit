@@ -1,0 +1,28 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-1-executor-and-record.md §3, and 260922-process-cli-04's
+# m2-1 — Runs.log(run_id, node, stdout, stderr): LG1 and LG3's own empty stderr now also proves no
+# stderr.log is written, not only that reading it back gives "".
+- id: LG1
+  run_id: a
+  node: n1
+  stdout: "hello\n"
+  stderr: ""
+  expect: {stdout: "hello\n", stderr: ""}
+- id: LG2
+  run_id: a
+  node: n1
+  files: {runs/a/n1/stdout.log: "old\n", runs/a/n1/stderr.log: "old-err\n"}
+  stdout: "new\n"
+  stderr: "new-err\n"
+  expect: {stdout: "new\n", stderr: "new-err\n"}
+- id: LG3
+  run_id: a
+  node: "nested/child"
+  stdout: "deep\n"
+  stderr: ""
+  expect: {stdout: "deep\n", stderr: ""}
+- id: LG4
+  run_id: a
+  node: n2
+  stdout: ""
+  stderr: ""
+  expect: {stdout: "", stderr: ""}

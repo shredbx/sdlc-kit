@@ -18,7 +18,7 @@ jobs:
       - run: uv sync
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run mypy packages/types/src packages/schema/src packages/action/src packages/filesystem/src packages/config/src packages/template/src packages/process/src
+      - run: uv run mypy packages/types/src packages/schema/src packages/action/src packages/filesystem/src packages/config/src packages/template/src packages/process/src frameworks/process-framework/src
       - run: uv run pytest packages/types
       - run: uv run pytest packages/schema
       - run: uv run pytest packages/action
@@ -26,3 +26,4 @@ jobs:
       - run: uv run pytest packages/config
       - run: uv run pytest packages/template
       - run: uv run pytest packages/process
+      - run: uv run pytest frameworks/process-framework

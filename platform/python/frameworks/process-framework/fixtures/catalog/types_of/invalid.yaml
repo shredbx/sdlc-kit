@@ -1,0 +1,19 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-4-catalog-processes.md §3 — types_of(node): every error, in order. The definitions are anchored in U1 (`base`).
+- id: U1
+  base: &base
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/text.yaml": "name: text\ntype: string\n"
+    "defs/sdlc/type/count.yaml": "name: count\ntype: integer\n"
+    "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: text}\noutput: {y: text}\n"
+    "defs/sdlc/action/a/action.sh": "echo a\n"
+    "defs/sdlc/action/b/action.yaml": "name: b\ntype: shell\ninput: {y: text}\noutput: {z: count}\n"
+    "defs/sdlc/action/b/action.sh": "echo b\n"
+    "defs/sdlc/process/p.yaml": "name: p\ninput: {x: text}\noutput: {z: count}\nsteps: [a, b]\n"
+  files: {<<: *base, "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: nope}\noutput: {y: text}\n"}
+  ident: "sdlc.a"
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "x"], "code": "unknown_id"}]
+- id: U2
+  files: {<<: *base, "defs/sdlc/process/p.yaml": "name: p\ninput: {x: std.thing}\nsteps: []\n", "defs/std/type/thing.yaml": "name: thing\ntype: string\n", "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  ident: "sdlc.p"
+  expect: [{"path": ["defs/sdlc/process/p.yaml", "input", "x"], "code": "not_used"}]

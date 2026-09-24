@@ -1,0 +1,19 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3, revised by 260923-process-cli-05's
+# M2 — Records.gather(input, requires, records, typed, types): the values. `given` and `values` are now one
+# `records` mapping; resolution tries a file, then an id, then (for a scalar) a literal — H1-H4 and H11
+# still read real files, unchanged; H6-H10 fall back to a literal, since no such file is there.
+- {id: H1, files: {records/hi/msg.yaml: "hello\n"}, input: {msg: text}, requires: {}, records: {msg: hi}, expect: {msg: hello}}
+- {id: H2, files: {records/hi/msg.yaml: "hello\n", records/hi/extension/style.yaml: "mark: '!'\n"}, input: {msg: text}, requires: {style: style}, records: {msg: hi}, expect: {msg: hello, style: {mark: '!'}}}
+- {id: H3, files: {records/hi/msg.yaml: "hello\n", records/hi/extension/style.yaml: "mark: '!'\n", records/other/ext/style.yaml: "mark: '?'\n"}, input: {msg: text}, requires: {style: style}, records: {msg: hi, style: other/ext}, expect: {msg: hello, style: {mark: '?'}}}
+- {id: H4, files: {records/hi/msg.yaml: "hello\n", records/hi/note.yaml: "note\n", records/hi/extension/style.yaml: "mark: '!'\n"}, input: {msg: text, note: text}, requires: {style: style}, records: {msg: hi, note: hi}, expect: {msg: hello, note: note, style: {mark: '!'}}}
+- {id: H5, input: {}, requires: {}, records: {}, expect: {}}
+- {id: H6, input: {msg: text}, requires: {}, records: {msg: hello}, expect: {msg: hello}}
+- {id: H7, input: {n: count}, requires: {}, records: {n: '3'}, expect: {n: 3}}
+- {id: H8, input: {r: ratio}, requires: {}, records: {r: '1.5'}, expect: {r: 1.5}}
+- {id: H9, input: {ok: flag}, requires: {}, records: {ok: 'true'}, expect: {ok: true}}
+- {id: H10, input: {ok: flag}, requires: {}, records: {ok: 'false'}, expect: {ok: false}}
+- {id: H11, files: {records/hi/msg.yaml: "hello\n"}, input: {msg: text, n: count}, requires: {}, records: {msg: hi, n: '3'}, expect: {msg: hello, n: 3}}
+- {id: H12, input: {style: style}, requires: {}, records: {}, typed: {style: {mark: '!'}}, expect: {style: {mark: '!'}}}
+- {id: H13, input: {tags: tags}, requires: {}, records: {}, typed: {tags: [hello, world]}, expect: {tags: [hello, world]}}
+- {id: H14, input: {n: count}, requires: {}, records: {n: '5'}, typed: {n: 3}, expect: {n: 5}}
+- {id: H15, folders: [records], input: {msg: text}, requires: {}, records: {msg: hi}, expect: {msg: hi}}

@@ -1,0 +1,9 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 and m5-5-framework-runs.md §3 — new_id, save and load raise
+# docs/tasks/_done/260922-process-cli-02/steps/m4-1-executor-and-record.md §3 — log raises too
+- {id: W1, call: new_id, args: [3], raises: TypeError}
+- {id: W3, call: save, args: [3], raises: TypeError}
+- {id: W4, call: load, args: [3], raises: TypeError}
+- {id: W5, call: load, args: [r], files: {runs/r/run.yaml: "x: 1\n"}, raises: ValueError}
+- {id: W6, call: log, args: [3, n, "", ""], raises: TypeError}
+- {id: W7, call: log, args: [r, "../../x", "", ""], raises: ValueError}
+- {id: W8, call: delete, args: [3], raises: TypeError}

@@ -1,0 +1,19 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-4-catalog-processes.md §3 — Catalog.node(ident) of a process. The definitions are anchored in A3 (`base`).
+- id: A3
+  base: &base
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/text.yaml": "name: text\ntype: string\n"
+    "defs/sdlc/type/count.yaml": "name: count\ntype: integer\n"
+    "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: text}\noutput: {y: text}\n"
+    "defs/sdlc/action/a/action.sh": "echo a\n"
+    "defs/sdlc/action/b/action.yaml": "name: b\ntype: shell\ninput: {y: text}\noutput: {z: count}\n"
+    "defs/sdlc/action/b/action.sh": "echo b\n"
+    "defs/sdlc/process/p.yaml": "name: p\ninput: {x: text}\noutput: {z: count}\nsteps: [a, b]\n"
+  files: {<<: *base}
+  ident: "sdlc.p"
+  expect: {"input": {"x": "sdlc.text"}, "steps": ["sdlc.a", "sdlc.b"]}
+- id: A4
+  files: {<<: *base, "defs/sdlc/py/process/q.yaml": "name: q\ninput: {x: text}\nsteps: [a]\n"}
+  ident: "sdlc.py.q"
+  expect: {"input": {"x": "sdlc.py.text"}, "steps": ["sdlc.py.a"]}

@@ -1,0 +1,29 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m6-1-init.md §3, revised by 260922-process-cli-04's m1-2 —
+# create_workspace(folder, scope): the paths, and what the files hold
+- id: C1
+  expect:
+    paths: [processos.yaml, processos-workspace/definitions/main/scope.yaml, processos-workspace/.gitignore]
+    files:
+      processos.yaml: "# The config of this workspace: where its definitions are, and where runs work. process-cli finds it by\n# looking upward from the current folder. Paths are relative to this file.\nversion: 0.1.0                    # the shape of this file; changes only when process-cli's own config format does\ndefinitions: processos-workspace/definitions   # a folder of scopes; every folder in it is one\nruntime:\n  root: processos-workspace       # runs work here\n  records: records                # the records given to runs, one folder per instance; kept in git\n  output: output                  # where actions write, and their working folder\n  runs: runs                      # the state of each run, one folder per run; git-ignored\n"
+      processos-workspace/definitions/main/scope.yaml: "# A scope: a name, a version, and the scopes whose definitions this one may name. Its folder holds the\n# definitions, one folder for each kind: type/, schema/, template/, action/ and process/.\nname: main\nversion: 0.1.0\nuses: []\n"
+      processos-workspace/.gitignore: "# What runs write. The records given to runs, in records/, is kept.\noutput/\nruns/\n"
+- id: C2
+  scope: sdlc
+  expect:
+    paths: [processos.yaml, processos-workspace/definitions/sdlc/scope.yaml, processos-workspace/.gitignore]
+    files:
+      processos-workspace/definitions/sdlc/scope.yaml: "# A scope: a name, a version, and the scopes whose definitions this one may name. Its folder holds the\n# definitions, one folder for each kind: type/, schema/, template/, action/ and process/.\nname: sdlc\nversion: 0.1.0\nuses: []\n"
+- id: C3
+  folder: new/deeper
+  expect:
+    paths: [processos.yaml, processos-workspace/definitions/main/scope.yaml, processos-workspace/.gitignore]
+    files:
+      new/deeper/processos-workspace/.gitignore: "# What runs write. The records given to runs, in records/, is kept.\noutput/\nruns/\n"
+- id: C4
+  files: {README: "notes\n", processos-workspace/definitions/other/scope.yaml: "name: other\nversion: 0.1.0\n"}
+  expect:
+    paths: [processos.yaml, processos-workspace/definitions/main/scope.yaml, processos-workspace/.gitignore]
+    files:
+      README: "notes\n"
+      processos-workspace/definitions/other/scope.yaml: "name: other\nversion: 0.1.0\n"
+      processos-workspace/.gitignore: "# What runs write. The records given to runs, in records/, is kept.\noutput/\nruns/\n"

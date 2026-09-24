@@ -1,0 +1,35 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-4-catalog-processes.md §3 — digest(sdlc.p) before and after a change. The definitions are anchored in G1 (`base`).
+- id: G1
+  base: &base
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/text.yaml": "name: text\ntype: string\n"
+    "defs/sdlc/type/count.yaml": "name: count\ntype: integer\n"
+    "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: text}\noutput: {y: text}\n"
+    "defs/sdlc/action/a/action.sh": "echo a\n"
+    "defs/sdlc/action/b/action.yaml": "name: b\ntype: shell\ninput: {y: text}\noutput: {z: count}\n"
+    "defs/sdlc/action/b/action.sh": "echo b\n"
+    "defs/sdlc/process/p.yaml": "name: p\ninput: {x: text}\noutput: {z: count}\nsteps: [a, b]\n"
+  files: {<<: *base}
+  change: {"defs/sdlc/process/p.yaml": "name: p\ninput: {x: text}\noutput: {z: count}\nsteps: [a,  b]\n"}
+  differs: true
+- id: G2
+  files: {<<: *base}
+  change: {"defs/sdlc/action/a/action.sh": "echo changed\n"}
+  differs: true
+- id: G3
+  files: {<<: *base}
+  change: {"defs/sdlc/action/b/action.yaml": "name: b\ntype: shell\ndescription: now described\ninput: {y: text}\noutput: {z: count}\n"}
+  differs: true
+- id: G4
+  files: {<<: *base}
+  change: {"defs/sdlc/type/count.yaml": "name: count\ntype: integer\nminimum: 1\n"}
+  differs: true
+- id: G5
+  files: {<<: *base}
+  change: {"defs/sdlc/type/unused.yaml": "name: unused\ntype: string\n"}
+  differs: false
+- id: G6
+  files: {<<: *base}
+  change: {"defs/sdlc/action/other/action.yaml": "name: other\ntype: shell\n", "defs/sdlc/action/other/action.sh": ""}
+  differs: false

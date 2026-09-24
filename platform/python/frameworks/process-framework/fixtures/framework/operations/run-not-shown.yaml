@@ -1,0 +1,12 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-2-runs-commands.md §3 — ProcessFramework.show_run(run_id): the same errors resume gives (not-resumed.yaml E1, E2)
+- id: RS2
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+  files: {<<: *base}
+  run_id: "nope"
+  expect: [{"path": [], "code": "unknown_id"}]
+- id: RS3
+  files: {<<: *base, "runs/r1/run.yaml": "x: 1\n"}
+  run_id: "r1"
+  expect: [{"path": ["runs/r1/run.yaml"], "code": "invalid"}]

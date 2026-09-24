@@ -1,0 +1,15 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m2-2-catalog-libraries.md §3 — digest(node): a scope in the default folder
+# gives the same digest as the identical files read from a library, at a different path. `empty` is `from_library`'s
+# default folder, which holds no scope of its own.
+- id: L5
+  folders: [empty]
+  files:
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/text.yaml": "name: text\ntype: string\n"
+    "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: text}\noutput: {y: text}\n"
+    "defs/sdlc/action/a/action.sh": "echo a\n"
+    "lib/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "lib/sdlc/type/text.yaml": "name: text\ntype: string\n"
+    "lib/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: text}\noutput: {y: text}\n"
+    "lib/sdlc/action/a/action.sh": "echo a\n"
+  ident: "sdlc.a"

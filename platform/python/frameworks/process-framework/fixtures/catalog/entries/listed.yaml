@@ -1,0 +1,51 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-4-catalog-opens.md §3 — entries(kind) on the tree: (id, file) in order
+- id: T1
+  files: &tree
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": ""
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/schema/application.yaml": ""
+    "defs/sdlc/action/resolve-platform/action.yaml": ""
+    "defs/sdlc/process/build-application.yaml": ""
+    "defs/sdlc/python/type/module-name.yaml": ""
+    "defs/sdlc/python/action/create-project/action.yaml": ""
+    "defs/sdlc/python/template/application/template.yaml": ""
+  kind: type
+  expect: [{"id": "sdlc.python.module-name", "file": "defs/sdlc/python/type/module-name.yaml"}, {"id": "std.relative-path", "file": "defs/std/type/relative-path.yaml"}]
+- id: T2
+  files: *tree
+  kind: schema
+  expect: [{"id": "sdlc.application", "file": "defs/sdlc/schema/application.yaml"}]
+- id: T3
+  files: *tree
+  kind: action
+  expect: [{"id": "sdlc.python.create-project", "file": "defs/sdlc/python/action/create-project/action.yaml"}, {"id": "sdlc.resolve-platform", "file": "defs/sdlc/action/resolve-platform/action.yaml"}]
+- id: T4
+  files: *tree
+  kind: process
+  expect: [{"id": "sdlc.build-application", "file": "defs/sdlc/process/build-application.yaml"}]
+- id: T5
+  files: *tree
+  kind: template
+  expect: [{"id": "sdlc.python.application", "file": "defs/sdlc/python/template/application/template.yaml"}]
+- id: T6
+  files: {"defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"}
+  kind: process
+  expect: []
+- id: T7
+  folders: ["defs/std/.git/type", "defs/std/type/sub"]
+  files:
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": ""
+    "defs/std/type/notes.txt": ""
+    "defs/std/type/sub/x.yaml": ""
+    "defs/std/type/Bad.yaml": ""
+    "defs/std/.git/type/x.yaml": ""
+    "defs/std/docs/notes.txt": ""
+  kind: type
+  expect: [{id: std.relative-path, file: defs/std/type/relative-path.yaml}]
+- id: T8
+  folders: ["defs/sdlc/action/empty"]
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  kind: action
+  expect: [{id: sdlc.empty, file: defs/sdlc/action/empty/action.yaml}]

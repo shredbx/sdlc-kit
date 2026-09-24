@@ -1,0 +1,9 @@
+# docs/tasks/_done/260922-process-cli-04/steps/m3-2-runs-delete.md §3 — Runs.delete(run_id)
+- id: D1
+  files: {runs/a/n1/stdout.log: "hi\n", runs/a/run.yaml: "id: a\n", runs/b/run.yaml: "id: b\n"}
+  run_id: a
+  expect: {files: [runs/b/run.yaml]}
+- id: D2
+  files: {runs/b/run.yaml: "id: b\n"}
+  run_id: a
+  expect: {files: [runs/b/run.yaml]}

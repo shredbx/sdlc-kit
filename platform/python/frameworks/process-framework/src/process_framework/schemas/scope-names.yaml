@@ -1,0 +1,4 @@
+# The scopes a scope uses.
+name: scope-names
+type: sequence
+items: scope-name

@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-5-catalog-loads.md §3 — Catalog.types raises for a file outside every scope
+- {id: W1, files: {defs/std/scope.yaml: "name: std\nversion: 0.1.0\n"}, file: elsewhere/action.yaml}
+- {id: W2, files: {defs/std/scope.yaml: "name: std\nversion: 0.1.0\n", defs/README: "notes\n"}, file: defs/README}

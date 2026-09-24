@@ -1,0 +1,13 @@
+# docs/tasks/260922-process-cli-03/steps/m4-1-tools-listing.md §3 — ProcessFramework.call(name,
+# arguments): the same run typed=arguments already gives through run() (ran.yaml X11), served
+# through the name an MCP client would use.
+- id: C1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+  target: sdlc.greet
+  arguments: {msg: hello}
+  expect: {status: done, done: [sdlc.greet], output: {text: hello}}

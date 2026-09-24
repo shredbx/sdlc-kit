@@ -1,0 +1,53 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — ProcessFramework.run(process, inputs): the errors that keep it from starting. The definitions are anchored in Q1 (`base`).
+- id: Q1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/style.yaml": "name: style\ntype: mapping\nfields:\n  mark: {type: string, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo greet >> trace.txt\necho \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "defs/sdlc/action/shout/action.yaml": "name: shout\ntype: shell\ninput:\n  text: string\noutput:\n  loud: string\n"
+    "defs/sdlc/action/shout/action.sh": "echo shout >> trace.txt\n[ -e fail.flag ] && exit 4\necho \"$INPUT_TEXT\" | tr a-z A-Z > \"$ACTION_OUTPUTS/loud.yaml\"\n"
+    "defs/sdlc/action/mark/action.yaml": "name: mark\ntype: shell\ninput:\n  text: string\n  style: style\noutput:\n  marked: string\n"
+    "defs/sdlc/action/mark/action.sh": "echo \"$INPUT_TEXT$INPUT_STYLE_MARK\" > \"$ACTION_OUTPUTS/marked.yaml\"\n"
+    "defs/sdlc/process/hello.yaml": "name: hello\ninput: {msg: message}\noutput: {loud: string}\nsteps: [greet, shout]\n"
+    "defs/sdlc/process/tell.yaml": "name: tell\ninput: {msg: message, note: message}\nrequires: {style: style}\noutput: {marked: string}\nsteps: [greet, mark]\n"
+    "records/hi/msg.yaml": "hello\n"
+    "records/hi/note.yaml": "note\n"
+    "records/hi/extension/style.yaml": "mark: '!'\n"
+  files: {<<: *base, "defs/sdlc/process/hello.yaml": "{{{"}
+  target: "sdlc.hello"
+  inputs: {"msg": "hi"}
+  expect: [{"path": ["defs/sdlc/process/hello.yaml"], "code": "invalid"}]
+- id: Q2
+  files: {<<: *base, "defs/sdlc/process/hello.yaml": "name: hello\ninput: {}\nsteps: [shout]\n"}
+  target: "sdlc.hello"
+  inputs: {"msg": "hi"}
+  expect: [{"path": ["defs/sdlc/process/hello.yaml", "steps", 0], "code": "missing"}]
+- id: Q3
+  files: {<<: *base}
+  target: "sdlc.tell"
+  inputs: {"msg": "hi", "note": "hi"}
+  without: ["records/hi/extension/style.yaml"]
+  expect: [{"path": ["style"], "code": "missing"}]
+- id: Q4
+  files: {<<: *base, "records/lo/note.yaml": "note\n", "records/lo/extension/style.yaml": "mark: '?'\n"}
+  target: "sdlc.tell"
+  inputs: {"msg": "hi", "note": "lo"}
+  expect: [{"path": ["style"], "code": "duplicate"}]
+- id: Q5
+  files: {<<: *base, "records/hi/extension/style.yaml": "mark: [x]\n"}
+  target: "sdlc.tell"
+  inputs: {"msg": "hi", "note": "hi"}
+  expect: [{"path": ["records/hi/extension/style.yaml", "mark"], "code": "wrong_type"}]
+- id: Q6
+  files: {<<: *base, "records/hi/msg.yaml": "NOT-lower\n", "records/hi/extension/style.yaml": "mark: [x]\n"}
+  target: "sdlc.tell"
+  inputs: {"msg": "hi", "note": "hi"}
+  expect: [{"path": ["records/hi/msg.yaml"], "code": "pattern"}, {"path": ["records/hi/extension/style.yaml", "mark"], "code": "wrong_type"}]
+- id: Q7
+  files: {<<: *base}
+  target: "sdlc.tell"
+  inputs: {"msg": "hi"}
+  expect: [{"path": ["note"], "code": "missing"}]

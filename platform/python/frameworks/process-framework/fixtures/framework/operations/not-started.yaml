@@ -1,0 +1,55 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 and m5-5-framework-runs.md §3 — ProcessFramework.run: the errors that keep it from starting. The definitions are anchored in U1 (`base`).
+# U4 (msg's own records/hi/msg.yaml missing) moved to ran.yaml as X12, 260923-process-cli-05's M2: msg is
+# a scalar, so a missing id now falls back to a literal — "hi" itself — instead of erroring.
+- id: U1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": "name: relative-path\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n  path: {type: std.relative-path}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "records/hi/msg.yaml": "hello\n"
+  files: {<<: *base}
+  action: "sdlc.nope"
+  expect: [{"path": [], "code": "unknown_id"}]
+- id: U2
+  files: {<<: *base, "defs/sdlc/action/greet/action.yaml": "{{{"}
+  expect: [{"path": ["defs/sdlc/action/greet/action.yaml"], "code": "invalid"}]
+- id: U3
+  files: {<<: *base, "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: nope\n"}
+  expect: [{"path": ["defs/sdlc/action/greet/action.yaml", "input", "msg"], "code": "unknown_id"}]
+- id: U5
+  files: {<<: *base, "records/hi/msg.yaml": "[x\n"}
+  expect: [{"path": ["records/hi/msg.yaml"], "code": "invalid"}]
+- id: U6
+  files: {<<: *base}
+  inputs: {"msg": "../x"}
+  expect: [{"path": ["msg"], "code": "outside_root"}]
+- id: U7
+  files: {<<: *base}
+  inputs: {"msg": "../x", "other": "hi"}
+  expect: [{"path": ["other"], "code": "unexpected"}, {"path": ["msg"], "code": "outside_root"}]
+- id: U8
+  files: {<<: *base, "records/hi/msg.yaml": "NOT-lower\n"}
+  expect: [{"path": ["records/hi/msg.yaml"], "code": "pattern"}]
+- id: U9
+  files: {<<: *base}
+  inputs: {"msg": "hi", "other": "hi"}
+  expect: [{"path": ["other"], "code": "unexpected"}]
+- id: U10
+  files: {<<: *base}
+  inputs: {}
+  expect: [{"path": ["msg"], "code": "missing"}]
+- id: U11
+  files: {<<: *base}
+  inputs: {}
+  values: {msg: NOT-lower}
+  expect: [{"path": ["msg"], "code": "pattern"}]
+- id: U12
+  files: {<<: *base}
+  inputs: {}
+  typed: {msg: NOT-lower}
+  expect: [{"path": ["msg"], "code": "pattern"}]
