@@ -1,0 +1,25 @@
+topic: nested-claude-md-governance
+question: How do we lock down folder-level filesystem/namespace rules (e.g. the 13-capability
+  lock) so future sessions don't drift into proposing structure that's already decided, without
+  building a checker?
+status: decided
+resolution: A nested CLAUDE.md file at the root of the subtree being locked down — one directory
+  above a process-os scope folder if the subtree being locked is a scope itself, since
+  `process-cli check` rejects any file in a scope or namespace folder that isn't a kind folder
+  or a further namespace ("only kind folders and namespaces go in a scope or a namespace").
+  Confirmed working: `processos-workspace/definitions/sbx-sdlc-kit/CLAUDE.md` failed check;
+  `processos-workspace/definitions/CLAUDE.md` passed. Claude Code's own documented behavior
+  auto-discovers and loads any CLAUDE.md nested under the cwd the moment a file in that subtree
+  is read — no bespoke marker-file convention, no checker built ahead of need. Added lazily, one
+  subtree at a time, only where drift actually risked happening — never recursively scaffolded
+  through every folder.
+rationale: Confirmed via Claude Code's own docs (memory.md) — nested CLAUDE.md files are
+  recursively discovered when Claude reads files in that subtree, with zero extra tooling. A
+  bespoke filename (e.g. .folder_rules) would need explicit instruction to even be read. A
+  boundary checker (Nx/Bazel-style enforcement) is real, but explicitly deferred — a checker
+  comes after a documented rule exists, not instead of one. ADRs (this repo's own decision log)
+  record why a call was made, historically; a nested CLAUDE.md records the current rule
+  glanceably and should point at the decision rather than restate its reasoning. Prompted by a
+  near-drift this session, proposing a 14th top-level "services" folder when the 13 capabilities
+  were already locked and recorded under architecture/capability/.
+date: '2026-09-24'
