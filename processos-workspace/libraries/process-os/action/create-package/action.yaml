@@ -1,0 +1,10 @@
+# A new package of this repository, made from the template process-os.package: a kit package in
+# packages/<module>/<name>/, a framework in frameworks/<name>/, a product in products/<name>/.
+# check.sh keeps it from writing over a package that is already there, and post.sh adds it to the
+# uv workspace and imports it.
+name: create-package
+type: shell
+input:
+  package: package
+output:
+  path: std.relative-path                  # where the package is, from the repository root

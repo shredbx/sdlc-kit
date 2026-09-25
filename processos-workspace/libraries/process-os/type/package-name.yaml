@@ -1,0 +1,5 @@
+# Lower-case words joined by hyphens: the name of a module folder (process-kit), of a package
+# (types, process-cli), or of what uv installs (process-kit-types).
+name: package-name
+type: string
+pattern: '[a-z][a-z0-9]*(-[a-z0-9]+)*'

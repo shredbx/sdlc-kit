@@ -1,0 +1,14 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m2-1-show-write-remove-definitions.md §3 — process-cli remove: deletes,
+# for real. The definitions are anchored in R1 (`base`).
+- id: R1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+  files: {<<: *base}
+  runs:
+    - args: ["remove", "type", "sdlc.message"]
+      expect: {code: 0, stdout: ["type sdlc.message: removed"]}
+    - args: ["show", "type", "sdlc.message"]
+      expect: {code: 1, stdout: []}
+  file: "defs/sdlc/type/message.yaml"

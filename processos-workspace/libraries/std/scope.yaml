@@ -1,0 +1,6 @@
+# std is not shipped with the CLI (decision 46): it is a scope of this workspace, used by process-os itself.
+# A repository that wants its types copies it.
+name: std
+version: 0.1.0
+description: The shapes every scope shares, such as a path or a version.
+uses: []

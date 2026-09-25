@@ -1,0 +1,47 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 and m5-5-framework-runs.md §3 — ProcessFramework.run('sdlc.greet', {'msg': 'hi'}): the Run, and what gets saved. The definitions are anchored in X1 (`base`).
+- id: X1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": "name: relative-path\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n  path: {type: std.relative-path}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "records/hi/msg.yaml": "hello\n"
+  files: {<<: *base}
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "output": {"text": "hello"}}, "saved": {"process": "sdlc.greet", "status": "done", "scopes": {"sdlc": "0.1.0", "std": "0.1.0"}, "done": ["sdlc.greet"], "skipped": [], "context": {"msg": "hello", "text": "hello"}, "output": {"text": "hello"}}}
+- id: X2
+  files: {<<: *base, "defs/sdlc/action/greet/check.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\nexit 77\n"}
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "skipped": ["sdlc.greet"], "output": {"text": "hi"}}, "saved": {"status": "done", "skipped": ["sdlc.greet"]}}
+- id: X3
+  files: {<<: *base, "defs/sdlc/action/greet/check.sh": "echo no >&2\nexit 3\n"}
+  expect: {"run": {"status": "stopped", "reason": "no", "done": []}, "saved": {"status": "stopped", "reason": "no"}}
+- id: X4
+  files: {<<: *base, "defs/sdlc/action/greet/action.sh": "exit 4\n"}
+  expect: {"run": {"status": "failed", "reason": "action.sh exited 4", "done": []}, "saved": {"status": "failed", "reason": "action.sh exited 4"}}
+- id: X6
+  files: {<<: *base, "defs/sdlc/action/greet/action.sh": "echo made > made.txt\necho hello > \"$ACTION_OUTPUTS/text.yaml\"\n"}
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "output": {"text": "hello"}}, "saved": {"status": "done"}, "files": {"output/made.txt": "made\n"}}
+- id: X8
+  files: {<<: *base, "defs/sdlc/action/greet/action.sh": "[ \"$PROCESS_CLI_CONFIG\" -ef ../processos.yaml ] && echo same > \"$ACTION_OUTPUTS/text.yaml\"\n"}
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "output": {"text": "same"}}, "saved": {"status": "done"}}
+- id: X9
+  command: bin/tool
+  files: {<<: *base, "bin/tool": "#!/usr/bin/env bash\necho \"$@\" >> called.txt\n", "defs/sdlc/action/greet/action.sh": "process-cli one two\necho hello > \"$ACTION_OUTPUTS/text.yaml\"\n"}
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "output": {"text": "hello"}}, "saved": {"status": "done"}, "files": {"output/called.txt": "one two\n"}}
+- id: X10
+  files: {<<: *base}
+  inputs: {}
+  values: {msg: hello}
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "output": {"text": "hello"}}, "saved": {"process": "sdlc.greet", "status": "done", "scopes": {"sdlc": "0.1.0", "std": "0.1.0"}, "done": ["sdlc.greet"], "skipped": [], "context": {"msg": "hello", "text": "hello"}, "output": {"text": "hello"}}}
+- id: X11
+  files: {<<: *base}
+  inputs: {}
+  typed: {msg: hello}
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "output": {"text": "hello"}}, "saved": {"process": "sdlc.greet", "status": "done", "scopes": {"sdlc": "0.1.0", "std": "0.1.0"}, "done": ["sdlc.greet"], "skipped": [], "context": {"msg": "hello", "text": "hello"}, "output": {"text": "hello"}}}
+- id: X12
+  files: {<<: *base}
+  without: ["records/hi/msg.yaml"]
+  expect: {"run": {"status": "done", "done": ["sdlc.greet"], "output": {"text": "hi"}}, "saved": {"status": "done", "context": {"msg": "hi", "text": "hi"}, "output": {"text": "hi"}}}

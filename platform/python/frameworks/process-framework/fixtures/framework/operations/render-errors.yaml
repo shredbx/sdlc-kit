@@ -1,0 +1,43 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-3-framework-templates.md §3 — ProcessFramework.render: the errors, and nothing written. The definitions are anchored in E1 (`base`).
+- id: E1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n"
+    "defs/sdlc/template/pkg/template.yaml": "name: pkg\ninput: spec\npattern:\n  \"{{name}}/main.py\": [\"def main(\"]\n"
+    "defs/sdlc/template/pkg/files/README.md": "readme\n"
+    "defs/sdlc/template/pkg/files/{{name}}/main.py.jinja": "def main():\n    return '{{ name }}'\n"
+    "data.yaml": "name: app\n"
+  files: {<<: *base}
+  template: "sdlc.nope"
+  into: "made"
+  expect: [{"path": [], "code": "unknown_id"}]
+- id: E2
+  files: {<<: *base, "defs/sdlc/template/pkg/template.yaml": "{{{"}
+  into: "made"
+  expect: [{"path": ["defs/sdlc/template/pkg/template.yaml"], "code": "invalid"}]
+- id: E3
+  files: {<<: *base, "data.yaml": "other: x\n"}
+  into: "made"
+  expect: [{"path": ["data.yaml", "name"], "code": "missing"}]
+- id: E4
+  files: {<<: *base, "data.yaml": "name: [app\n"}
+  into: "made"
+  expect: [{"path": ["data.yaml"], "code": "invalid"}]
+- id: E5
+  files: {<<: *base, "defs/sdlc/template/pkg/files/{{name}}/zz.txt.jinja": "{{ nope }}"}
+  into: "made"
+  expect: [{"path": ["defs/sdlc/template/pkg/files/{{name}}/zz.txt.jinja"], "code": "undefined"}]
+- id: E6
+  files: {<<: *base}
+  into: "../x"
+  expect: [{"path": ["../x"], "code": "outside_root"}]
+- id: E7
+  files: {<<: *base, "data.yaml": "name: ..\n"}
+  into: "made"
+  expect: [{"path": ["defs/sdlc/template/pkg/files/{{name}}/main.py.jinja"], "code": "invalid"}]
+- id: E8
+  files: {<<: *base, "defs/sdlc/template/pkg/template.yaml": "name: pkg\ninput: nope\n"}
+  into: "made"
+  expect: [{"path": ["defs/sdlc/template/pkg/template.yaml", "input"], "code": "unknown_id"}]

@@ -1,0 +1,8 @@
+# scope.yaml: a scope, its version, and the scopes whose definitions it may name.
+name: scope
+type: mapping
+fields:
+  name:        {type: scope-name, required: true}     # the folder's name
+  version:     {type: version, required: true}        # changes when the scope does; a run records it
+  description: {type: string}
+  uses:        {type: scope-names}

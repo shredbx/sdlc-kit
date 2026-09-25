@@ -1,0 +1,11 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m3-1-show-write-remove-action.md §3 — show action: one `# path` header
+# per file, in path order, round-tripping exactly what write put there.
+- id: A1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\n"
+    "defs/sdlc/action/greet/action.sh": "echo hi\n"
+    "defs/sdlc/action/greet/assets/lib.sh": "helper() { :; }\n"
+  args: ["show", "action", "sdlc.greet"]
+  expect: {"stdout": ["# action.sh", "echo hi", "", "# action.yaml", "name: greet", "type: shell", "", "# assets/lib.sh", "helper() { :; }", ""]}

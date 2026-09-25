@@ -1,0 +1,35 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-5-catalog-loads.md §3 — Catalog.types(references, file): the ids reached, besides the YAML types. The definitions are anchored in T1.
+- id: T1
+  files: &defs
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": "name: relative-path\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/platform-name.yaml": "name: platform-name\ntype: string\nenum: [python, node]\n"
+    "defs/sdlc/schema/platform.yaml": "name: platform\ntype: mapping\nfields:\n  name: {type: platform-name, required: true}\n  path: {type: std.relative-path}\n"
+    "defs/sdlc/schema/build.yaml": "name: build\ntype: mapping\nfields:\n  target: {type: std.relative-path}\n"
+    "defs/sdlc/schema/node.yaml": "name: node\ntype: mapping\nfields:\n  children: {type: nodes}\n"
+    "defs/sdlc/type/nodes.yaml": "name: nodes\ntype: sequence\nitems: node\n"
+    "defs/other/scope.yaml": "name: other\nversion: 0.1.0\n"
+    "defs/other/type/x.yaml": "name: x\ntype: string\n"
+  references: [{where: ["input", "a"], name: string}]
+  expect: {ids: []}
+- id: T2
+  files: *defs
+  references: [{where: ["input", "a"], name: sdlc.platform-name}]
+  expect: {ids: ["sdlc.platform-name"]}
+- id: T3
+  files: *defs
+  references: [{where: ["input", "a"], name: sdlc.platform}]
+  expect: {ids: ["sdlc.platform", "sdlc.platform-name", "std.relative-path"]}
+- id: T4
+  files: *defs
+  references: [{where: ["input", "a"], name: sdlc.platform}, {where: ["input", "b"], name: sdlc.build}]
+  expect: {ids: ["sdlc.build", "sdlc.platform", "sdlc.platform-name", "std.relative-path"]}
+- id: T5
+  files: *defs
+  references: []
+  expect: {ids: []}
+- id: T6
+  files: *defs
+  references: [{where: ["input", "a"], name: sdlc.node}]
+  expect: {ids: ["sdlc.node", "sdlc.nodes"]}

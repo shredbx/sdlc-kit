@@ -1,0 +1,14 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-4-framework-cli.md — initialize(config_file, host): the errors, and no framework
+- id: E1
+  files: {processos.yaml: "runtime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, definitions], code: missing}]
+- id: E2
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n"}
+  expect: [{path: [processos.yaml, definitions], code: not_found}]
+- id: E3
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n", defs/std/scope.yaml: "name: std\n"}
+  expect: [{path: [defs/std/scope.yaml, version], code: missing}]
+- id: E4
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: sdlc, path: nowhere}\n"}
+  expect: [{path: [processos.yaml, libraries, 0, path], code: not_found}]

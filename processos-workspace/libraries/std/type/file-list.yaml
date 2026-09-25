@@ -1,0 +1,4 @@
+# Files, each a path inside some folder.
+name: file-list
+type: sequence
+items: relative-path

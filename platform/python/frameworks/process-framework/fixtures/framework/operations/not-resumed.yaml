@@ -1,0 +1,16 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — ProcessFramework.resume(run_id): the errors, when there is nothing to go on with
+- id: E1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+  files: {<<: *base}
+  run_id: "nope"
+  expect: [{"path": [], "code": "unknown_id"}]
+- id: E2
+  files: {<<: *base, "runs/r1/run.yaml": "x: 1\n"}
+  run_id: "r1"
+  expect: [{"path": ["runs/r1/run.yaml"], "code": "invalid"}]
+- id: E3
+  files: {<<: *base, "x/run.yaml": "id: x\n"}
+  run_id: "../x"
+  expect: [{"path": [], "code": "unknown_id"}]

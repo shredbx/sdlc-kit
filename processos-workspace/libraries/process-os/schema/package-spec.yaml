@@ -1,0 +1,9 @@
+# What the package template renders: the package as it was given, and the names uv and Python know
+# it by, which process-os.create-package works out from it.
+name: package-spec
+type: mapping
+fields:
+  package: {type: package, required: true}
+  kind:    {type: package-kind, required: true}      # the package's kind, or kit when it gave none
+  dist:    {type: package-name, required: true}      # what uv installs: process-kit-action, process-cli
+  source:  {type: source-path, required: true}       # the folder in src/: process_kit/action, process_cli

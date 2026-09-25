@@ -1,0 +1,7 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 — Records.read(name, folder): the errors, by path and code
+- {id: E1, folders: [records], name: application, folder: hello-app, expect: [{path: [records/hello-app/application.yaml], code: missing}]}
+- {id: E2, files: {records/a/x.yaml: "name: [x"}, name: x, folder: a, expect: [{path: [records/a/x.yaml], code: invalid}]}
+- {id: E3, files: {records/a/x.yaml: "k: 1\nk: 2\n"}, name: x, folder: a, expect: [{path: [records/a/x.yaml], code: invalid}]}
+- {id: E4, files: {records/a/x.yaml: "k: 1\n"}, name: x, folder: ../a, expect: [{path: [x], code: outside_root}]}
+- {id: E5, files: {records/a/x.yaml: "k: 1\n"}, name: x, folder: /etc, expect: [{path: [x], code: outside_root}]}
+- {id: E6, folders: [], name: x, folder: a, expect: [{path: [records/a/x.yaml], code: missing}]}

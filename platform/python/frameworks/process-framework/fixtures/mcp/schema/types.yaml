@@ -1,0 +1,62 @@
+# docs/tasks/260922-process-cli-03/steps/m2-1-type-mapping.md §4 — input_schema(ports, types), against conftest.py's synthetic `types`
+- id: T1
+  ports: {x: word}
+  expect:
+    properties: {x: {$ref: "#/$defs/word"}}
+    required: [x]
+    defs: {word: {type: string, pattern: "[a-z]+"}}
+- id: T2
+  ports: {x: count}
+  expect:
+    defs: {count: {type: integer, minimum: 0}}
+- id: T3
+  ports: {x: ratio}
+  expect:
+    defs: {ratio: {type: number}}
+- id: T4
+  ports: {x: flag}
+  expect:
+    defs: {flag: {type: boolean}}
+- id: T5
+  ports: {x: words}
+  expect:
+    defs:
+      words: {type: array, items: {$ref: "#/$defs/word"}}
+      word: {type: string, pattern: "[a-z]+"}
+- id: T6
+  ports: {x: sequence}
+  expect:
+    properties: {x: {type: array}}
+    defs: {}
+- id: T7
+  ports: {x: tag}
+  expect:
+    defs:
+      tag: {type: object, propertyNames: {$ref: "#/$defs/word"}, additionalProperties: {$ref: "#/$defs/word"}}
+      word: {type: string, pattern: "[a-z]+"}
+- id: T8
+  ports: {x: thing}
+  expect:
+    defs:
+      thing:
+        type: object
+        properties: {a: {$ref: "#/$defs/word"}, b: {$ref: "#/$defs/count"}}
+        required: [a]
+        additionalProperties: false
+      word: {type: string, pattern: "[a-z]+"}
+      count: {type: integer, minimum: 0}
+- id: T9
+  ports: {x: mapping}
+  expect:
+    properties: {x: {type: object}}
+    defs: {}
+- id: T10
+  ports: {a: word, b: word}
+  expect:
+    required: [a, b]
+    defs: {word: {type: string, pattern: "[a-z]+"}}
+- id: T11
+  ports: {x: loop}
+  expect:
+    defs:
+      loop: {type: object, properties: {next: {$ref: "#/$defs/loop"}}, additionalProperties: false}

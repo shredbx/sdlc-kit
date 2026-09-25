@@ -1,0 +1,7 @@
+# What the Python templates render: the application as it was given, and what Python adds.
+name: project-spec
+type: mapping
+fields:
+  application: {type: sdlc.application, required: true}
+  module:      {type: module-name, required: true}
+  runtime:     {type: sdlc.runtime-version, required: true}

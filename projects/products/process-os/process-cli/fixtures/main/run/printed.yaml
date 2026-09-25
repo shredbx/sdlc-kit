@@ -1,0 +1,54 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-8-cli-commands.md §3 — process-cli run sdlc.greet --records msg=hi. The definitions
+# are anchored in X1 (`base`). X8 (U2, moved from errors.yaml, 260923-process-cli-05's M2) and X9 are new: a scalar's
+# missing id falls back to a literal, and a direct filepath is read verbatim, no id, no guessed filename. X10 (M4): a
+# timeout reads as a timeout on this very line, never foldable into the generic "exited N" wording.
+- id: X1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/x.yaml": "name: x\ntype: string\n"
+    "defs/std/schema/y.yaml": "name: y\ntype: mapping\n"
+    "defs/std/action/z/action.yaml": "name: z\ntype: shell\n"
+    "defs/std/action/z/action.sh": "true\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "records/hi/msg.yaml": "hello\n"
+  files: {<<: *base}
+  args: ["run", "sdlc.greet", "--records", "msg=hi"]
+  expect: {"code": 0, "stdout": ["sdlc.greet: done", "  text: hello"], "starts": []}
+- id: X2
+  files: {<<: *base, "defs/sdlc/action/greet/check.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\nexit 77\n"}
+  args: ["run", "sdlc.greet", "--records", "msg=hi"]
+  expect: {"code": 0, "stdout": ["sdlc.greet: skipped", "  text: hi"], "starts": []}
+- id: X3
+  files: {<<: *base, "defs/sdlc/action/greet/check.sh": "echo no >&2\nexit 3\n"}
+  args: ["run", "sdlc.greet", "--records", "msg=hi"]
+  expect: {"code": 1, "stdout": ["sdlc.greet: stopped \u2014 no"], "starts": ["run "]}
+- id: X4
+  files: {<<: *base, "defs/sdlc/action/greet/action.sh": "exit 4\n"}
+  args: ["run", "sdlc.greet", "--records", "msg=hi"]
+  expect: {"code": 1, "stdout": ["sdlc.greet: failed \u2014 action.sh exited 4"], "starts": ["run "]}
+- id: X6
+  files: {<<: *base, "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: mapping\n", "defs/sdlc/action/greet/action.sh": "printf \"name: python\\nn: 3\\n\" > \"$ACTION_OUTPUTS/text.yaml\"\n"}
+  args: ["run", "sdlc.greet", "--records", "msg=hi"]
+  expect: {"code": 0, "stdout": ["sdlc.greet: done", "  text: {\"name\": \"python\", \"n\": 3}"], "starts": []}
+- id: X7
+  files: {<<: *base}
+  args: ["run", "sdlc.greet", "--records", "msg=hello"]
+  expect: {"code": 0, "stdout": ["sdlc.greet: done", "  text: hello"], "starts": []}
+- id: X8
+  files: {<<: *base}
+  without: ["records/hi/msg.yaml"]
+  args: ["run", "sdlc.greet", "--records", "msg=hi"]
+  expect: {"code": 0, "stdout": ["sdlc.greet: done", "  text: hi"], "starts": []}
+- id: X9
+  files: {<<: *base, "elsewhere/msg.yaml": "hello\n"}
+  args: ["run", "sdlc.greet", "--records", "msg=elsewhere/msg.yaml"]
+  expect: {"code": 0, "stdout": ["sdlc.greet: done", "  text: hello"], "starts": []}
+- id: X10
+  files: {<<: *base, "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\ntimeout: 1\n", "defs/sdlc/action/greet/action.sh": "sleep 2\n"}
+  args: ["run", "sdlc.greet", "--records", "msg=hi"]
+  expect: {"code": 1, "stdout": ["sdlc.greet: failed — action.sh timed out after 1s"], "starts": ["run "]}

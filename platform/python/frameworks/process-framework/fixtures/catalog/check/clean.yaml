@@ -1,0 +1,23 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-6-catalog-check.md §3 — check() gives no errors. The base is anchored in K2.
+- {id: K1, folders: [defs]}
+- id: K2
+  folders: ["defs/.git"]
+  files: &base
+    "defs/README": "notes\n"
+    "defs/sdlc/.DS_Store": ""
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": "name: relative-path\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/platform-name.yaml": "name: platform-name\ntype: string\nenum: [python, node]\n"
+    "defs/sdlc/schema/platform.yaml": "name: platform\ntype: mapping\nfields:\n  name: {type: platform-name}\n  path: {type: std.relative-path}\n"
+    "defs/sdlc/action/resolve-platform/action.yaml": "name: resolve-platform\ntype: shell\ninput:\n  platform: platform\noutput:\n  path: std.relative-path\n"
+    "defs/sdlc/action/resolve-platform/action.sh": ""
+    "defs/sdlc/python/action/create-project/action.yaml": "name: create-project\ntype: shell\ninput:\n  platform: sdlc.platform\n"
+    "defs/sdlc/python/action/create-project/action.sh": ""
+    "defs/other/scope.yaml": "name: other\nversion: 0.1.0\n"
+    "defs/other/type/x.yaml": "name: x\ntype: string\n"
+- id: K3
+  folders: ["defs/.git"]
+  files: {<<: *base, "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n", "defs/sdlc/template/pkg/template.yaml": "name: pkg\ninput: spec\npattern:\n  \"{{name}}/main.py\": [\"def main(\"]\n", "defs/sdlc/template/pkg/files/README.md": "readme\n", "defs/sdlc/template/pkg/files/{{name}}/main.py.jinja": "def main():\n    return '{{ name }}'\n"}
+- id: K4
+  files: {<<: *base, "defs/sdlc/type/text.yaml": "name: text\ntype: string\n", "defs/sdlc/type/count.yaml": "name: count\ntype: integer\n", "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: text}\noutput: {y: text}\n", "defs/sdlc/action/a/action.sh": "echo a\n", "defs/sdlc/action/b/action.yaml": "name: b\ntype: shell\ninput: {y: text}\noutput: {z: count}\n", "defs/sdlc/action/b/action.sh": "echo b\n", "defs/sdlc/process/p.yaml": "name: p\ninput: {x: text}\noutput: {z: count}\nsteps: [a, b]\n"}

@@ -1,0 +1,7 @@
+# What a process-cli command is about, for a process-os.command record: schema (validate, create),
+# template (render, conform), process (run, resume, runs — actions too, the CLI has no command that
+# touches one and not the other) or runtime (init, check, list, mcp — workspace bootstrap and
+# introspection, not one of the three capabilities a slash command exists for).
+name: command-group
+type: string
+enum: [schema, template, process, runtime]

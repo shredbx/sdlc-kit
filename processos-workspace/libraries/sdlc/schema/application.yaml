@@ -1,0 +1,11 @@
+# An application, described before any of its code exists. What it runs on is part of it:
+# platform, language, framework. How it is built is not — that is the build extension.
+name: application
+type: mapping
+fields:
+  name:        {type: application-name, required: true}
+  description: {type: string, required: true}
+  version:     {type: std.version, required: true}
+  platform:    {type: platform-name, required: true}
+  language:    {type: language, required: true}
+  framework:   {type: framework, required: true}

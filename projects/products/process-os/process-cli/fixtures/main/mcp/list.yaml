@@ -1,0 +1,29 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m6-1-mcp-tools.md §4 — process-os.list: framework.list/
+# .list_records/.description, wrapped. The default-limit case (L6) needs more than 100 entries to prove
+# anything, so it is its own, non-case-driven test — test_default_limit.py, not this file.
+- id: L1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/a.yaml": "name: a\ntype: string\ndescription: a letter\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/b.yaml": "name: b\ntype: string\n"
+  files: {<<: *base}
+  arguments: {kind: type}
+  expect: {lines: ["sdlc.a", "std.b"]}
+- id: L2
+  files: {<<: *base, "records/g/hello.yaml": "text: hi\n"}
+  arguments: {kind: records}
+  expect: {lines: ["g/hello.yaml"]}
+- id: L3
+  files: {<<: *base}
+  arguments: {kind: type, long: true}
+  expect: {lines: ["sdlc.a  a letter", "std.b"]}
+- id: L4
+  files: {<<: *base}
+  arguments: {kind: type, scope: sdlc}
+  expect: {lines: ["sdlc.a"]}
+- id: L5
+  files: {<<: *base}
+  arguments: {kind: type, limit: 1}
+  expect: {lines: ["sdlc.a"]}

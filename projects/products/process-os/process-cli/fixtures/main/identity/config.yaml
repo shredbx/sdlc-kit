@@ -1,0 +1,31 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m3-2-config-beside-program.md §3 — _config_file's fourth step: beside the
+# program (decision 55). argv0 sits under tool/, well away from cwd, so the fourth step is the only way to find it.
+- id: C1
+  argv0: tool/not-process-cli
+  folders: [elsewhere/deep]
+  files: {"tool/processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "tool/defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"}
+  cwd: elsewhere/deep
+  args: ["check"]
+  expect: {code: 0, ok_suffix: ": ok"}
+- id: C2
+  argv0: tool/not-process-cli
+  folders: [elsewhere/deep]
+  files:
+    "tool/processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "tool/defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+    "elsewhere/processos.yaml": "definitions: nonexistent\nruntime:\n  root: .\n"
+  cwd: elsewhere/deep
+  args: ["check"]
+  expect: {code: 1, stderr_has: "nonexistent"}
+- id: C3
+  argv0: tool/not-process-cli
+  folders: [elsewhere/deep, tool]
+  cwd: elsewhere/deep
+  args: ["check"]
+  expect: {code: 1, stderr: ["no processos.yaml here or above, or beside the program; process-cli init makes one"]}
+- id: C4
+  argv0: link
+  symlink: {link: somewhere/real-program}
+  files: {"somewhere/processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "somewhere/defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"}
+  args: ["check"]
+  expect: {code: 0, ok_suffix: ": ok"}

@@ -1,0 +1,25 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-5-catalog-loads.md §3 — Catalog.node(ident): every error, in order
+- id: B1
+  ident: sdlc.nope
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"}
+  expect: [{"path": [], "code": "unknown_id"}]
+- id: B2
+  ident: sdlc.build-application
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/sdlc/process/build-application.yaml": ""}
+  expect: [{"path": ["defs/sdlc/process/build-application.yaml"], "code": "wrong_type"}]
+- id: B3
+  ident: Bad
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"}
+  expect: [{"path": [], "code": "unknown_id"}]
+- id: B4
+  ident: sdlc.empty
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/sdlc/action/empty/notes.txt": ""}
+  expect: [{"path": ["defs/sdlc/action/empty/action.yaml"], "code": "missing"}]
+- id: B5
+  ident: sdlc.a
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/sdlc/action/a/action.yaml": "type: shell\n", "defs/sdlc/action/a/action.sh": ""}
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "name"], "code": "missing"}]
+- id: B6
+  ident: sdlc.dup
+  files: {"defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/sdlc/action/dup/action.yaml": "name: dup\ntype: shell\n", "defs/sdlc/action/dup/action.sh": "", "defs/sdlc/process/dup.yaml": "name: dup\nsteps: []\n"}
+  expect: [{"path": [], "code": "duplicate"}]

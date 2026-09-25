@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-4-framework-cli.md — find_config(start): the file, from start upward
+- {id: F1, files: {processos.yaml: ""}, start: ".", expect: processos.yaml}
+- {id: F2, files: {processos.yaml: ""}, folders: [a/b], start: a/b, expect: processos.yaml}
+- {id: F3, files: {processos.yaml: "", a/processos.yaml: ""}, folders: [a/b], start: a/b, expect: a/processos.yaml}
+- {id: F4, files: {processos.yaml: ""}, folders: [a/processos.yaml], start: a, expect: processos.yaml}

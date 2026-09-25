@@ -1,0 +1,4 @@
+# Packages of this repository, by what uv installs: [process-kit-types, process-kit-schema].
+name: package-list
+type: sequence
+items: package-name

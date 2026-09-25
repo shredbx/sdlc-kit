@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-4-framework-cli.md — process-cli check: no config to load.
+# C7 assumes the temporary folder has no processos.yaml above it.
+- {id: C7, args: [check], expect: {stderr: ["no processos.yaml here or above, or beside the program; process-cli init makes one"]}}
+- {id: C8, args: [--config, nowhere.yaml, check], expect: {stderr: ["nowhere.yaml: no such file"]}}
+- {id: C9, env: {PROCESS_CLI_CONFIG: nowhere.yaml}, args: [check], expect: {stderr: ["nowhere.yaml: no such file"]}}

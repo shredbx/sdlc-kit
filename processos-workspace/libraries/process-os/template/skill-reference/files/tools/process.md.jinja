@@ -1,0 +1,15 @@
+# process — run, resume, runs
+
+process-cli's own process commands: run an action or a process, go on with one that stopped or
+failed, or read what past runs did. Read this file for a `/process` request; `process-os.help`
+(group `process`) serves the same content live, for an MCP client with no skill to read a bundled
+file from. See the skill's own "Read a stopped run before retrying blind" and "Prefer a process's
+own graph over its steps by hand" for the judgment these commands need that no description alone
+carries.
+{% for c in commands if c.group == "process" %}
+## `process-cli {{ c.usage }}`
+
+{{ c.does }}
+
+Prints: {{ c.prints }}
+{% endfor -%}

@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-4-framework-cli.md — find_config(start): none.
+# It assumes the temporary folder has no processos.yaml above it.
+- {id: F5, folders: [a], start: a}

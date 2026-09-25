@@ -1,0 +1,4 @@
+# Lower-case words joined by hyphens: hello-app.
+name: application-name
+type: string
+pattern: '[a-z][a-z0-9]*(-[a-z0-9]+)*'

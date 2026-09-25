@@ -1,0 +1,21 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — the digest saved with a run. The definitions are anchored in G1 (`base`).
+- id: G1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/style.yaml": "name: style\ntype: mapping\nfields:\n  mark: {type: string, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo greet >> trace.txt\necho \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "defs/sdlc/action/shout/action.yaml": "name: shout\ntype: shell\ninput:\n  text: string\noutput:\n  loud: string\n"
+    "defs/sdlc/action/shout/action.sh": "echo shout >> trace.txt\n[ -e fail.flag ] && exit 4\necho \"$INPUT_TEXT\" | tr a-z A-Z > \"$ACTION_OUTPUTS/loud.yaml\"\n"
+    "defs/sdlc/action/mark/action.yaml": "name: mark\ntype: shell\ninput:\n  text: string\n  style: style\noutput:\n  marked: string\n"
+    "defs/sdlc/action/mark/action.sh": "echo \"$INPUT_TEXT$INPUT_STYLE_MARK\" > \"$ACTION_OUTPUTS/marked.yaml\"\n"
+    "defs/sdlc/process/hello.yaml": "name: hello\ninput: {msg: message}\noutput: {loud: string}\nsteps: [greet, shout]\n"
+    "defs/sdlc/process/tell.yaml": "name: tell\ninput: {msg: message, note: message}\nrequires: {style: style}\noutput: {marked: string}\nsteps: [greet, mark]\n"
+    "records/hi/msg.yaml": "hello\n"
+    "records/hi/note.yaml": "note\n"
+    "records/hi/extension/style.yaml": "mark: '!'\n"
+  files: {<<: *base}
+  target: "sdlc.hello"
+  inputs: {"msg": "hi"}

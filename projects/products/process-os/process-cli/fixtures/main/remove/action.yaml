@@ -1,0 +1,15 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m3-1-show-write-remove-action.md §3 — remove action: the whole folder,
+# gone for real.
+- id: A1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\n"
+    "defs/sdlc/action/greet/action.sh": "echo hi\n"
+    "defs/sdlc/action/greet/assets/lib.sh": "helper() { :; }\n"
+  runs:
+    - args: ["remove", "action", "sdlc.greet"]
+      expect: {code: 0, stdout: ["action sdlc.greet: removed"]}
+    - args: ["show", "action", "sdlc.greet"]
+      expect: {code: 1, stdout: []}
+  file: "defs/sdlc/action/greet"

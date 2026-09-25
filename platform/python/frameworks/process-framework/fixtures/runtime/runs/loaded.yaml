@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — Runs.load(run_id) of a run saved
+- id: L1
+  run: {id: r1, target: sdlc.x, scopes: {s: "1.0"}, digest: d, status: stopped, done: [a1, n/a2], skipped: [a1], context: {t: hi}, nested: {n: {t: hi}}, output: {}, reason: held}

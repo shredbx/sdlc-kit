@@ -1,0 +1,42 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-6-cli-demo.md §3 — process-cli run <process>: the lines of the nodes and the summary. The definitions are anchored in P1 (`base`).
+- id: P1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/style.yaml": "name: style\ntype: mapping\nfields:\n  mark: {type: string, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "defs/sdlc/action/shout/action.yaml": "name: shout\ntype: shell\ninput:\n  text: string\noutput:\n  loud: string\n"
+    "defs/sdlc/action/shout/action.sh": "[ -e fail.flag ] && exit 4\necho \"$INPUT_TEXT\" | tr a-z A-Z > \"$ACTION_OUTPUTS/loud.yaml\"\n"
+    "defs/sdlc/action/mark/action.yaml": "name: mark\ntype: shell\ninput:\n  text: string\n  style: style\noutput:\n  marked: string\n"
+    "defs/sdlc/action/mark/action.sh": "echo \"$INPUT_TEXT$INPUT_STYLE_MARK\" > \"$ACTION_OUTPUTS/marked.yaml\"\n"
+    "defs/sdlc/process/hello.yaml": "name: hello\ninput: {msg: message}\noutput: {loud: string}\nsteps: [greet, shout]\n"
+    "defs/sdlc/process/outer.yaml": "name: outer\ninput: {msg: message}\noutput: {loud: string}\nsteps: [hello]\n"
+    "defs/sdlc/process/tell.yaml": "name: tell\ninput: {msg: message, note: message}\nrequires: {style: style}\noutput: {marked: string}\nsteps: [greet, mark]\n"
+    "records/hi/msg.yaml": "hello\n"
+    "records/hi/note.yaml": "note\n"
+    "records/hi/extension/style.yaml": "mark: '!'\n"
+  files: {<<: *base}
+  args: ["run", "sdlc.hello", "--records", "msg=hi"]
+  expect: {"code": 0, "stdout": ["  sdlc.greet: done", "  sdlc.shout: done", "sdlc.hello: done", "  loud: HELLO"], "starts": []}
+- id: P2
+  files: {<<: *base}
+  args: ["run", "sdlc.tell", "--records", "msg=hi", "--records", "note=hi"]
+  expect: {"code": 0, "stdout": ["  sdlc.greet: done", "  sdlc.mark: done", "sdlc.tell: done", "  marked: hello!"], "starts": []}
+- id: P3
+  files: {<<: *base, "defs/sdlc/action/shout/check.sh": "echo loud >&2\nexit 3\n"}
+  args: ["run", "sdlc.hello", "--records", "msg=hi"]
+  expect: {"code": 1, "stdout": ["  sdlc.greet: done", "  sdlc.shout: stopped — loud", "sdlc.hello: stopped — loud"], "starts": ["run "]}
+- id: P4
+  files: {<<: *base, "defs/sdlc/action/greet/check.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\nexit 77\n", "defs/sdlc/action/shout/check.sh": "echo HI > \"$ACTION_OUTPUTS/loud.yaml\"\nexit 77\n"}
+  args: ["run", "sdlc.hello", "--records", "msg=hi"]
+  expect: {"code": 0, "stdout": ["  sdlc.greet: skipped", "  sdlc.shout: skipped", "sdlc.hello: skipped", "  loud: HI"], "starts": []}
+- id: P5
+  files: {<<: *base, "defs/sdlc/action/shout/action.sh": "exit 4\n"}
+  args: ["run", "sdlc.hello", "--records", "msg=hi"]
+  expect: {"code": 1, "stdout": ["  sdlc.greet: done", "  sdlc.shout: failed — action.sh exited 4", "sdlc.hello: failed — action.sh exited 4"], "starts": ["run "]}
+- id: P6
+  files: {<<: *base}
+  args: ["run", "sdlc.outer", "--records", "msg=hi"]
+  expect: {"code": 0, "stdout": ["    sdlc.greet: done", "    sdlc.shout: done", "  sdlc.hello: done", "sdlc.outer: done", "  loud: HELLO"], "starts": []}

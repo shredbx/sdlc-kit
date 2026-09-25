@@ -1,0 +1,40 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m1-4-framework-cli.md — process-cli check: the config loads
+- id: C1
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n"}
+  args: [check]
+  expect: {stdout: ["processos.yaml: ok"]}
+- id: C2
+  folders: [defs, a/b]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n"}
+  cwd: a/b
+  args: [check]
+  expect: {stdout: ["../../processos.yaml: ok"]}
+- id: C3
+  folders: [defs]
+  files: {other/conf.yaml: "definitions: ../defs\nruntime:\n  root: .\n"}
+  args: [--config, other/conf.yaml, check]
+  expect: {stdout: ["other/conf.yaml: ok"]}
+- id: C4
+  folders: [defs]
+  files: {other/conf.yaml: "definitions: ../defs\nruntime:\n  root: .\n"}
+  env: {PROCESS_CLI_CONFIG: other/conf.yaml}
+  args: [check]
+  expect: {stdout: ["other/conf.yaml: ok"]}
+- id: C5
+  folders: [defs]
+  files: {other/conf.yaml: "definitions: ../defs\nruntime:\n  root: .\n", broken.yaml: "definitions: 3\n"}
+  env: {PROCESS_CLI_CONFIG: broken.yaml}
+  args: [--config, other/conf.yaml, check]
+  expect: {stdout: ["other/conf.yaml: ok"]}
+- id: C6
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n", other/conf.yaml: "definitions: ../defs\nruntime:\n  root: .\n"}
+  env: {PROCESS_CLI_CONFIG: other/conf.yaml}
+  args: [check]
+  expect: {stdout: ["other/conf.yaml: ok"]}
+- id: C15
+  folders: [defs]
+  files: {processos.yaml: "definitions: defs\nruntime:\n  root: .\n", defs/std/scope.yaml: "name: std\nversion: 0.1.0\n", defs/std/type/x.yaml: "name: x\ntype: string\n"}
+  args: [check]
+  expect: {stdout: ["processos.yaml: ok"]}

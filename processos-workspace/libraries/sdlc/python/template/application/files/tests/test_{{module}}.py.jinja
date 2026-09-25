@@ -1,0 +1,5 @@
+from {{ module }} import __version__
+
+
+def test_the_package_carries_the_application_version():
+    assert __version__ == "{{ application.version }}"

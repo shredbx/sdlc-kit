@@ -1,5 +1,6 @@
 [tool.uv.workspace]
-members = ["packages/*"]
+members = ["packages/*", "frameworks/*", "../../projects/products/process-os/*"]
+exclude = ["../../projects/products/process-os/process-claude-plugin"]  # a plugin has no pyproject.toml, so it is not a member
 
 [dependency-groups]
 dev = ["ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
@@ -15,4 +16,4 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.13"
 strict = true
 explicit_package_bases = true
-mypy_path = ["packages/types/src", "packages/schema/src", "packages/action/src", "packages/filesystem/src", "packages/config/src", "packages/template/src", "packages/process/src"]
+mypy_path = ["packages/types/src", "packages/schema/src", "packages/action/src", "packages/filesystem/src", "packages/config/src", "packages/template/src", "packages/process/src", "frameworks/process-framework/src"]

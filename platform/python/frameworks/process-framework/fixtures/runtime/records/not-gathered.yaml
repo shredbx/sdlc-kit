@@ -1,0 +1,29 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3, revised by 260923-process-cli-05's
+# M2 — Records.gather(input, requires, records, typed, types): the errors, by path and code. `given` and
+# `values` are now one `records` mapping, resolved in order: a file at that exact path, then an id under
+# this Records's own folder, then (for a scalar, only when the id resolves to nothing at all — a single
+# `missing`) the text itself, cast as a literal. E3 (a scalar's id resolves to nothing) moved to
+# gathered.yaml as H15 — it now succeeds, by design (§2). E13 (a mapping given a literal) now gives
+# `missing`, not `wrong_type` — a real id was tried first and genuinely wasn't there, a better error
+# than "this text isn't a mapping." E17 (a `requires` given directly) is no longer `unexpected` — `records`
+# can supply a `requires` exactly as `given` always could; it is now the single `missing` its own id
+# resolves to.
+- {id: E1, files: {records/hi/msg.yaml: "hello\n"}, input: {msg: text}, requires: {}, records: {msg: hi, other: hi}, expect: [{path: [other], code: unexpected}]}
+- {id: E2, input: {msg: text}, requires: {}, records: {}, expect: [{path: [msg], code: missing}]}
+- {id: E4, files: {records/hi/msg.yaml: "[x\n"}, input: {msg: text}, requires: {}, records: {msg: hi}, expect: [{path: [records/hi/msg.yaml], code: invalid}]}
+- {id: E5, files: {records/hi/msg.yaml: "NOT-lower\n"}, input: {msg: text}, requires: {}, records: {msg: hi}, expect: [{path: [records/hi/msg.yaml], code: pattern}]}
+- {id: E6, files: {records/hi/msg.yaml: "hello\n", records/hi/extension/style.yaml: "mark: [x]\n"}, input: {msg: text}, requires: {style: style}, records: {msg: hi}, expect: [{path: [records/hi/extension/style.yaml, mark], code: wrong_type}]}
+- {id: E7, input: {msg: text}, requires: {}, records: {msg: ../x}, expect: [{path: [msg], code: outside_root}]}
+- {id: E8, files: {records/hi/msg.yaml: "hello\n"}, input: {msg: text}, requires: {style: style}, records: {msg: hi}, expect: [{path: [style], code: missing}]}
+- {id: E9, files: {records/hi/msg.yaml: "hello\n", records/lo/note.yaml: "note\n", records/hi/extension/style.yaml: "mark: '!'\n", records/lo/extension/style.yaml: "mark: '?'\n"}, input: {msg: text, note: text}, requires: {style: style}, records: {msg: hi, note: lo}, expect: [{path: [style], code: duplicate}]}
+- {id: E10, files: {records/hi/msg.yaml: "NOT-lower\n", records/hi/extension/style.yaml: "mark: [x]\n"}, input: {msg: text}, requires: {style: style}, records: {zzz: hi, msg: hi}, expect: [{path: [zzz], code: unexpected}, {path: [records/hi/msg.yaml], code: pattern}, {path: [records/hi/extension/style.yaml, mark], code: wrong_type}]}
+- {id: E11, input: {n: count}, requires: {}, records: {n: abc}, expect: [{path: [n], code: wrong_type}]}
+- {id: E12, input: {ok: flag}, requires: {}, records: {ok: 'yes'}, expect: [{path: [ok], code: wrong_type}]}
+- {id: E13, input: {style: style}, requires: {}, records: {style: oops}, expect: [{path: [records/oops/style.yaml], code: missing}]}
+- {id: E14, input: {msg: text}, requires: {}, records: {msg: NOT-lower}, expect: [{path: [msg], code: pattern}]}
+- {id: E15, input: {n: count}, requires: {}, records: {n: '-1'}, expect: [{path: [n], code: minimum}]}
+- {id: E16, input: {msg: text}, requires: {}, records: {msg: hello, other: x}, expect: [{path: [other], code: unexpected}]}
+- {id: E17, input: {msg: text}, requires: {style: style}, records: {msg: hello, style: x}, expect: [{path: [records/x/style.yaml], code: missing}]}
+- {id: E18, input: {n: count}, requires: {}, records: {}, typed: {n: not-an-int}, expect: [{path: [n], code: wrong_type}]}
+- {id: E19, input: {msg: text}, requires: {}, records: {}, typed: {msg: hello, other: 1}, expect: [{path: [other], code: unexpected}]}
+- {id: E20, input: {msg: text}, requires: {style: style}, records: {}, typed: {msg: hello, style: {mark: '!'}}, expect: [{path: [style], code: unexpected}, {path: [style], code: missing}]}

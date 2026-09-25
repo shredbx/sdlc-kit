@@ -1,0 +1,4 @@
+# A Python module name: hello_app.
+name: module-name
+type: string
+pattern: '[a-z_][a-z0-9_]*'

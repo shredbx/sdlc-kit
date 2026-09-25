@@ -1,0 +1,11 @@
+# A README, rendered from one schema shape shared by every product and package (task 06, G4a/G4b):
+# a title, a tagline, an optional quick-reference command block, an optional overview, install, usage,
+# then each further section in the order given. Under files/, a file ending in .jinja is rendered and
+# loses the ending; any other file is copied as it is.
+name: readme
+input: readme
+pattern:                                            # what conform() requires, file by file
+  README.md:
+    - '# {{ name }}'
+    - '## Install'
+    - '## Usage'

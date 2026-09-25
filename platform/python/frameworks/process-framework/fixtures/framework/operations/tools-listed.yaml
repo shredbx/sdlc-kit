@@ -1,0 +1,26 @@
+# docs/tasks/260922-process-cli-03/steps/m4-1-tools-listing.md §3 — ProcessFramework.tools(): every
+# action and process, sorted by name; a description is left out, not None, when the node has none.
+- id: L1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ndescription: says hello\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "true\n"
+    "defs/sdlc/process/hello.yaml": "name: hello\ninput: {msg: message}\noutput: {text: string}\nsteps: [greet]\n"
+  expect:
+    - name: sdlc.greet
+      description: says hello
+      inputSchema:
+        type: object
+        properties: {msg: {$ref: "#/$defs/sdlc.message"}}
+        required: [msg]
+        additionalProperties: false
+        $defs: {sdlc.message: {type: string, pattern: "[a-z]+"}}
+    - name: sdlc.hello
+      inputSchema:
+        type: object
+        properties: {msg: {$ref: "#/$defs/sdlc.message"}}
+        required: [msg]
+        additionalProperties: false
+        $defs: {sdlc.message: {type: string, pattern: "[a-z]+"}}

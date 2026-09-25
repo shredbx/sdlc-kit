@@ -1,0 +1,6 @@
+# docs/tasks/_done/260923-process-cli-08/steps/m4-1-help-tool.md §4 — _help_tool(): process-os.help's own
+# descriptor, always listed, its inputSchema naming exactly the four groups process-os.command uses.
+- id: T1
+  expect:
+    name: process-os.help
+    groups: [schema, template, process, runtime]

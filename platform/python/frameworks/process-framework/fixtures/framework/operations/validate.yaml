@@ -1,0 +1,46 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 — ProcessFramework.validate(type, file): the errors. The definitions are anchored in V1 (`base`).
+- id: V1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": "name: relative-path\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n  path: {type: std.relative-path}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "records/hi/msg.yaml": "hello\n"
+  files: {<<: *base}
+  type: "sdlc.greeting"
+  data: "text: hello\n"
+  expect: []
+- id: V2
+  files: {<<: *base}
+  type: "sdlc.greeting"
+  data: "text: hello\npath: a/b\n"
+  expect: []
+- id: V3
+  files: {<<: *base}
+  type: "sdlc.greeting"
+  data: "text: NOT-lower\n"
+  expect: [{"path": ["data.yaml", "text"], "code": "pattern"}]
+- id: V4
+  files: {<<: *base}
+  type: "sdlc.greeting"
+  data: "path: a\n"
+  expect: [{"path": ["data.yaml", "text"], "code": "missing"}]
+- id: V5
+  files: {<<: *base}
+  type: "sdlc.greeting"
+  data: "text: [hello\n"
+  expect: [{"path": ["data.yaml"], "code": "invalid"}]
+- id: V6
+  files: {<<: *base}
+  type: "sdlc.nope"
+  data: "text: hello\n"
+  expect: [{"path": [], "code": "unknown_id"}]
+- id: V7
+  files: {<<: *base}
+  type: "sdlc.message"
+  data: "hello\n"
+  expect: []

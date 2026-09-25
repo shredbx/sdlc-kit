@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-7-runtime-run.md §3 — Records.read(name, folder): the records
+- {id: R1, files: {records/hello-app/application.yaml: "name: hello-app\n"}, name: application, folder: hello-app, expect: {name: hello-app}}
+- {id: R2, files: {records/hello-app/extension/build.yaml: "target: apps/x\n"}, name: build, folder: hello-app/extension, expect: {target: apps/x}}
+- {id: R3, files: {records/a/list.yaml: "- x\n- y\n"}, name: list, folder: a, expect: [x, y]}
+- {id: R4, files: {records/a/n.yaml: ""}, name: n, folder: a, expect: null}

@@ -1,0 +1,11 @@
+# The project of a Python application, rendered into its build target from two templates: the
+# common files, and the entry point of its framework. check.sh keeps it from writing over a
+# project that is already there.
+name: create-project
+type: shell
+input:
+  application: sdlc.application
+  build: sdlc.build
+  platform: sdlc.platform
+output:
+  project: project

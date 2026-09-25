@@ -1,0 +1,36 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-4-catalog-opens.md §3 — Catalog.open(<tmp>/defs): the scopes, in order
+- id: V1
+  files: {"defs/std/scope.yaml": "name: std\nversion: 0.1.0\ndescription: Shared.\nuses: []\n"}
+  expect: [{"name": "std", "version": "0.1.0", "description": "Shared.", "uses": []}]
+- id: V2
+  files: {"defs/std/scope.yaml": "name: std\nversion: 0.1.0\ndescription: Shared.\nuses: []\n", "defs/sdlc/scope.yaml": "name: sdlc\nversion: 1.2.3\nuses: [std]\n"}
+  expect: [{"name": "sdlc", "version": "1.2.3", "uses": ["std"]}, {"name": "std", "version": "0.1.0", "description": "Shared.", "uses": []}]
+- id: V3
+  files: {"defs/a/scope.yaml": "name: a\nversion: 0.0.1\n"}
+  expect: [{"name": "a", "version": "0.0.1"}]
+- id: V4
+  folders: ["defs/.git"]
+  files: {"defs/std/scope.yaml": "name: std\nversion: 0.1.0\ndescription: Shared.\nuses: []\n", "defs/README": "notes\n"}
+  expect: [{"name": "std", "version": "0.1.0", "description": "Shared.", "uses": []}]
+- id: V5
+  folders: ["defs"]
+  expect: []
+- id: V6
+  files: {"defs/std/scope.yaml": "name: std\nversion: 0.1.0\ndescription: Shared.\nuses: []\n", "defs/std/type/broken.yaml": "{{{"}
+  expect: [{"name": "std", "version": "0.1.0", "description": "Shared.", "uses": []}]
+- id: L1
+  files: {"defs/main/scope.yaml": "name: main\nversion: 0.1.0\n", "lib/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  libraries: [{name: sdlc, path: lib/sdlc}]
+  expect: [{name: main, version: 0.1.0}, {name: sdlc, version: 0.1.0, folder: lib/sdlc, access: readonly}]
+- id: L2
+  files: {"defs/main/scope.yaml": "name: main\nversion: 0.1.0\n", "lib/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  libraries: [{name: sdlc, path: lib/sdlc, access: readwrite}]
+  expect: [{name: main, version: 0.1.0}, {name: sdlc, version: 0.1.0, folder: lib/sdlc, access: readwrite}]
+- id: L3
+  files: {"defs/main/scope.yaml": "name: main\nversion: 0.1.0\n", "lib/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  libraries: [{name: sdlc, path: lib/sdlc, version: 0.1.0}]
+  expect: [{name: main, version: 0.1.0}, {name: sdlc, version: 0.1.0, folder: lib/sdlc, access: readonly}]
+- id: L4
+  files: {"defs/main/scope.yaml": "name: main\nversion: 0.1.0\nuses: [sdlc]\n", "lib/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  libraries: [{name: sdlc, path: lib/sdlc}]
+  expect: [{name: main, version: 0.1.0, uses: [sdlc]}, {name: sdlc, version: 0.1.0, folder: lib/sdlc, access: readonly}]

@@ -1,0 +1,16 @@
+# Build any application: resolve its platform, then hand over to that platform's process.
+# Nothing here knows Python — sdlc.python.build-application does.
+name: build-application
+input:
+  application: application                 # given with --records
+requires:
+  build: build                             # the application's extension/build.yaml
+output:
+  artifact: build-artifact
+steps:
+  - resolve-platform                       # → platform
+  - switch: platform.name                  # a value in the context, not an expression
+    cases:
+      python: [sdlc.python.build-application]
+    default:
+      - stop: no build process for this platform yet

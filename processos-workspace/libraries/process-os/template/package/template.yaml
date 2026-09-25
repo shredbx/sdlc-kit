@@ -1,0 +1,22 @@
+# A package of this repository, a kit package, a framework or a product, laid out like every other:
+# its manifest, its public surface, and tests/ beside fixtures/ as CLAUDE.md asks. Under files/, a
+# file ending in .jinja is rendered and loses the ending; any other file is copied as it is. File and
+# folder names are rendered too. The README is not this template's job (task 06, G4b) — every
+# package's README is rendered by process-os.readme instead, from its own readme.yaml, so it carries
+# real content, not a stub, and shares one shape with every product's own README.
+name: package
+input: package-spec
+pattern:                                            # what conform() requires, file by file
+  pyproject.toml:
+    - 'name = "{{ dist }}"'
+    - 'description = "{{ package.description }}"'
+    - 'requires-python = ">=3.13"'
+    - 'dev = ["pytest>=8", "pyyaml>=6"]'
+    - 'only-include = ["src/{{ source }}"]'
+    - 'sources = ["src"]'
+    - 'testpaths = ["tests"]'
+    - 'addopts = ["--import-mode=importlib"]'
+  "src/{{source}}/__init__.py":
+    - '__all__ = ['
+  tests/conftest.py:
+    - 'def pytest_generate_tests(metafunc):'

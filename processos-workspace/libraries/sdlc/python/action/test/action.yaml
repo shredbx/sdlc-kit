@@ -1,0 +1,5 @@
+# The project's own tests. A failing test fails the action, and the process with it.
+name: test
+type: shell
+input:
+  project: project

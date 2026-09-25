@@ -1,0 +1,20 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m2-1-show-write-remove-definitions.md §3 — process-cli show: the raw text.
+# The definitions are anchored in S1 (`base`).
+- id: S1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n"
+    "defs/sdlc/process/hi.yaml": "name: hi\nsteps: []\n"
+  files: {<<: *base}
+  args: ["show", "type", "sdlc.message"]
+  expect: {"stdout": ["name: message", "type: string", "pattern: '[a-z]+'", ""]}
+- id: S2
+  files: {<<: *base}
+  args: ["show", "schema", "sdlc.greeting"]
+  expect: {"stdout": ["name: greeting", "type: mapping", "fields:", "  text: {type: message, required: true}", ""]}
+- id: S3
+  files: {<<: *base}
+  args: ["show", "process", "sdlc.hi"]
+  expect: {"stdout": ["name: hi", "steps: []", ""]}

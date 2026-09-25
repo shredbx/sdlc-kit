@@ -1,0 +1,20 @@
+# A Claude Code plugin of this repository: a marketplace-ready skeleton with a working plugin.json,
+# one real skill stub and one real command stub. Under files/, a file ending in .jinja is rendered
+# and loses the ending; any other file is copied as it is. File and folder names are rendered too.
+# The README is not this template's job (task 07, G3, mirroring task 06's own M5 decision for
+# process-os.package): a plugin's README is rendered by process-os.readme instead, from its own
+# readme.yaml, so it carries real content and shares one shape with every package's and product's
+# own README.
+name: claude-plugin
+input: plugin
+pattern:                                            # what conform() requires, file by file
+  .claude-plugin/plugin.json:
+    - '"name": "{{ name }}"'
+    - '"version": "{{ version }}"'
+    - '"description": "{{ description }}"'
+    - '"command": "{{ server }}"'
+  "skills/{{skill}}/SKILL.md":
+    - 'name: {{ skill }}'
+    - 'description: {{ description }}'
+  "commands/{{command}}.md":
+    - 'description: {{ description }}'

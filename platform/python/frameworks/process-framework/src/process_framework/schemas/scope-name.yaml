@@ -1,0 +1,4 @@
+# The name of a scope: lower case words joined by hyphens.
+name: scope-name
+type: string
+pattern: '[a-z][a-z0-9-]*'

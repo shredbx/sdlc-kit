@@ -1,0 +1,19 @@
+# NOTE (2026-09-25): hand-written in the port worktree and NOT yet validated. After merging, run
+# `process-cli check`, validate this record against the `decision` schema, then refine the wording.
+# Source: docs/plans/2026-09-25-process-os-port-completion-design.md
+topic: process-os-port-scope
+question: >-
+  What is the first example product this workspace builds on the process-kit foundation, and which parts of
+  process-os does finishing its port cover?
+status: decided
+resolution: >-
+  The example product is the rest of process-os itself, not a new domain: process-framework, process-cli,
+  process-claude-plugin, and process-os's own definitions (the sdlc, std and process-os scopes, ported as a
+  library). tools/ (a built binary) and dist/ (wheels) are build outputs and are not ported. process-os is the
+  product; process-cli and process-claude-plugin are its applications.
+rationale: >-
+  It is a port of proven code, so the shape is already known to work and modeling and implementation can move
+  together (docs/proposals/porting-and-modeling-process.md). It completes the base before new functionality is
+  added on top. This supersedes the FastAPI plus HTTP MCP framing in docs/proposals/product-example-scaffold.md,
+  which assumed a brand-new product.
+date: '2026-09-25'

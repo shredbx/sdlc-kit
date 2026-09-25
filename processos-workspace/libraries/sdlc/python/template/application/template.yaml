@@ -1,0 +1,12 @@
+# The files every Python application starts with. Its entry point comes from the template of its
+# framework, sdlc.python.entry-<framework>. Under files/, a file ending in .jinja is rendered and
+# loses the ending; any other file is copied as it is. File and folder names are rendered too.
+name: application
+input: project-spec
+pattern:                                            # what conform() requires, file by file
+  pyproject.toml:
+    - 'name = "{{ application.name }}"'
+    - 'requires-python = ">={{ runtime }}"'
+  "src/{{module}}/__init__.py":
+    - '__version__ = "{{ application.version }}"'
+  "tests/test_{{module}}.py": []                    # the file exists; nothing more

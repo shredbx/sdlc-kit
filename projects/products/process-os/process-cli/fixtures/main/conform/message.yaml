@@ -1,0 +1,14 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m4-4-cli-render-close.md §3 — process-cli conform: a message with no path, exact. The definitions are anchored in C3 (`base`).
+- id: C3
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/schema/spec.yaml": "name: spec\ntype: mapping\nfields:\n  name: {type: string, required: true}\n  other: {type: string}\n"
+    "defs/sdlc/template/pkg/template.yaml": "name: pkg\ninput: spec\npattern:\n  \"{{name}}/main.py\": [\"def main(\"]\n"
+    "defs/sdlc/template/pkg/files/README.md": "readme\n"
+    "defs/sdlc/template/pkg/files/{{name}}/main.py.jinja": "def main():\n    return '{{ name }}'\n"
+    "data.yaml": "name: app\n"
+  files: {<<: *base}
+  args: ["conform", "sdlc.pkg", "nofile.yaml", "made"]
+  expect: {"stderr": ["nofile.yaml: no such file"]}

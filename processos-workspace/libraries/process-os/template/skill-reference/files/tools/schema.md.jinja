@@ -1,0 +1,13 @@
+# schema — validate, create, edit
+
+process-cli's own schema commands: check a data file against a type or a schema, build a new
+instance of one and write it for real, or merge field values into one that already exists. Read
+this file for a `/schema` request; `process-os.help` (group `schema`) serves the same content live,
+for an MCP client with no skill to read a bundled file from.
+{% for c in commands if c.group == "schema" %}
+## `process-cli {{ c.usage }}`
+
+{{ c.does }}
+
+Prints: {{ c.prints }}
+{% endfor -%}

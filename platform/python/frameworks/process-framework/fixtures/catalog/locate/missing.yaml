@@ -1,0 +1,46 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-4-catalog-opens.md §3 — locate(kind, id) on the tree: None
+- id: L8
+  files: &tree
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": ""
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/schema/application.yaml": ""
+    "defs/sdlc/action/resolve-platform/action.yaml": ""
+    "defs/sdlc/process/build-application.yaml": ""
+    "defs/sdlc/python/type/module-name.yaml": ""
+    "defs/sdlc/python/action/create-project/action.yaml": ""
+    "defs/sdlc/python/template/application/template.yaml": ""
+  kind: type
+  ident: "std.nope"
+- id: L9
+  files: *tree
+  kind: type
+  ident: "nope.relative-path"
+- id: L10
+  files: *tree
+  kind: schema
+  ident: "std.relative-path"
+- id: L11
+  files: *tree
+  kind: action
+  ident: "std"
+- id: L12
+  files: *tree
+  kind: action
+  ident: ""
+- id: L13
+  files: *tree
+  kind: action
+  ident: "sdlc..x"
+- id: L14
+  files: *tree
+  kind: type
+  ident: "std.a/b"
+- id: L15
+  files: *tree
+  kind: type
+  ident: "Std.relative-path"
+- id: L16
+  files: *tree
+  kind: action
+  ident: "sdlc.python"

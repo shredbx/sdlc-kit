@@ -1,0 +1,12 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m4-1-records-crud.md §3 — remove record: gone for real.
+- id: R1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "records/g/hello.yaml": "text: hi\n"
+  runs:
+    - args: ["remove", "record", "g/hello.yaml"]
+      expect: {code: 0, stdout: ["record g/hello.yaml: removed"]}
+    - args: ["show", "record", "g/hello.yaml"]
+      expect: {code: 1, stdout: []}
+  file: "records/g/hello.yaml"

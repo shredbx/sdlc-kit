@@ -1,0 +1,5 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3, and m1-1-framework-values.md §3, revised
+# 260923-process-cli-05's M2 — Records.gather raises for a `records` or a `typed` that is not a mapping
+- {id: W1, records: [msg]}
+- {id: W2, records: "msg"}
+- {id: W3, typed: [msg]}

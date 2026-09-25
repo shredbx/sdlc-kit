@@ -1,0 +1,7 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-6-catalog-check.md §3 — ProcessFramework.check()
+- id: C1
+  files: {"processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/std/type/x.yaml": "name: x\ntype: string\n"}
+  expect: []
+- id: C2
+  files: {"processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n", "defs/std/type/x.yaml": "name: x\ntype: string\n", "defs/std/type/notes.txt": ""}
+  expect: [{"path": ["defs/std/type/notes.txt"], "code": "unexpected"}]

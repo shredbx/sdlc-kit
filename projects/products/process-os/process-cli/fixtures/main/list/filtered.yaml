@@ -1,0 +1,29 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m5-1-listing.md §3 — --scope/--namespace/--limit, alone and
+# combined, filtered before anything past the bare id is loaded.
+- id: F1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/a.yaml": "name: a\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/b.yaml": "name: b\ntype: string\n"
+    "defs/sdlc/python/type/c.yaml": "name: c\ntype: string\n"
+  files: {<<: *base}
+  args: ["list", "type", "--scope", "sdlc"]
+  expect: {"stdout": ["sdlc.b", "sdlc.python.c"]}
+- id: F2
+  files: {<<: *base}
+  args: ["list", "type", "--namespace", "python"]
+  expect: {"stdout": ["sdlc.python.c"]}
+- id: F3
+  files: {<<: *base}
+  args: ["list", "type", "--limit", "1"]
+  expect: {"stdout": ["sdlc.b"]}
+- id: F4
+  files: {<<: *base}
+  args: ["list", "type", "--scope", "sdlc", "--limit", "1"]
+  expect: {"stdout": ["sdlc.b"]}
+- id: F5
+  files: {<<: *base}
+  args: ["list", "type", "--scope", "sdlc", "--namespace", "python"]
+  expect: {"stdout": ["sdlc.python.c"]}

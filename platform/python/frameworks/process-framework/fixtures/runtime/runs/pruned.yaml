@@ -1,0 +1,30 @@
+# docs/tasks/_done/260922-process-cli-04/steps/m3-2-runs-delete.md §3 — Runs.prune(keep): the most recent
+# done runs survive, in Runs.list's own order (ids sort chronologically); a stopped or failed run is
+# never touched, and never counts against keep, whatever its position.
+- id: P1
+  files:
+    runs/d1/run.yaml: "{id: d1, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+    runs/d2/run.yaml: "{id: d2, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+    runs/s1/run.yaml: "{id: s1, process: x, scopes: {}, digest: a, status: stopped, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+    runs/d3/run.yaml: "{id: d3, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+    runs/d4/run.yaml: "{id: d4, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+  keep: 2
+  expect: [d3, d4, s1]
+- id: P2
+  files:
+    runs/d1/run.yaml: "{id: d1, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+    runs/f1/run.yaml: "{id: f1, process: x, scopes: {}, digest: a, status: failed, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+  keep: 0
+  expect: [f1]
+- id: P3
+  files:
+    runs/d1/run.yaml: "{id: d1, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+    runs/d2/run.yaml: "{id: d2, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+  keep: 10
+  expect: [d1, d2]
+- id: P4
+  files:
+    runs/d1/run.yaml: "{id: d1, process: x, scopes: {}, digest: a, status: done, done: [], skipped: [], context: {}, nested: {}, output: {}}\n"
+    runs/broken/run.yaml: "x: 1\n"
+  keep: 0
+  expect: [broken]

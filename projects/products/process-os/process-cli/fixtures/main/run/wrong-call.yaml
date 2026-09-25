@@ -1,0 +1,25 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-8-cli-commands.md §3 — a wrong call: exit 2. The definitions are anchored in W1 (`base`).
+# W4-W6 (a name given twice across --input and --set, and --set's own bad shape and duplicate) folded
+# into W2/W3, 260923-process-cli-05's M2 — one flag, one way to get either wrong.
+- id: W1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/x.yaml": "name: x\ntype: string\n"
+    "defs/std/schema/y.yaml": "name: y\ntype: mapping\n"
+    "defs/std/action/z/action.yaml": "name: z\ntype: shell\n"
+    "defs/std/action/z/action.sh": "true\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "records/hi/msg.yaml": "hello\n"
+  files: {<<: *base}
+  args: ["run"]
+- id: W2
+  files: {<<: *base}
+  args: ["run", "sdlc.greet", "--records", "msg"]
+- id: W3
+  files: {<<: *base}
+  args: ["run", "sdlc.greet", "--records", "msg=a", "--records", "msg=b"]

@@ -1,0 +1,8 @@
+# The entry point of a Python application written with Typer. The typer package itself is added
+# by sdlc.python.install.
+name: entry-typer
+input: project-spec
+pattern:
+  "src/{{module}}/__main__.py":
+    - "import typer"
+    - "def main("

@@ -1,0 +1,17 @@
+[project]
+name = "{{ application.name }}"
+version = "{{ application.version }}"
+description = {{ application.description | tojson }}
+readme = "README.md"
+requires-python = ">={{ runtime }}"
+dependencies = []
+
+[project.scripts]
+{{ application.name }} = "{{ module }}.__main__:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

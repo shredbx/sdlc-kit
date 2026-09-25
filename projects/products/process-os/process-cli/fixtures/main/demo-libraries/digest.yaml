@@ -1,0 +1,5 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m2-4-libraries-trial.md §3 — sdlc.build-application's digest, read from
+# libraries, equals the same read from the repository's own definitions/, one folder.
+- id: D1
+  libraries: [sdlc, std]
+  ident: sdlc.build-application

@@ -1,0 +1,28 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-4-catalog-processes.md §3 — check(): a process, and its graph. Each case adds the process file(s) to the anchored base (the key `base` of T6).
+- id: T6
+  base: &base
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/text.yaml": "name: text\ntype: string\n"
+    "defs/sdlc/type/count.yaml": "name: count\ntype: integer\n"
+    "defs/sdlc/action/a/action.yaml": "name: a\ntype: shell\ninput: {x: text}\noutput: {y: text}\n"
+    "defs/sdlc/action/a/action.sh": "echo a\n"
+    "defs/sdlc/action/b/action.yaml": "name: b\ntype: shell\ninput: {y: text}\noutput: {z: count}\n"
+    "defs/sdlc/action/b/action.sh": "echo b\n"
+  files: {<<: *base, "defs/sdlc/process/p.yaml": "{{{"}
+  expect: [{"path": ["defs/sdlc/process/p.yaml"], "code": "invalid"}]
+- id: T7
+  files: {<<: *base, "defs/sdlc/process/p.yaml": "name: p\ninput: {}\nsteps: [b]\n"}
+  expect: [{"path": ["defs/sdlc/process/p.yaml", "steps", 0], "code": "missing"}]
+- id: T8
+  files: {<<: *base, "defs/sdlc/process/p.yaml": "name: other\nsteps: []\n"}
+  expect: [{"path": ["defs/sdlc/process/p.yaml", "name"], "code": "invalid"}]
+- id: T9
+  files: {<<: *base, "defs/sdlc/process/p.yaml": "name: p\ninput: {x: nope}\nsteps: []\n"}
+  expect: [{"path": ["defs/sdlc/process/p.yaml", "input", "x"], "code": "unknown_id"}]
+- id: T10
+  files: {<<: *base, "defs/sdlc/process/p.yaml": "name: p\ninput: {x: text}\nsteps: [a, nope]\n"}
+  expect: [{"path": ["defs/sdlc/process/p.yaml", "steps", 1], "code": "unknown_id"}]
+- id: T11
+  files: {<<: *base, "defs/sdlc/process/p.yaml": "name: p\ninput: {}\nsteps: [b]\n", "defs/sdlc/process/o.yaml": "name: o\ninput: {}\nsteps: [p]\n"}
+  expect: [{"path": ["defs/sdlc/process/p.yaml", "steps", 0], "code": "missing"}]

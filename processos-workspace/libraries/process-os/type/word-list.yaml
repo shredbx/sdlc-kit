@@ -1,0 +1,5 @@
+# A bare list of words for a command line, such as an MCP server's own arguments: [mcp]. Unlike
+# package-list, these name nothing of this repository.
+name: word-list
+type: sequence
+items: string

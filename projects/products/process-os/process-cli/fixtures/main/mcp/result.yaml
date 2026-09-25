@@ -1,0 +1,13 @@
+# docs/tasks/260922-process-cli-03/steps/m4-2-serve.md §4 — _result(made): a Run or a list of Error,
+# turned into what an MCP client reads
+- id: R1
+  errors: [{path: [msg], code: pattern}]
+- id: R2
+  target: sdlc.greet
+  status: done
+  expect: {text: "sdlc.greet: done"}
+- id: R3
+  target: sdlc.build-application
+  status: failed
+  reason: "action.sh exited 4: boom"
+  expect: {text: "sdlc.build-application: failed — action.sh exited 4: boom"}

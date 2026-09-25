@@ -1,0 +1,15 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-2-runs-commands.md §3 — process-cli runs: every run kept, most recent first
+- id: U1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+    "runs/250101-090000-hello/run.yaml": "id: 250101-090000-hello\nprocess: sdlc.hello\nscopes: {}\ndigest: d\nstatus: done\ndone: [sdlc.greet, sdlc.shout]\nskipped: []\ncontext: {}\nnested: {}\noutput: {}\n"
+    "runs/250101-100000-shout/run.yaml": "id: 250101-100000-shout\nprocess: sdlc.shout\nscopes: {}\ndigest: d\nstatus: failed\nreason: boom\ndone: [sdlc.greet]\nskipped: []\ncontext: {}\nnested: {}\noutput: {}\n"
+  args: ["runs"]
+  expect: {"stdout": ["250101-100000-shout: sdlc.shout failed (2025-01-01 10:00:00)", "250101-090000-hello: sdlc.hello done (2025-01-01 09:00:00)"]}
+- id: U2
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/main/scope.yaml": "name: main\nversion: 0.1.0\n"
+  args: ["runs"]
+  expect: {"stdout": []}

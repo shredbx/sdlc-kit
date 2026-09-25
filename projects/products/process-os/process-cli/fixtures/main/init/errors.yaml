@@ -1,0 +1,3 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m6-1-init.md §3 — process-cli init: what it refuses, and writes nothing
+- {id: E1, files: {processos.yaml: "keep\n"}, args: [init], expect: {starts: ["processos.yaml: exists: "]}}
+- {id: E2, args: [init, --scope, Bad_Name], expect: {starts: ["scope: pattern: "]}}

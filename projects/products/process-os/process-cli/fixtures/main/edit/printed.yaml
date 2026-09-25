@@ -1,0 +1,12 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m4-1-records-crud.md §3 — edit: merges, checked against the schema
+# whole, one field changed and the rest untouched. The definitions are anchored in E1 (`base`).
+- id: E1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n  extra: {type: message}\n"
+    "records/g/hello.yaml": "text: hi\nextra: yo\n"
+  files: {<<: *base}
+  args: ["edit", "sdlc.greeting", "g/hello.yaml", "--set", "text=bye"]
+  expect: {"stdout": ["g/hello.yaml: edited"], "file": "records/g/hello.yaml", "text": "text: bye\nextra: yo\n"}

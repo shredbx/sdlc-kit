@@ -1,0 +1,27 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-6-cli-demo.md §3 — the runs of example-build-application.md §5 that stop, on a copy of the demo's input. `before` is a path to its new text, or to null to remove it
+- id: D1
+  runs:
+    - {"before": {"records/hello-app/extension/build.yaml": "target: apps/hello-app\nruntime: 3.13\n"}, "args": ["run", "sdlc.build-application", "--records", "application=hello-app"], "expect": {"code": 1, "stdout": [], "starts": ["records/hello-app/extension/build.yaml: runtime: wrong_type: "]}}
+- id: D2
+  runs:
+    - {"before": {"records/hello-app/application.yaml": "name: hello-app\ndescription: A greeting from a generated application.\nversion: 0.1.0\nplatform: ruby\nlanguage: python\nframework: typer\n"}, "args": ["run", "sdlc.build-application", "--records", "application=hello-app"], "expect": {"code": 1, "stdout": [], "starts": ["records/hello-app/application.yaml: platform: enum: "]}}
+- id: D3
+  runs:
+    - {"before": {"records/hello-app/extension/build.yaml": "target: ../elsewhere\nruntime: \"3.13\"\n"}, "args": ["run", "sdlc.build-application", "--records", "application=hello-app"], "expect": {"code": 1, "stdout": [], "starts": ["records/hello-app/extension/build.yaml: target: pattern: "]}}
+- id: D4
+  runs:
+    - {"before": {"records/hello-app/application.yaml": "name: hello-app\ndescription: A greeting from a generated application.\nversion: 0.1.0\nplatform: python\nlanguage: typescript\nframework: typer\n"}, "args": ["run", "sdlc.build-application", "--records", "application=hello-app"], "expect": {"code": 1, "stdout": ["  sdlc.resolve-platform: failed — action.sh exited 1: platform python does not run typescript", "sdlc.build-application: failed — action.sh exited 1: platform python does not run typescript"], "starts": ["run "]}}
+- id: D5
+  runs:
+    - {"before": {"records/hello-app/application.yaml": "name: hello-app\ndescription: A greeting from a generated application.\nversion: 0.1.0\nplatform: node\nlanguage: typescript\nframework: typer\n"}, "args": ["run", "sdlc.build-application", "--records", "application=hello-app"], "expect": {"code": 1, "stdout": ["  sdlc.resolve-platform: done", "sdlc.build-application: stopped — no build process for this platform yet"], "starts": ["run "]}}
+- id: D6
+  runs:
+    - {"before": {"records/hello-app/extension/build.yaml": null}, "args": ["run", "sdlc.build-application", "--records", "application=hello-app"], "expect": {"code": 1, "stdout": [], "starts": ["build: missing: "]}}
+- id: D7
+  runs:
+    - {"before": {"records/hello-app/platform.yaml": "name: python\nlanguage: python\nframework: typer\nruntime: \"3.13\"\ntool: uv\n"}, "args": ["run", "sdlc.python.create-project", "--records", "application=hello-app", "--records", "build=hello-app/extension", "--records", "platform=hello-app"], "expect": {"code": 0, "stdout": ["sdlc.python.create-project: done", "  project: {\"path\": \"apps/hello-app\", \"module\": \"hello_app\"}"], "starts": []}}
+    - {"before": {"output/apps/hello-app/src/hello_app/__init__.py": "\"\"\"hello_app\"\"\"\n"}, "args": ["run", "sdlc.python.create-project", "--records", "application=hello-app", "--records", "build=hello-app/extension", "--records", "platform=hello-app"], "expect": {"code": 1, "stdout": ["sdlc.python.create-project: stopped — apps/hello-app/src/hello_app/__init__.py: missing_line: no line holds '__version__ = \"0.1.0\"'", "apps/hello-app is there and does not conform to its templates"], "starts": ["run "]}}
+- id: D8
+  runs:
+    - {"before": {"records/hello-app/platform.yaml": "name: python\nlanguage: python\nframework: typer\nruntime: \"3.13\"\ntool: uv\n"}, "args": ["run", "sdlc.python.create-project", "--records", "application=hello-app", "--records", "build=hello-app/extension", "--records", "platform=hello-app"], "expect": {"code": 0, "stdout": ["sdlc.python.create-project: done", "  project: {\"path\": \"apps/hello-app\", \"module\": \"hello_app\"}"], "starts": []}}
+    - {"args": ["run", "sdlc.python.create-project", "--records", "application=hello-app", "--records", "build=hello-app/extension", "--records", "platform=hello-app"], "expect": {"code": 0, "stdout": ["sdlc.python.create-project: skipped", "  project: {\"path\": \"apps/hello-app\", \"module\": \"hello_app\"}"], "starts": []}}

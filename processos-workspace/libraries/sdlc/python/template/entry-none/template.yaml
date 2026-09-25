@@ -1,0 +1,6 @@
+# The entry point of a Python application with no framework.
+name: entry-none
+input: project-spec
+pattern:
+  "src/{{module}}/__main__.py":
+    - "def main("

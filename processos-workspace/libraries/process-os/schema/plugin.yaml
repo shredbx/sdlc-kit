@@ -1,0 +1,12 @@
+# A Claude Code plugin of this repository, described before its files exist. Always in
+# products/<name>/. The input of process-os.create-plugin.
+name: plugin
+type: mapping
+fields:
+  name:        {type: package-name, required: true}   # the folder, products/<name>/, and plugin.json's own name
+  version:     {type: std.version, required: true}
+  description: {type: string, required: true}          # one sentence: what it is for
+  server:      {type: string, required: true}           # the MCP server's own command: process-cli
+  arguments:   {type: word-list}                         # e.g. [mcp]; left out, the server takes none
+  skill:       {type: package-name, required: true}     # the one skill this scaffolds, by name
+  command:     {type: package-name, required: true}     # the one slash command this scaffolds, by name

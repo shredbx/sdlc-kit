@@ -1,0 +1,85 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m3-5-catalog-loads.md §3 — Catalog.types: every error, in order, by path and code. Each case adds files to the anchored definitions.
+- id: E1
+  files: &defs
+    "defs/std/scope.yaml": "name: std\nversion: 0.1.0\n"
+    "defs/std/type/relative-path.yaml": "name: relative-path\ntype: string\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\nuses: [std]\n"
+    "defs/sdlc/type/platform-name.yaml": "name: platform-name\ntype: string\nenum: [python, node]\n"
+    "defs/sdlc/schema/platform.yaml": "name: platform\ntype: mapping\nfields:\n  name: {type: platform-name, required: true}\n  path: {type: std.relative-path}\n"
+    "defs/sdlc/schema/build.yaml": "name: build\ntype: mapping\nfields:\n  target: {type: std.relative-path}\n"
+    "defs/sdlc/schema/node.yaml": "name: node\ntype: mapping\nfields:\n  children: {type: nodes}\n"
+    "defs/sdlc/type/nodes.yaml": "name: nodes\ntype: sequence\nitems: node\n"
+    "defs/other/scope.yaml": "name: other\nversion: 0.1.0\n"
+    "defs/other/type/x.yaml": "name: x\ntype: string\n"
+  references: [{where: ["input", "a"], name: sdlc.nope}]
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "a"], "code": "unknown_id"}]
+- id: E2
+  files: *defs
+  references: [{where: ["input", "a"], name: nope.x}]
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "a"], "code": "unknown_id"}]
+- id: E3
+  files: *defs
+  file: defs/other/action/a/action.yaml
+  references: [{where: ["input", "a"], name: std.relative-path}]
+  expect: [{"path": ["defs/other/action/a/action.yaml", "input", "a"], "code": "not_used"}]
+- id: E4
+  files: *defs
+  references: [{where: ["input", "a"], name: other.x}]
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "a"], "code": "not_used"}]
+- id: E5
+  files:
+    <<: *defs
+    "defs/sdlc/type/broken.yaml": "{{{"
+  references: [{where: ["input", "a"], name: sdlc.broken}]
+  expect: [{"path": ["defs/sdlc/type/broken.yaml"], "code": "invalid"}]
+- id: E6
+  files:
+    <<: *defs
+    "defs/sdlc/type/bad.yaml": "name: bad\ntype: string\nmin_length: two\n"
+  references: [{where: ["input", "a"], name: sdlc.bad}]
+  expect: [{"path": ["defs/sdlc/type/bad.yaml", "min_length"], "code": "wrong_type"}]
+- id: E7
+  files:
+    <<: *defs
+    "defs/sdlc/type/a.yaml": "name: b\ntype: string\n"
+  references: [{where: ["input", "a"], name: sdlc.a}]
+  expect: [{"path": ["defs/sdlc/type/a.yaml", "name"], "code": "invalid"}]
+- id: E8
+  files:
+    <<: *defs
+    "defs/sdlc/type/m.yaml": "name: m\ntype: mapping\n"
+  references: [{where: ["input", "a"], name: sdlc.m}]
+  expect: [{"path": ["defs/sdlc/type/m.yaml", "type"], "code": "invalid"}]
+- id: E9
+  files:
+    <<: *defs
+    "defs/sdlc/schema/s.yaml": "name: s\ntype: string\n"
+  references: [{where: ["input", "a"], name: sdlc.s}]
+  expect: [{"path": ["defs/sdlc/schema/s.yaml", "type"], "code": "invalid"}]
+- id: E10
+  files:
+    <<: *defs
+    "defs/sdlc/type/dup.yaml": "name: dup\ntype: string\n"
+    "defs/sdlc/schema/dup.yaml": "name: dup\ntype: mapping\n"
+  references: [{where: ["input", "a"], name: sdlc.dup}]
+  expect: [{"path": ["defs/sdlc/schema/dup.yaml", "name"], "code": "duplicate"}]
+- id: E11
+  files:
+    <<: *defs
+    "defs/sdlc/schema/p.yaml": "name: p\ntype: mapping\nfields:\n  x: {type: nope}\n"
+  references: [{where: ["input", "a"], name: sdlc.p}]
+  expect: [{"path": ["defs/sdlc/schema/p.yaml", "fields", "x", "type"], "code": "unknown_id"}]
+- id: E12
+  files:
+    <<: *defs
+    "defs/sdlc/schema/p.yaml": "name: p\ntype: mapping\nfields:\n  x: {type: other.x}\n"
+  references: [{where: ["input", "a"], name: sdlc.p}]
+  expect: [{"path": ["defs/sdlc/schema/p.yaml", "fields", "x", "type"], "code": "not_used"}]
+- id: E13
+  files: *defs
+  references: [{where: ["input", "a"], name: sdlc.nope}, {where: ["input", "b"], name: other.x}]
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "a"], "code": "unknown_id"}, {"path": ["defs/sdlc/action/a/action.yaml", "input", "b"], "code": "not_used"}]
+- id: E14
+  files: *defs
+  references: [{where: ["input", "a"], name: Bad}]
+  expect: [{"path": ["defs/sdlc/action/a/action.yaml", "input", "a"], "code": "unknown_id"}]

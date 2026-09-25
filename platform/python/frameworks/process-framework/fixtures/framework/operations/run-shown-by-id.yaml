@@ -1,0 +1,14 @@
+# docs/tasks/_done/260922-process-cli-02/steps/m4-2-runs-commands.md §3 — show_run gives the run asked for, not just any valid one
+- id: RS4
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\ninput:\n  msg: message\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo \"$INPUT_MSG\" > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "defs/sdlc/action/shout/action.yaml": "name: shout\ntype: shell\ninput:\n  text: string\noutput:\n  loud: string\n"
+    "defs/sdlc/action/shout/action.sh": "echo \"$INPUT_TEXT\" | tr a-z A-Z > \"$ACTION_OUTPUTS/loud.yaml\"\n"
+    "records/hi/msg.yaml": "hello\n"
+    "records/hi/text.yaml": "hi\n"
+  files: {<<: *base}
+  targets: [{id: "sdlc.greet", inputs: {msg: hi}}, {id: "sdlc.shout", inputs: {text: hi}}]

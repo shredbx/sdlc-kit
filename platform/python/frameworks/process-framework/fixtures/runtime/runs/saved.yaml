@@ -1,0 +1,8 @@
+# docs/tasks/_done/260921-process-cli-01/steps/m5-5-framework-runs.md §3 — Runs.save(run): run.yaml holds run.to_data(), in its order
+- id: S1
+  run: {id: a, target: x, scopes: {}, digest: d}
+  expect: {id: a, process: x, scopes: {}, digest: d, status: running, done: [], skipped: [], context: {}, nested: {}, output: {}}
+- id: S2
+  files: {runs/a/run.yaml: "status: done\n"}
+  run: {id: a, target: x, scopes: {s: "1.0"}, digest: d, status: failed, done: [a1], reason: boom}
+  expect: {id: a, process: x, scopes: {s: "1.0"}, digest: d, status: failed, done: [a1], skipped: [], context: {}, nested: {}, output: {}, reason: boom}

@@ -7,3 +7,7 @@ runtime:
   records: records                # the records given to runs, one folder per instance; kept in git
   output: output                  # where actions write, and their working folder
   runs: runs                      # the state of each run, one folder per run; git-ignored
+libraries:                        # scopes kept outside `definitions`, verbatim copies; readonly unless said otherwise
+  - {name: std,        path: processos-workspace/libraries/std}
+  - {name: sdlc,       path: processos-workspace/libraries/sdlc}
+  - {name: process-os, path: processos-workspace/libraries/process-os}

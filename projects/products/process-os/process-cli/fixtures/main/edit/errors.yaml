@@ -1,0 +1,28 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m4-1-records-crud.md §3 — edit: rejected, and the file left exactly
+# as it was — validated whole before anything is written, so there is never a rollback to prove, only that
+# nothing changed. The definitions are anchored in E1 (`base`).
+- id: E1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\npattern: '[a-z]+'\n"
+    "defs/sdlc/schema/greeting.yaml": "name: greeting\ntype: mapping\nfields:\n  text: {type: message, required: true}\n"
+    "records/g/hello.yaml": "text: hi\n"
+  files: {<<: *base}
+  args: ["edit", "sdlc.greeting", "g/hello.yaml", "--set", "text=NOT-lower"]
+  expect: {"starts": ["text: pattern: "]}
+  unchanged: {"records/g/hello.yaml": "text: hi\n"}
+- id: E2
+  files: {<<: *base}
+  args: ["edit", "sdlc.greeting", "g/hello.yaml", "--set", "nope=x"]
+  expect: {"starts": ["nope: unexpected: "]}
+  unchanged: {"records/g/hello.yaml": "text: hi\n"}
+- id: E3
+  files: {<<: *base}
+  args: ["edit", "sdlc.greeting", "g/nope.yaml", "--set", "text=bye"]
+  expect: {"starts": ["unknown_id: "]}
+- id: E4
+  files: {<<: *base}
+  args: ["edit", "sdlc.nope", "g/hello.yaml", "--set", "text=bye"]
+  expect: {"starts": ["unknown_id: "]}
+  unchanged: {"records/g/hello.yaml": "text: hi\n"}

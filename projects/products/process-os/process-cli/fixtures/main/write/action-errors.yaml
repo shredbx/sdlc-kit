@@ -1,0 +1,35 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m3-1-show-write-remove-action.md §3 — write action: rejected, and the
+# folder left exactly as it was — absent, if new; unchanged, if it existed. The definitions are anchored in E1.
+- id: E1
+  base: &base
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+  files: {<<: *base, "new/action.yaml": "name: greet\ntype: shell\ninput:\n  x: sdlc.nope\n", "new/action.sh": "echo hi\n"}
+  args: ["write", "action", "sdlc.greet", "new"]
+  expect: {"starts": ["defs/sdlc/action/greet/action.yaml: input.x: unknown_id: "]}
+  not_written: ["defs/sdlc/action/greet"]
+- id: E2
+  files: {<<: *base, "new/action.yaml": "name: greet\ntype: shell\n", "new/run.sh": "echo hi\n"}
+  args: ["write", "action", "sdlc.greet", "new"]
+  expect: {"starts": ["run.sh: unexpected: "]}
+  not_written: ["defs/sdlc/action/greet"]
+- id: E3
+  files:
+    <<: *base
+    "defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\noutput:\n  text: string\n"
+    "defs/sdlc/action/greet/action.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\n"
+    "new/action.yaml": "name: greet\ntype: shell\ninput:\n  x: sdlc.nope\n"
+    "new/action.sh": "echo hi\n"
+  args: ["write", "action", "sdlc.greet", "new"]
+  expect: {"starts": ["defs/sdlc/action/greet/action.yaml: input.x: unknown_id: "]}
+  unchanged: {"defs/sdlc/action/greet/action.yaml": "name: greet\ntype: shell\noutput:\n  text: string\n", "defs/sdlc/action/greet/action.sh": "echo hi > \"$ACTION_OUTPUTS/text.yaml\"\n"}
+- id: E4
+  files:
+    processos.yaml: "definitions: defs\nruntime:\n  root: .\nlibraries:\n  - {name: sdlc, path: sdlc}\n"
+    defs/std/scope.yaml: "name: std\nversion: 0.1.0\n"
+    sdlc/scope.yaml: "name: sdlc\nversion: 0.1.0\n"
+    new/action.yaml: "name: greet\ntype: shell\n"
+    new/action.sh: "echo hi\n"
+  args: ["write", "action", "sdlc.greet", "new"]
+  expect: {"starts": ["readonly: "]}
+  not_written: ["sdlc/action/greet"]

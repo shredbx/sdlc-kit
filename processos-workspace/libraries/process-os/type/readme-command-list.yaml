@@ -1,0 +1,5 @@
+# One line of a README's own quick-reference command block, comment included, e.g.
+# "process-cli check    # read every definition, and say if they are right". [] when there is none.
+name: readme-command-list
+type: sequence
+items: string

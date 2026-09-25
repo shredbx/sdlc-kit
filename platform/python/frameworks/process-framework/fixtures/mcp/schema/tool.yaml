@@ -1,0 +1,23 @@
+# docs/tasks/260922-process-cli-03/steps/m4-1-tools-listing.md §3 — tool_of(node, types), against
+# conftest.py's synthetic `types`
+- id: G1
+  node: action
+  node_id: sdlc.greet
+  description: says hi
+  input: {x: word}
+  expect:
+    name: sdlc.greet
+    description: says hi
+    inputSchema:
+      type: object
+      properties: {x: {$ref: "#/$defs/word"}}
+      required: [x]
+      additionalProperties: false
+      $defs: {word: {type: string, pattern: "[a-z]+"}}
+- id: G2
+  node: process
+  node_id: sdlc.build
+  input: {}
+  expect:
+    name: sdlc.build
+    inputSchema: {type: object, properties: {}, required: [], additionalProperties: false}

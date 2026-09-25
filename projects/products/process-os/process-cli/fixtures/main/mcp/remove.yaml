@@ -1,0 +1,27 @@
+# docs/tasks/_done/260923-process-cli-09/steps/m6-1-mcp-tools.md §4 — process-os.remove: framework.remove, wrapped.
+- id: R1
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "defs/sdlc/type/message.yaml": "name: message\ntype: string\n"
+  kind: type
+  id: sdlc.message
+  expect: {text: "type sdlc.message: removed"}
+- id: R2
+  files:
+    "processos.yaml": "definitions: defs\nruntime:\n  root: .\n"
+    "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"
+    "records/g/hello.yaml": "text: hi\n"
+  kind: record
+  id: g/hello.yaml
+  expect: {text: "record g/hello.yaml: removed"}
+- id: R3
+  files: {"processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  kind: type
+  id: sdlc.nope
+  errors: true
+- id: R4
+  files: {"processos.yaml": "definitions: defs\nruntime:\n  root: .\n", "defs/sdlc/scope.yaml": "name: sdlc\nversion: 0.1.0\n"}
+  kind: template
+  id: sdlc.x
+  errors: true

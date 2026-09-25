@@ -1,0 +1,4 @@
+# The language an application is written in.
+name: language
+type: string
+enum: [python, typescript, javascript]

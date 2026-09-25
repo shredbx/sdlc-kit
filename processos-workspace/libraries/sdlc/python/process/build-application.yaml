@@ -1,0 +1,14 @@
+# Build a Python application with uv: the project from templates, its environment, its tests,
+# then a wheel. Runs as a node of sdlc.build-application, which has resolved the platform.
+name: build-application
+input:
+  application: sdlc.application
+  build: sdlc.build
+  platform: sdlc.platform
+output:
+  artifact: sdlc.build-artifact
+steps:
+  - create-project                         # → project
+  - install
+  - test
+  - package                                # → artifact
