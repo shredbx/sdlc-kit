@@ -1,6 +1,5 @@
 {
   "enabledPlugins": {
-    "process-claude-plugin@process-os": false,
     "process-claude-plugin@process-os-local": true,
     "database-design@claude-code-workflows": true,
     "python-development@claude-code-workflows": true

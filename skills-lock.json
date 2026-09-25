@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "dbos-golang": {
+      "source": "henryalouf/ruflow",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/dbos-golang/SKILL.md",
+      "computedHash": "fe1e4db138fbbfd2a6da00c2fece0b2d057e84df9fcfc04e97837fc9f7bf627a"
+    }
+  }
+}

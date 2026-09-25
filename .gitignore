@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Claude Code plugin audit logs (protect-mcp, review-agent-governance) — per-session tool-call
+# logs, not repo content, same category as processos-workspace/runs/.
+receipts/
+review-receipts/
