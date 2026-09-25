@@ -3,7 +3,7 @@ name = "agent-framework"
 version = "0.1.0"
 description = "A self-hosted framework for deploying configurable AI agent backends, built on PydanticAI."
 requires-python = ">=3.13"
-dependencies = ["process-framework", "pydantic-ai>=1.0", "fastapi>=0.115", "uvicorn>=0.32", "httpx>=0.27"]
+dependencies = ["process-framework", "pydantic-ai>=1.0", "fastapi>=0.115", "uvicorn>=0.32", "httpx>=0.27", "pyyaml>=6"]
 
 [dependency-groups]
 dev = ["pytest>=8", "pytest-asyncio>=0.24"]
@@ -22,3 +22,4 @@ sources = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--import-mode=importlib"]
+asyncio_mode = "auto"

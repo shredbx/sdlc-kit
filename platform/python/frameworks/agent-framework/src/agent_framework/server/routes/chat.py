@@ -22,7 +22,7 @@ def build_router(agents: dict[str, RegisteredAgent], store: SessionStore) -> API
     resolve_session = session_dependency(store)
 
     @router.post("/agents/{name}/chat", response_model=ChatResponse)
-    async def chat(name: str, request: ChatRequest, session: Session = Depends(resolve_session)) -> ChatResponse:
+    async def chat(name: str, request: ChatRequest, session: Session = Depends(resolve_session)) -> ChatResponse:  # noqa: B008 — this is FastAPI's own DI idiom, not a mutable-default bug
         registered = agents.get(name)
         if registered is None:
             raise HTTPException(status_code=404, detail=f"no agent named {name!r}")

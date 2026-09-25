@@ -2,13 +2,14 @@
 (cookie, bearer token) later only changes this file — routes/chat.py doesn't change."""
 
 import uuid
+from collections.abc import Callable
 
 from fastapi import Header
 
 from agent_framework.core.store.base import Session, SessionStore
 
 
-def session_dependency(store: SessionStore):
+def session_dependency(store: SessionStore) -> Callable[[str | None], Session]:
     def _resolve(x_session_id: str | None = Header(default=None)) -> Session:
         return store.get_or_create(x_session_id or str(uuid.uuid4()))
 
