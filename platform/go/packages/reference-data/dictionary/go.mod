@@ -21,4 +21,4 @@ require (
 	golang.org/x/text v0.29.0 // indirect
 )
 
-replace github.com/shredbx/sbx-core/pkg/database => ../../foundation/database
+replace github.com/shredbx/sbx-core/pkg/database => ../../persistence/database

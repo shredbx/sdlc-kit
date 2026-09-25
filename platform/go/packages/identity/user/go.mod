@@ -22,4 +22,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/shredbx/sbx-core/pkg/repository => ../../foundation/repository
+replace github.com/shredbx/sbx-core/pkg/repository => ../../persistence/repository

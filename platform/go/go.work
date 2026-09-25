@@ -1,25 +1,25 @@
 go 1.26
 
 use (
-	./packages/content/dictionary
-	./packages/content/feed
-	./packages/content/rss
-	./packages/datatypes/address
-	./packages/datatypes/geocoordinate
-	./packages/datatypes/language
-	./packages/datatypes/money
-	./packages/datatypes/personname
-	./packages/datatypes/phonenumber
-	./packages/datatypes/seo
-	./packages/datatypes/socialnetwork
-	./packages/foundation/database
-	./packages/foundation/httputil
-	./packages/foundation/notify
-	./packages/foundation/repository
-	./packages/foundation/repository/postgres
+	./packages/contacts/personname
+	./packages/contacts/phonenumber
+	./packages/contacts/socialnetwork
+	./packages/http/httputil
 	./packages/identity/rbac
 	./packages/identity/user
+	./packages/localization/language
+	./packages/location/address
+	./packages/location/geocoordinate
 	./packages/media/image
 	./packages/media/video
+	./packages/money
+	./packages/news/feed
+	./packages/news/rss
+	./packages/notifications/notify
+	./packages/persistence/database
+	./packages/persistence/repository
+	./packages/persistence/repository/postgres
 	./packages/real-estate/collection
+	./packages/reference-data/dictionary
+	./packages/seo
 )
