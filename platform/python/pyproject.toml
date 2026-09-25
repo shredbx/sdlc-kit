@@ -16,4 +16,4 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.13"
 strict = true
 explicit_package_bases = true
-mypy_path = ["packages/types/src", "packages/schema/src", "packages/action/src", "packages/filesystem/src", "packages/config/src", "packages/template/src", "packages/process/src", "frameworks/process-framework/src"]
+mypy_path = ["packages/types/src", "packages/schema/src", "packages/action/src", "packages/filesystem/src", "packages/config/src", "packages/template/src", "packages/process/src", "frameworks/process-framework/src", "frameworks/agent-framework/src"]

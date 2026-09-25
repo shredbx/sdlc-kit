@@ -1,0 +1,24 @@
+[project]
+name = "agent-framework"
+version = "0.1.0"
+description = "A self-hosted framework for deploying configurable AI agent backends, built on PydanticAI."
+requires-python = ">=3.13"
+dependencies = ["process-framework", "pydantic-ai>=1.0", "fastapi>=0.115", "uvicorn>=0.32", "httpx>=0.27"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24"]
+
+[tool.uv.sources]
+process-framework = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src/agent_framework"]
+sources = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib"]
