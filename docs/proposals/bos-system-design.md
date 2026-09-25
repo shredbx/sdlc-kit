@@ -4,9 +4,11 @@ Last updated: 2026-09-25
 tags: bos, bestierealestate, bestays, go, svelte, decomposition, proposal
 
 Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup, remaining Go L0/L1 ports)
-approved and done on 2026-09-25** (logs: `docs/plans/2026-09-25-bos-scope-1-workspaces-and-leaf-ports.md`,
+and 3b (group renames for clarity) approved and done on 2026-09-25** (logs:
+`docs/plans/2026-09-25-bos-scope-1-workspaces-and-leaf-ports.md`,
 `docs/plans/2026-09-25-bos-scope-2-package-taxonomy-and-regroup.md`,
-`docs/plans/2026-09-25-bos-scope-3-go-l0-l1-ports.md`). Per `CLAUDE.md`, approval is per
+`docs/plans/2026-09-25-bos-scope-3-go-l0-l1-ports.md`,
+`docs/plans/2026-09-25-bos-scope-3b-group-renames.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -80,19 +82,22 @@ that govern this workspace's process-os namespaces. Product areas are called **d
 
 One taxonomy for both stacks: `platform/<lang>/packages/<group>/<package>`.
 
-- **`values`** — pure value types or logic: no I/O, no product vocabulary.
-- **`foundation`** — technical plumbing (Go) or UI foundation (Svelte): no product vocabulary.
-- **Domain areas** — anything with product vocabulary, in the area it serves: `identity`, `content`,
-  `media`, `engagement`, `analytics`, `real-estate`. A domain folder is created when its first
-  package lands, never pre-scaffolded.
+- **`datatypes`** — pure data types and small logic: no I/O, no product vocabulary (money, phone number,
+  address, units, text template).
+- **`foundation`** — the generic building blocks everything else stands on: backend plumbing (Go) or the
+  UI base (Svelte); no product vocabulary.
+- **Domain areas** — anything with product vocabulary, in the area it serves: `identity` (users, roles,
+  login), `content` (managed content and reference data), `media`, `crm` (contacts, inquiries,
+  appointments), `analytics`, `real-estate`. A domain folder is created when its first package lands,
+  never pre-scaffolded.
 
 **Placement test, in order:**
-1. Pure value type or logic, no I/O, no product vocabulary → `values`.
-2. Technical plumbing or UI foundation, no product vocabulary → `foundation`.
+1. Pure data type or small logic, no I/O, no product vocabulary → `datatypes`.
+2. Generic technical plumbing or UI base, no product vocabulary → `foundation`.
 3. Product vocabulary → the domain area it serves.
-4. Used by two or more domain areas → it moves *down* (`values` / `foundation`), never sideways.
+4. Used by two or more domain areas → it moves *down* (`datatypes` / `foundation`), never sideways.
 
-**Dependency direction:** `values` ← `foundation` ← domain areas. A domain area may import another
+**Dependency direction:** `datatypes` ← `foundation` ← domain areas. A domain area may import another
 only through a declared edge (an architecture test enforces this later). Known violation today:
 `scheduler` (foundation) imports `feed` (content) — to be inverted so jobs register themselves.
 
@@ -102,25 +107,25 @@ from several groups.
 
 ```
 platform/go/packages/
-├── values/        money · phonenumber · language · geocoordinate · personname · socialnetwork · seo · address
+├── datatypes/     money · phonenumber · language · geocoordinate · personname · socialnetwork · seo · address
 ├── foundation/    database · repository (+postgres) · httputil · notify · scheduler (+schedcli)
 ├── identity/      user · rbac · auth
 ├── content/       dictionary · rss · feed · cms · faq
 ├── media/         image · video
-├── engagement/    contact (+vcard) · inquiry · calendar (+ical)
+├── crm/           contact (+vcard) · inquiry · calendar (+ical)
 ├── analytics/     visitoractivity
 └── real-estate/   collection · property · transaction            → 34 modules (30 top-level + 4 nested)
 
 platform/svelte/packages/
-├── values/        units · text-template
+├── datatypes/     units · text-template
 ├── foundation/    animations · core-ui (decomposed in M1)
 ├── content/       ui-seo
 ├── media/         canvas-kit · ui-image · canvas-ui · ui-source-picker
-├── engagement/    ui-calendar · ui-contact
+├── crm/           ui-calendar · ui-contact
 └── real-estate/   ui-map                                          → 12 packages
 ```
 
-`units` sits in `values` because `core-ui` and `ui-map` depend on it, even though its Thai land units
+`units` sits in `datatypes` because `core-ui` and `ui-map` depend on it, even though its Thai land units
 are real-estate flavoured: the dependency direction wins. Python (`platform/python`) is untouched — it
 is one family (process-kit) belonging to another track.
 
@@ -152,7 +157,7 @@ the second real instance earns a template/action); scoped test runs per package,
 | D10 | Kit join manifests and presets are process-os **records** (`records/sbx-sdlc-kit/<capability>/{kit,preset}/`), with schemas modeled per-definition after the shape is proven; namespace chosen capability-first (the 13 SDLC capabilities) at that time | Proposed; nothing modeled yet |
 | D11 | Framework reads all env-specific settings from config; neutral env names with a consumer-side mapping so production's existing secrets keep working until cutover; the schema name becomes one config value | Proposed; scheme settled in M2 |
 | D12 | "Selling" must be switchable by configuration, not by deleting code: the real-estate kit splits into `property-catalog` and `transactions`, with property offerings (`for_sale`/`for_lease`) a spec key | Proposed; inference from recon, confirmed against code in M4 |
-| D13 | Package taxonomy and placement rules (section 3.1): `platform/<lang>/packages/<group>/<package>`, groups `values`, `foundation` + domain areas created lazily; the same taxonomy on both stacks | Accepted 2026-09-25 |
+| D13 | Package taxonomy and placement rules (section 3.1): `platform/<lang>/packages/<group>/<package>`, groups `datatypes`, `foundation` + domain areas created lazily; the same taxonomy on both stacks | Accepted 2026-09-25; renamed the same day for clarity: `values` → `datatypes`, `engagement` → `crm` (Scope 3b) |
 | D14 | "capability" is reserved for the 13 SDLC capabilities; product areas are "domain areas" | Accepted with D13 |
 
 ## 6. Final structure
@@ -222,14 +227,14 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 
 | Group | Package (src / test LOC) | Layer | Serves kit | Status |
 |---|---|---|---|---|
-| values | money (843/911) | L0 | property-catalog, transactions | ✔ |
-| values | phonenumber (56/111) | L0 | contact | ✔ |
-| values | language (60/28) | L0 | content, contact | ✔ |
-| values | geocoordinate (65/85) | L0 | property-catalog | ✔ |
-| values | personname (56/187) | L0 | contact | ✔ |
-| values | socialnetwork (109/187) | L0 | content, contact | ✔ |
-| values | seo (137/118) | L0 | seo | ✔ |
-| values | address (409/761) | L1 | property-catalog, contact, content | ✔ |
+| datatypes | money (843/911) | L0 | property-catalog, transactions | ✔ |
+| datatypes | phonenumber (56/111) | L0 | contact | ✔ |
+| datatypes | language (60/28) | L0 | content, contact | ✔ |
+| datatypes | geocoordinate (65/85) | L0 | property-catalog | ✔ |
+| datatypes | personname (56/187) | L0 | contact | ✔ |
+| datatypes | socialnetwork (109/187) | L0 | content, contact | ✔ |
+| datatypes | seo (137/118) | L0 | seo | ✔ |
+| datatypes | address (409/761) | L1 | property-catalog, contact, content | ✔ |
 | foundation | notify (272/122) — Telegram + SMTP notifier (`telegram.go`, `smtp.go`) | L0 | kit assigned when read (likely contact/inquiry alerts) | ✔ |
 | foundation | database (965/588) | L0 | bos-go (migrations, pool) | ✔ |
 | foundation | repository (411/557) | L0 | bos-go, all kits | ✔ |
@@ -247,11 +252,11 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | content | faq (580/482) | L2 | faq | |
 | media | image (2,265/1,541) — coupled to Postgres and S3 | L0 | media | ✔ |
 | media | video (855/513) | L0 | media | ✔ |
-| engagement | contact (1,216/417) | L2 | contact | |
-| engagement | contact/vcard (677/499) — nested | L3 | contact | |
-| engagement | inquiry (451/279) | L2 | contact | |
-| engagement | calendar (797/413) | L2 | calendar | |
-| engagement | calendar/ical (893/878) — nested | L3 | calendar | |
+| crm | contact (1,216/417) | L2 | contact | |
+| crm | contact/vcard (677/499) — nested | L3 | contact | |
+| crm | inquiry (451/279) | L2 | contact | |
+| crm | calendar (797/413) | L2 | calendar | |
+| crm | calendar/ical (893/878) — nested | L3 | calendar | |
 | analytics | visitoractivity (1,675/1,945) | L2 | analytics | |
 | real-estate | collection (292/246) | L1 | property-catalog | ✔ |
 | real-estate | property (4,939/3,256) | L2 | property-catalog | |
@@ -261,8 +266,8 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 
 | Group | Package (src LOC) | Notes | Status |
 |---|---|---|---|
-| values | units (402) | pure TS; depended on by `core-ui` and `ui-map` (hence `values`) | ✔ |
-| values | text-template (115) | pure TS | ✔ |
+| datatypes | units (402) | pure TS; depended on by `core-ui` and `ui-map` (hence `datatypes`) | ✔ |
+| datatypes | text-template (115) | pure TS | ✔ |
 | foundation | animations (1,821) | pure TS; no tests (author some); needed by `core-ui` | |
 | foundation | core-ui (44,748) | ported as ONE package first (needs `animations` + `units`); decomposed in M1 into `ui-primitives`, `ui-layouts`, `ui-navigation`, `ui-sections`, `ui-viz`, `ui-blocks`, `ui-theme`, `ui-analytics`, `ui-language` (provisional — only BR-imported subpaths) | |
 | content | ui-seo (1,285) | imports `core-ui` (2 files); `$app/state` coupling in `SeoHead` only | |
@@ -270,8 +275,8 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | media | ui-image (4,013) | imports `core-ui` (8 files) | |
 | media | ui-source-picker (1,137) | zero tests | |
 | media | canvas-ui (14,299) | zero tests, 8 deep imports into `core-ui`'s `Modal.svelte`, token contract with no declarations | |
-| engagement | ui-calendar (3,851) | declares `core-ui`, imports it 0 times | |
-| engagement | ui-contact (1,172) | imports `core-ui` (2 files); hardcodes consumer tokens | |
+| crm | ui-calendar (3,851) | declares `core-ui`, imports it 0 times | |
+| crm | ui-contact (1,172) | imports `core-ui` (2 files); hardcodes consumer tokens | |
 | real-estate | ui-map (7,995) | declares `core-ui`, imports it 0 times; parcel/plot code | |
 
 `workspace:*` breaks `pnpm install` for a package whose declared workspace dependency is missing, so
@@ -419,6 +424,12 @@ and the client repo. Zero framework code, zero process-os definitions.
   results equal the original exactly: 629 pass, 16 skip, 0 fail. New convention: in-repo Go dependencies as
   `require … v0.0.0` + relative `replace` (verified to coexist with `go.work`). Go L0/L1 is complete
   (21 of 34 modules). See the Scope 3 log.
+- 2026-09-25 — Scope 3b: the user, reading `platform/go/packages/`, found `values` unclear and asked for
+  the other names to be checked. All eight reviewed: `values` → `datatypes` (the word is used in ~50 other
+  tracked files in unrelated senses), `engagement` → `crm` (marketing jargon); `foundation`, `identity`,
+  `content`, `media`, `analytics`, `real-estate` kept (`core` and `infra` weighed and rejected for
+  `foundation`: they collide with `core-ui`/`sbx-core` and the `infrastructure` SDLC capability). "So far
+  this way": the names stay revisable. The Scope 2 and 3 logs keep the names of their time.
 - 2026-09-25 — Finding while ordering the Svelte ports: `ui-image` (8 files), `ui-contact` (2) and
   `ui-seo` (2) import `core-ui`; `ui-map`/`ui-calendar` declare it unused; `core-ui` needs `animations` +
   `units`. Svelte order is dependency-driven (section 8); the earlier "adapters first, core-ui last" order

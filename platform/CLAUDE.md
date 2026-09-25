@@ -18,13 +18,16 @@ taxonomy.
 
 Test, in order — the first that fits wins:
 
-1. Pure value type or logic, no I/O, no product vocabulary → `values`.
-2. Technical plumbing (Go) or UI foundation (Svelte), no product vocabulary → `foundation`.
-3. Product vocabulary → the domain area it serves: `identity`, `content`, `media`, `engagement`,
-   `analytics`, `real-estate`. Create the folder when its first package lands — never pre-scaffold.
-4. Used by two or more domain areas → it moves **down** (`values` / `foundation`), never sideways.
+1. Pure data type or small logic, no I/O, no product vocabulary → `datatypes` (money, phone number,
+   address, units, text template).
+2. Generic technical plumbing (Go) or UI base (Svelte), no product vocabulary → `foundation` — the
+   building blocks everything else stands on.
+3. Product vocabulary → the domain area it serves: `identity` (users, roles, login), `content` (managed
+   content and reference data), `media`, `crm` (contacts, inquiries, appointments), `analytics`,
+   `real-estate`. Create the folder when its first package lands — never pre-scaffold.
+4. Used by two or more domain areas → it moves **down** (`datatypes` / `foundation`), never sideways.
 
-**Dependency direction:** `values` ← `foundation` ← domain areas. A domain area may import another only
+**Dependency direction:** `datatypes` ← `foundation` ← domain areas. A domain area may import another only
 through a declared edge. Known violation to invert: `scheduler` (foundation) imports `feed` (content).
 
 The same groups apply to both stacks. Directory placement is independent of import identity: groups are
