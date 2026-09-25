@@ -1,7 +1,20 @@
 go 1.26
 
 use (
+	./packages/content/dictionary
+	./packages/content/feed
+	./packages/content/rss
+	./packages/foundation/database
+	./packages/foundation/httputil
 	./packages/foundation/notify
+	./packages/foundation/repository
+	./packages/foundation/repository/postgres
+	./packages/identity/rbac
+	./packages/identity/user
+	./packages/media/image
+	./packages/media/video
+	./packages/real-estate/collection
+	./packages/values/address
 	./packages/values/geocoordinate
 	./packages/values/language
 	./packages/values/money

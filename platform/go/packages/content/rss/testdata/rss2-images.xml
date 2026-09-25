@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>RSS2 Images Sample</title>
+    <link>https://example.com/</link>
+    <description>rss2 image-extraction fixture</description>
+    <!-- Item 1: image via <enclosure type="image/*"> -->
+    <item>
+      <title>Enclosure image item</title>
+      <link>https://example.com/a</link>
+      <guid>https://example.com/a</guid>
+      <description>A plain summary with no inline image.</description>
+      <enclosure url="https://cdn.example.com/a.jpg" type="image/jpeg" length="12345" />
+      <pubDate>Thu, 28 May 2026 05:56:00 +0700</pubDate>
+    </item>
+    <!-- Item 2: no enclosure, image is the first <img> inside the HTML description (CDATA) -->
+    <item>
+      <title>Description img item</title>
+      <link>https://example.com/b</link>
+      <guid>https://example.com/b</guid>
+      <description><![CDATA[<p>Intro text <img src="https://cdn.example.com/b.png" alt="x"/> after.</p>]]></description>
+      <pubDate>Mon, 25 May 2026 04:37:00 +0700</pubDate>
+    </item>
+    <!-- Item 3: a non-image enclosure (audio) must be ignored → no image -->
+    <item>
+      <title>No image item</title>
+      <link>https://example.com/c</link>
+      <guid>https://example.com/c</guid>
+      <description>Just text, no image at all.</description>
+      <enclosure url="https://cdn.example.com/c.mp3" type="audio/mpeg" length="999" />
+      <pubDate>Sun, 03 May 2026 13:48:00 +0700</pubDate>
+    </item>
+  </channel>
+</rss>
