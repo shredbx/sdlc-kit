@@ -4,6 +4,7 @@ discovered. No per-agent route code needed; a new agent folder is automatically 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from agent_framework.core.cards import AgentReply, Card
 from agent_framework.core.store.base import Session, SessionStore
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.middleware.session import session_dependency
@@ -15,6 +16,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+    cards: list[Card] | None = None
 
 
 def build_router(agents: dict[str, RegisteredAgent], store: SessionStore) -> APIRouter:
@@ -30,6 +32,9 @@ def build_router(agents: dict[str, RegisteredAgent], store: SessionStore) -> API
         result = await registered.agent.run(request.message, deps=deps, message_history=session.messages)
         session.messages = result.all_messages()
         await store.save(session)
-        return ChatResponse(reply=str(result.output))
+        output = result.output
+        if isinstance(output, AgentReply):
+            return ChatResponse(reply=output.text, cards=output.cards or None)
+        return ChatResponse(reply=str(output))
 
     return router

@@ -33,8 +33,8 @@ async def test_second_request_carries_first_requests_history_as_context() -> Non
     r1 = client.post("/agents/chat/chat", json={"message": "first"}, headers={"x-session-id": "s1"})
     r2 = client.post("/agents/chat/chat", json={"message": "second"}, headers={"x-session-id": "s1"})
 
-    assert r1.json() == {"reply": "got: first"}
-    assert r2.json() == {"reply": "got: second"}
+    assert r1.json() == {"reply": "got: first", "cards": None}
+    assert r2.json() == {"reply": "got: second", "cards": None}
     # The second call's model function must see more messages than the first — proof the prior
     # turn's history was actually passed in, not a fresh conversation each time.
     assert _seen_history_lengths[1] > _seen_history_lengths[0]
