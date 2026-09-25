@@ -22,7 +22,25 @@ of a real need.
   modeled in it is not tracked here — see "Where things stand" below for how to read it directly.
 - Runtime (`processos-workspace/records/`, `output/`, `runs/`) is workspace-local; `output/` and
   `runs/` are git-ignored, `records/` is kept in git.
-- CLI: `process-cli` (installed via `uv tool install` from `git+ssh://git@github.com/shredbx/process-os.git#subdirectory=products/process-cli`, tracking `main`). MCP server: `process-cli mcp`, wired up by the `process-claude-plugin` plugin (`.claude-plugin` → `mcpServers.process-claude-plugin`).
+- CLI: `process-cli`, installed **editable from this repo's own source** —
+  `uv tool install --editable projects/products/process-os/process-cli` — not from the upstream
+  git remote. `process-cli --version` reports `0.1.0 (source checkout)` when this is wired up
+  correctly; if it ever prints a plain version with no `(source checkout)` suffix, something has
+  regressed to an external install and needs re-running the command above. All 9
+  process-cli/process-kit/process-framework packages resolve to local `file://` sources this way
+  (`uv tool list` shows them); edit `platform/python/packages/*`, `platform/python/frameworks/
+  process-framework/`, or `projects/products/process-os/process-cli/` directly to change behavior
+  — no reinstall needed for pure-Python changes, since editable installs pick them up live.
+- MCP server: `process-cli mcp`, wired up by the `process-claude-plugin` plugin — registered from
+  this repo's own local marketplace (`projects/products/process-os/.claude-plugin/marketplace.json`,
+  added to `.claude/settings.json` as `process-os-local`), **not** the external `process-os`
+  marketplace. `enabledPlugins` should show `process-claude-plugin@process-os-local: true` and
+  nothing named `@process-os`.
+- A git worktree of this repo needs no special setup for either of the above: `process-cli`'s
+  config resolution walks upward from the current folder to find `processos.yaml` (confirmed via
+  `process-cli --help`), so running it from inside a worktree naturally scopes it to that
+  worktree's own `processos-workspace/definitions/` and `records/` — never the main checkout's —
+  while still running the one shared editable-installed binary.
 
 **Always reach for the `process-claude-plugin:using-process-os` skill** for any schema, template,
 process, or runtime work in this repo — it is the authoritative reference for `process-cli`'s
