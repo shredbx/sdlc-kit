@@ -85,3 +85,50 @@ Svelte `media/canvas-kit` stays.
 
 Any port, any new code, Scope 4, wiring (where a kit's handlers/migrations/routes live is open decision D15,
 settled by the FAQ slice in M2).
+
+## Results (2026-09-25) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `7dae5fb` | this document |
+| 1–3 moves, `go.work`, four `replace` paths, lockfile | `41437bc` | 149 files: **145 renames** (129 Go + 16 TS; 143 are R100, `httputil/go.mod` is R088 and `dictionary/go.mod` R089 because each carries its one `replace` line), plus `go.work`, `user/go.mod`, `collection/go.mod` and `pnpm-lock.yaml`; 23 insertions, 23 deletions in total |
+| 4 design doc, `platform/CLAUDE.md` | `e7e7ab7` | sections 1, 3, 5, 6, 8 and the decision log rewritten; D12 revised, D13 replaced, D15 opened |
+| 5 results | (this commit) | — |
+
+**Gates**
+- The four `replace` edits are exactly: `user` → `../../persistence/repository`, `collection` → `../../seo`,
+  `httputil` → `../../money`, `dictionary` → `../../persistence/database`. The other three in-repo `replace`
+  lines (`address`, `postgres`, `feed`) point at siblings that moved together and did not change.
+- Lockfile diff: three lines — two importer paths and one relative link. No version changed.
+- Go, all 21 modules, counted with the same script before and after the moves: **840 pass, 16 skip, 0 fail**;
+  the two per-module result files are identical (`diff` empty). `go vet` clean on 21 modules; `gofmt -l`
+  reports 0 files; `go list -m` finds 21.
+- TS vitest unchanged: units 81 (4 files), text-template 10 (1 file), canvas-kit 396 (21 files) = 487.
+  `pnpm install --frozen-lockfile` passes.
+- Path rule: no path under `platform/*/packages` repeats its parent folder's name and no kit name is a
+  generic noun (13 Go kits, 2 Svelte kits).
+- `process-cli check`: ok. `git grep` finds no old-group path (`packages/datatypes|foundation|content|values`)
+  outside the plan logs, which keep the names of their time. CI needed no change: it names no group path.
+- Nothing pushed. The four emptied group folders were removed with `rmdir` (they held no files).
+
+**Result on disk**
+
+```
+platform/go/packages/
+├── seo · money
+├── real-estate/     collection
+├── reference-data/  dictionary
+├── identity/        user · rbac
+├── contacts/        personname · phonenumber · socialnetwork
+├── location/        geocoordinate · address
+├── media/           image · video
+├── news/            rss · feed
+├── persistence/     database · repository (+ postgres)
+├── localization/language · notifications/notify · http/httputil
+platform/svelte/packages/
+├── formatting/      units · text-template
+└── media/           canvas-kit
+```
+
+Open: **D15**, where a kit's bos wiring lives; the FAQ slice in M2 settles it. Next: Scope 4 (Svelte
+foundation), destination `platform/svelte/packages/ui/{animations, core-ui}`, its own approval.
