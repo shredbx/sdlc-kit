@@ -132,6 +132,11 @@ before writing anything. This is how the user verifies the plan is understood co
 drift before it happens, not after. Deliverables (proposals, write-ups, diagrams) are written as real
 files in this repo, never published via the Artifact tool.
 
+**Every completion report has the same shape:** (1) the before/after file tree of what was actually
+done, showing new/modified paths only, taken from the real tree, with the evidence for each gate;
+(2) the next scope's exact before/after tree; (3) stop and wait for confirmation. A table or prose
+summary is not a substitute, and the next tree is shown, never offered.
+
 **We do not build a fully automated, step-catalogue SDLC pipeline** — not shredbx's FDD1–FDD5 step
 engine, nor an equivalent of it. shredbx's own year of real use is the reason: a rigid, imposed step
 sequence invites finding workarounds to skip steps that were mandated rather than actually required
