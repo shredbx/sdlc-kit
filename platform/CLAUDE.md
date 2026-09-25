@@ -52,6 +52,9 @@ Directory placement is independent of import identity: kits are directories only
   plus a relative `replace`, so each module tidies and builds outside the workspace too. Third-party versions
   are pinned to the original `sbx-core/go.mod`; `go.sum` and indirect requirements come from `go mod tidy`
   (run leaves first). Confirm what a package imports with `go mod tidy`, not with a text scan.
+  **`replace` does not propagate:** a module replaces its whole in-repo dependency closure, direct and
+  transitive (`vcard` requires two in-repo modules and needs nine `replace` lines). Compute the closure from
+  the ported `go.mod` files.
 - **Prove with the source's own tests:** same pass/skip/fail counts as the original, per package. Scoped
   runs only; the full battery is CI's job.
 - **pnpm 11 fails an install on an unreviewed dependency build script.** Read the script, then record the

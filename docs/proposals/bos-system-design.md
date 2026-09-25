@@ -12,7 +12,8 @@ Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup,
 `docs/plans/2026-09-25-bos-scope-3c-kits-by-functionality.md`; Scope 4, Svelte foundation, approved and done on
 2026-09-26: `docs/plans/2026-09-25-bos-scope-4-svelte-foundation.md`; Scope 5, the remaining Svelte packages,
 the same day: `docs/plans/2026-09-25-bos-scope-5-svelte-ui-packages.md`; Scope 6a, the first seven Go feature
-packages, the same day: `docs/plans/2026-09-25-bos-scope-6a-go-feature-packages.md`). Per `CLAUDE.md`, approval is per
+packages, and Scope 6b, auth, visitor activity and the job scheduler, the same day:
+`docs/plans/2026-09-25-bos-scope-6a-go-feature-packages.md`, `docs/plans/2026-09-25-bos-scope-6b-go-identity-analytics-jobs.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -132,14 +133,14 @@ platform/go/packages/
 ├── seo ✔ · money ✔ · calendar ✔ (+ical) · faq ✔ · cms ✔      a package named like its kit sits at the kit root
 ├── real-estate/     collection ✔ · property ○ · transaction ○
 ├── reference-data/  dictionary ✔
-├── identity/        user ✔ · rbac ✔ · auth ○
+├── identity/        user ✔ · rbac ✔ · auth ✔
 ├── contacts/        personname ✔ · phonenumber ✔ · socialnetwork ✔ · contact ✔ (+vcard) · inquiry ✔
 ├── location/        geocoordinate ✔ · address ✔
 ├── media/           image ✔ · video ✔
 ├── news/            rss ✔ · feed ✔
 ├── persistence/     database ✔ · repository ✔ (+postgres)
 ├── localization/language ✔ · notifications/notify ✔ · http/httputil ✔
-└── analytics/visitoractivity ○ · jobs/scheduler ○ (+schedcli)          → 34 modules (30 top-level + 4 nested)
+└── analytics/visitoractivity ✔ · jobs/scheduler ✔ (+schedcli)          → 34 modules (30 top-level + 4 nested)
 
 platform/svelte/packages/
 ├── ui/              core-ui ✔ · animations ✔
@@ -263,11 +264,11 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `persistence/repository` | 411/557 | L0 | | ✔ |
 | `persistence/repository/postgres` | 1,149/660 | L1 | nested | ✔ |
 | `http/httputil` | 405/429 | L1 | | ✔ |
-| `jobs/scheduler` | 955/915 | L2 | imports `news/feed` today (edge to invert) | |
-| `jobs/scheduler/schedcli` | 232/0 | L3 | nested | |
+| `jobs/scheduler` | 955/915 | L2 | imports `news/feed` today (edge to invert); ported as is | ✔ |
+| `jobs/scheduler/schedcli` | 232/0 | L3 | nested | ✔ |
 | `identity/rbac` | 374/362 | L0 | | ✔ |
 | `identity/user` | 412/112 | L1 | | ✔ |
-| `identity/auth` | 2,631/3,189 | L2 | | |
+| `identity/auth` | 2,631/3,189 | L2 | | ✔ |
 | `news/rss` | 1,937/2,037 | L0 | | ✔ |
 | `news/feed` | 343/221 | L1 | | ✔ |
 | `reference-data/dictionary` | 909/638 | L1 | flat code/label lookup lists (property-type, land-size-unit, amenities) | ✔ |
@@ -277,7 +278,7 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `media/video` | 855/513 | L0 | | ✔ |
 | `calendar` | 797/413 | L2 | | ✔ |
 | `calendar/ical` | 893/878 | L3 | nested | ✔ |
-| `analytics/visitoractivity` | 1,675/1,945 | L2 | | |
+| `analytics/visitoractivity` | 1,675/1,945 | L2 | 13 Postgres tests need `VISITOR_ACTIVITY_TEST_DSN` | ✔ |
 | `real-estate/collection` | 292/246 | L1 | | ✔ |
 | `real-estate/property` | 4,939/3,256 | L2 | | |
 | `real-estate/transaction` | 1,290/1,073 | L2 | selling is switchable (D12) | |
@@ -346,7 +347,7 @@ rate-limit key functions; upper- vs lower-case error codes; route registration o
 
 | Rung | Approved scopes (estimate) | What | Gate |
 |---|---|---|---|
-| **M0 Baseline** (scopes below) | ≈12 (8 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
+| **M0 Baseline** (scopes below) | ≈12 (9 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
 | M1 `bos-svelte` | ≈5 | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
 | M2 `bos-go` | ≈4 | `Module` contract, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped). The slice also settles where kit wiring lives (D15) | route-table diff = 0 |
 | M3 kits | ≈8 | identity → cms → seo → media → contacts → calendar → news → jobs/analytics/documents, one slice each | oracle slice green per kit |
@@ -396,7 +397,7 @@ declare it, so `core-ui` — which needs `animations` and `units` — comes firs
    modules was already ported, except the nested ones):
    - **6a (done):** `faq`, `cms`, `contacts/inquiry`, `contacts/contact` (+vcard), `calendar` (+ical); 7 modules,
      hermetic tests.
-   - **6b:** `identity/auth`, `analytics/visitoractivity`, `jobs/scheduler` (+schedcli); jwt, redis, bcrypt and
+   - **6b (done):** `identity/auth`, `analytics/visitoractivity`, `jobs/scheduler` (+schedcli); jwt, redis, bcrypt and
      env-dependent tests; `scheduler` imports `news/feed` (the known edge to invert).
    - **6c:** `real-estate/property`, `real-estate/transaction`; testcontainers, `testdata`.
 9. **Scope 7:** baseline import of the bestierealestate apps + oracle capture (likely two scopes).
@@ -533,3 +534,13 @@ and the client repo. Zero framework code, zero process-os definitions.
   `cms` → `contacts/socialnetwork` are declared as kit edges when kit wiring lands (D15). (5) M0 is re-estimated from 8 to about 12 scopes (Scope 6 became three,
   Scope 7 is likely two) and the ladder from about 33 to about 37; still inside the ±30% band. `cms` is ported
   verbatim even though it is self-declared client-local; whether to genericize it is decided in its slice.
+- 2026-09-26 — Scope 6b done: four Go modules (`identity/auth`, `analytics/visitoractivity`, `jobs/scheduler` +
+  `schedcli`) copied verbatim — 63 source files, byte-identical — plus 4 authored `go.mod` and 4 `go.sum`; `go.work`
+  28 → 32 paths (32 of 34 modules) and two new kits, `analytics` and `jobs`. Tests per module equal a baseline measured
+  on the original module with `VISITOR_ACTIVITY_TEST_DSN` unset (332 pass / 13 skip / 0 fail; the 13 skips are
+  `visitoractivity`'s Postgres tests); the 28 earlier modules are unchanged, so 1,498 / 29 / 0 in all. Findings:
+  (1) three third-party modules enter the workspace at their original pins (`jwt/v5` v5.3.1, `go-redis/v9` v9.18.0,
+  `x/crypto` v0.49.0 for bcrypt). (2) Four `auth` files are not gofmt-clean in the original; formatted in their own
+  commit (11 insertions / 12 deletions). (3) `jobs/scheduler` still imports `news/feed`, ported as is — the one known
+  shared-imports-feature edge. (4) The `replace`-closure rule found in 6a is now written in `platform/CLAUDE.md`.
+  (5) All 29 skips in the workspace are tests that need a live Postgres; they have not run against one yet.
