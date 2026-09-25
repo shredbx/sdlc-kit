@@ -1,0 +1,13 @@
+{
+  "name": "process-os-local",
+  "owner": {
+    "name": "sbx-sdlc-kit"
+  },
+  "plugins": [
+    {
+      "name": "process-claude-plugin",
+      "source": "./process-claude-plugin",
+      "description": "This repository's own Claude Code plugin — process-cli over MCP and its own command reference (schema, template, process, runtime), and a skill for when to reach for each."
+    }
+  ]
+}
