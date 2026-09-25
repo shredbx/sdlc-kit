@@ -118,3 +118,71 @@ docs/proposals/bos-system-design.md             modified: table 6.3 ✔, tree, s
 Client information is not touched: when needed it lives in the client library the main session is building
 (`processos-workspace/definitions/clients/` + `records/clients/`), registered after alignment with that session,
 never in `platform/`.
+
+## Results (2026-09-26) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `cf6e29d` | this document, with the baseline |
+| 1 baseline | (scratchpad `go_baseline_6a.json`, table above) | measured on the original module before anything was ported |
+| 2–5 copy, `go.mod`, tidy, `go.work` | `dccb4b4` | 56 files: **55 new** (41 verbatim + 7 `go.mod` + 7 `go.sum`) and `go.work` modified |
+| gofmt (kept separate) | `ed53920` | 7 files, 25 insertions / 23 deletions, formatting only |
+| 7 design doc | `eb17988` | table 6.3 and the tree ✔, section 8 (Scope 6 in three), M0 re-estimate, decision log |
+| results | (this commit) | — |
+
+**Gates**
+- **Byte-identity:** `diff -r -x go.mod -x go.sum` against the source is empty for all five top-level trees
+  (faq 5, cms 14, inquiry 2, contact 10 incl. `vcard`, calendar 10 incl. `ical` = 41 files), so nothing was
+  missed either. (Superseded for the 7 files gofmt touched, by `ed53920`.)
+- **Tests, each module on its own, equal to the baseline both before and after gofmt:** faq 51, cms 109,
+  inquiry 31, contact 36, contact/vcard 20, calendar 35, calendar/ical 44 = **326 pass, 0 skip, 0 fail**. The
+  28-module run gives **1,166 pass, 16 skip, 0 fail**; the 21 earlier modules' entries are unchanged (compared
+  programmatically: 840 / 16 / 0), and the per-module JSON is identical before and after gofmt.
+- **Pins:** every direct third-party requirement equals the original `sbx-core/go.mod` (`uuid` v1.6.0, `pgx/v5`
+  v5.9.1); checked by script after tidy.
+- **Tidy:** a standalone `go mod tidy` (`GOWORK=off`) succeeds and is a no-op on a second run for all 7 modules.
+- `go vet` clean across 28 modules; `gofmt -l` empty after `ed53920`; `go list -m` finds 28.
+- Staged file count (55 new + `go.work`) equals the files on disk (55). `go.work.sum` did not change.
+- `process-cli check`: ok. Nothing pushed. `go-ci.yml` is `go list -m`-based and picks up all 28 modules; no CI
+  change was needed.
+
+**`go.mod` shape per module** (direct in-repo requires → full `replace` closure)
+
+| Module | Direct in-repo | `replace` lines | Third-party direct |
+|---|---|---|---|
+| faq | 3 | 4 | none |
+| cms | 5 | 7 | none |
+| calendar | 2 | 3 | `pgx/v5` |
+| inquiry | 4 | 5 | none |
+| contact | 6 | 8 | `uuid`, `pgx/v5` |
+| calendar/ical | 1 | 4 | none |
+| contact/vcard | 2 | 9 | none |
+
+**Findings on the way**
+- **`replace` does not propagate.** `vcard` directly requires `contact` and `socialnetwork`, but needs nine
+  `replace` lines, because everything `contact` needs (`address`, `geocoordinate`, `personname`, `phonenumber`,
+  `repository`, `repository/postgres`, `database`) must resolve too. The closure is computed from the ported
+  `go.mod` files by the port script, not discovered from tidy errors. This is not yet written in
+  `platform/CLAUDE.md`; it is proposed for Scope 6b's tree.
+- **No shared kit imports a feature kit** in these seven (`scheduler` → `news/feed` is the one known case, in 6b).
+  Feature-to-feature imports that exist and are not declared anywhere yet: `faq` → `seo`, `cms` → `seo`,
+  `cms` → `contacts/socialnetwork` (`real-estate/collection` → `seo` was already there). The rule allows them
+  only through a declared edge, so they are declared as kit edges when kit wiring lands (D15), not before.
+- **gofmt:** the same seven files are not gofmt-clean in the originals (`faq/mapper_test.go`,
+  `cms/cmspage_test.go`, `cms/section_faqlist.go`, `inquiry/inquiry_test.go`, `contact/service.go`,
+  `calendar/store.go`, `calendar/ical/url_test.go`).
+- **Estimate:** M0 is now about 12 scopes (8 done), and the ladder about 37 before M6; the split of Scope 6 and a
+  two-part Scope 7 account for it.
+- **`cms` is ported verbatim** although it declares itself client-local; genericizing is decided in its slice.
+
+**Result on disk**
+
+```
+platform/go/packages/
+├── seo · money · calendar (+ical) · faq · cms      kit-root packages
+├── contacts/   personname · phonenumber · socialnetwork · contact (+vcard) · inquiry
+├── identity/ · location/ · media/ · news/ · persistence/ · real-estate/ · reference-data/ · …   (unchanged)
+```
+
+28 of 34 Go modules and all 12 Svelte packages are ported. Next: Scope 6b (`identity/auth`,
+`analytics/visitoractivity`, `jobs/scheduler` + `schedcli`), its own approval.

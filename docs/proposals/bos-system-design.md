@@ -528,7 +528,8 @@ and the client repo. Zero framework code, zero process-os definitions.
   computed from the ported `go.mod` files. (2) Direct third-party versions equal the original pins (`uuid` v1.6.0,
   `pgx/v5` v5.9.1), checked after tidy because tidy resolves a missing requirement to the latest version;
   indirect versions come from tidy, as in Scope 3. (3) The same seven files are not gofmt-clean in the originals; they
-  are formatted in their own commit (25 insertions / 23 deletions). (4) No new dependency-direction violation;
-  `scheduler` → `news/feed` remains for 6b. (5) M0 is re-estimated from 8 to about 12 scopes (Scope 6 became three,
+  are formatted in their own commit (25 insertions / 23 deletions). (4) No shared kit imports a feature kit
+  (`scheduler` → `news/feed` remains for 6b); the feature-to-feature imports `faq`/`cms` → `seo` and
+  `cms` → `contacts/socialnetwork` are declared as kit edges when kit wiring lands (D15). (5) M0 is re-estimated from 8 to about 12 scopes (Scope 6 became three,
   Scope 7 is likely two) and the ladder from about 33 to about 37; still inside the ±30% band. `cms` is ported
   verbatim even though it is self-declared client-local; whether to genericize it is decided in its slice.
