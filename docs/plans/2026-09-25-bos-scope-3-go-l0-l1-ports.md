@@ -87,3 +87,54 @@ need a live Postgres; they stay skipped, exactly as in the original.
 ## Not in this scope
 
 Go L2/L3 packages, all Svelte ports past Scope 1, kits, frameworks, process-os definitions, any push.
+
+## Results (2026-09-25) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `9777056` | this document |
+| 1–4 verbatim ports, `go.mod`, tidy, `go.work` | `17e53e5` | 157 files: 119 `.go` (72 src + 47 test), 14 testdata, 13 `go.mod`, 9 `go.sum`, `go.work`, `go.work.sum` |
+| gofmt (kept separate) | `1ceec13` | 14 files, 83 insertions / 82 deletions, formatting only |
+| 6–7 conventions, design doc, results | (this commit) | `platform/CLAUDE.md`, design doc |
+
+**Gates**
+- **Byte-identity:** `diff -r` against the original is empty for all 12 top-level packages (13 modules;
+  `repository` includes its nested `postgres/`), excluding `go.mod`/`go.sum` and the deliberately absent
+  `image/watermark/`. (Superseded for the 14 files gofmt touched, by commit `1ceec13`.)
+- **Tests, per module, equal to the baseline both before and after gofmt:** address 82, database 43, image 89,
+  rbac 44, repository 56, repository/postgres 53 pass + 5 skip, rss 93, video 40, collection 29,
+  dictionary 21 pass + 11 skip, feed 13, httputil 56, user 10 = **629 pass, 16 skip, 0 fail**.
+- `go vet` clean across all 21 modules; `gofmt -l` empty after `1ceec13`; `go list -m` finds 21 modules;
+  `process-cli check` ok.
+
+**Result on disk**
+
+```
+platform/go/packages/
+├── values/        address + the 7 from Scope 1
+├── foundation/    database · repository (+ postgres, nested) · httputil · notify
+├── identity/      user · rbac
+├── content/       dictionary · rss · feed
+├── media/         image (no watermark/) · video
+└── real-estate/   collection                                       → 21 of 34 modules; L0 and L1 complete
+```
+
+## Found on the way
+
+1. **The `require` + `replace` convention coexists with `go.work`.** Tested on the first dependent pair
+   (`address` → `geocoordinate`) before authoring the rest: no "conflicting replacements", tests pass, and
+   a standalone `go mod tidy` succeeds.
+2. **My import scan was wrong about `feed`.** The facts script listed no third-party import for `feed`;
+   `go mod tidy` correctly added `github.com/google/uuid` as a direct requirement. Tidy is authoritative —
+   recorded as a rule in `platform/CLAUDE.md`.
+3. **`go.work.sum` appeared** once third-party modules entered the workspace, and is committed. The CI
+   cache key (`platform/go/**/go.sum`) does not cover it — harmless (a cache-key precision only), left for a
+   later CI touch-up.
+4. **Indirect versions.** The pinned direct versions reproduced the original's aws-sdk indirect versions
+   exactly; `golang.org/x/text` resolves lower (v0.29.0) in the pgx-based modules than the original's
+   v0.35.0, which came from other dependencies of the whole `sbx-core` module. Indirect only; results are
+   identical.
+5. **gofmt:** 14 of the ported files were not gofmt-clean in the original; fixed in their own commit, as in
+   Scope 1.
+
+Next: the Svelte foundation (`animations`, then `core-ui`) — its own before/after tree and approval.

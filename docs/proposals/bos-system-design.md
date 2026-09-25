@@ -3,9 +3,10 @@
 Last updated: 2026-09-25
 tags: bos, bestierealestate, bestays, go, svelte, decomposition, proposal
 
-Status: **plan approved; Scope 1 and Scope 2 (package taxonomy and regroup) approved and done on
-2026-09-25** (logs: `docs/plans/2026-09-25-bos-scope-1-workspaces-and-leaf-ports.md`,
-`docs/plans/2026-09-25-bos-scope-2-package-taxonomy-and-regroup.md`). Per `CLAUDE.md`, approval is per
+Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup, remaining Go L0/L1 ports)
+approved and done on 2026-09-25** (logs: `docs/plans/2026-09-25-bos-scope-1-workspaces-and-leaf-ports.md`,
+`docs/plans/2026-09-25-bos-scope-2-package-taxonomy-and-regroup.md`,
+`docs/plans/2026-09-25-bos-scope-3-go-l0-l1-ports.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -228,31 +229,31 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | values | personname (56/187) | L0 | contact | ✔ |
 | values | socialnetwork (109/187) | L0 | content, contact | ✔ |
 | values | seo (137/118) | L0 | seo | ✔ |
-| values | address (409/761) | L1 | property-catalog, contact, content | |
+| values | address (409/761) | L1 | property-catalog, contact, content | ✔ |
 | foundation | notify (272/122) — Telegram + SMTP notifier (`telegram.go`, `smtp.go`) | L0 | kit assigned when read (likely contact/inquiry alerts) | ✔ |
-| foundation | database (965/588) | L0 | bos-go (migrations, pool) | |
-| foundation | repository (411/557) | L0 | bos-go, all kits | |
-| foundation | repository/postgres (1,149/660) — nested | L1 | bos-go | |
-| foundation | httputil (405/429) | L1 | bos-go | |
+| foundation | database (965/588) | L0 | bos-go (migrations, pool) | ✔ |
+| foundation | repository (411/557) | L0 | bos-go, all kits | ✔ |
+| foundation | repository/postgres (1,149/660) — nested | L1 | bos-go | ✔ |
+| foundation | httputil (405/429) | L1 | bos-go | ✔ |
 | foundation | scheduler (955/915) — imports `content/feed` today (edge to invert) | L2 | scheduler | |
 | foundation | scheduler/schedcli (232/0) — nested | L3 | scheduler | |
-| identity | rbac (374/362) | L0 | identity | |
-| identity | user (412/112) | L1 | identity | |
+| identity | rbac (374/362) | L0 | identity | ✔ |
+| identity | user (412/112) | L1 | identity | ✔ |
 | identity | auth (2,631/3,189) | L2 | identity | |
-| content | rss (1,937/2,037) | L0 | news | |
-| content | dictionary (909/638) | L1 | dictionary | |
-| content | feed (343/221) | L1 | news | |
+| content | rss (1,937/2,037) | L0 | news | ✔ |
+| content | dictionary (909/638) | L1 | dictionary | ✔ |
+| content | feed (343/221) | L1 | news | ✔ |
 | content | cms (1,561/1,497) — self-declared BR-local; genericize or keep, decided in the content kit | L2 | content | |
 | content | faq (580/482) | L2 | faq | |
-| media | image (2,265/1,541) — coupled to Postgres and S3 | L0 | media | |
-| media | video (855/513) | L0 | media | |
+| media | image (2,265/1,541) — coupled to Postgres and S3 | L0 | media | ✔ |
+| media | video (855/513) | L0 | media | ✔ |
 | engagement | contact (1,216/417) | L2 | contact | |
 | engagement | contact/vcard (677/499) — nested | L3 | contact | |
 | engagement | inquiry (451/279) | L2 | contact | |
 | engagement | calendar (797/413) | L2 | calendar | |
 | engagement | calendar/ical (893/878) — nested | L3 | calendar | |
 | analytics | visitoractivity (1,675/1,945) | L2 | analytics | |
-| real-estate | collection (292/246) | L1 | property-catalog | |
+| real-estate | collection (292/246) | L1 | property-catalog | ✔ |
 | real-estate | property (4,939/3,256) | L2 | property-catalog | |
 | real-estate | transaction (1,290/1,073) | L2 | transactions | |
 
@@ -332,7 +333,7 @@ dependency-driven: `ui-image`, `ui-contact` and `ui-seo` import `core-ui`, and `
 declare it, so `core-ui` — which needs `animations` and `units` — comes first.
 1. **Scope 1 (done):** workspaces, 8 Go leaf packages, 3 pure-TS packages.
 2. **Scope 2 (done):** package taxonomy and regroup (no new code).
-3. **Scope 3:** the remaining Go L0/L1 packages (13 modules): address, database, repository (+postgres),
+3. **Scope 3 (done):** the remaining Go L0/L1 packages (13 modules): address, database, repository (+postgres),
    httputil, user, rbac, dictionary, rss, feed, video, image (the unused `watermark/` sub-package stays
    behind), collection.
 4. **Scope 4:** Svelte foundation: `animations`, then `core-ui` (one package, verbatim).
@@ -413,6 +414,11 @@ and the client repo. Zero framework code, zero process-os definitions.
   earlier "13 Go ports" proposal became Scope 3, placed into the groups.
 - 2026-09-25 — Scope 2 done: 11 packages regrouped (101 pure renames, tests unchanged: 211 Go, 487 TS),
   `platform/CLAUDE.md` and the completion-report shape added. See the Scope 2 log.
+- 2026-09-25 — Scope 3 done: 13 Go modules ported verbatim into their groups (address; database,
+  repository + postgres, httputil; user, rbac; dictionary, rss, feed; image, video; collection). Per-module
+  results equal the original exactly: 629 pass, 16 skip, 0 fail. New convention: in-repo Go dependencies as
+  `require … v0.0.0` + relative `replace` (verified to coexist with `go.work`). Go L0/L1 is complete
+  (21 of 34 modules). See the Scope 3 log.
 - 2026-09-25 — Finding while ordering the Svelte ports: `ui-image` (8 files), `ui-contact` (2) and
   `ui-seo` (2) import `core-ui`; `ui-map`/`ui-calendar` declare it unused; `core-ui` needs `animations` +
   `units`. Svelte order is dependency-driven (section 8); the earlier "adapters first, core-ui last" order

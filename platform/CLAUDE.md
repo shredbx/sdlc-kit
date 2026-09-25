@@ -36,6 +36,11 @@ directories only.
   workspace roots, `go.mod`/`go.sum`, CI and docs. Any refactor (formatting included) is its own commit.
 - **Names stay verbatim until M5:** Go module paths `github.com/shredbx/sbx-core/pkg/<name>`, npm names
   `@sbx/*`. Do not rename imports while porting.
+- **Go modules:** one module per package (a sub-package with its own `go.mod` is a nested module inside its
+  parent's folder). In-repo dependencies are declared as `require github.com/shredbx/sbx-core/pkg/<x> v0.0.0`
+  plus a relative `replace`, so each module tidies and builds outside the workspace too. Third-party versions
+  are pinned to the original `sbx-core/go.mod`; `go.sum` and indirect requirements come from `go mod tidy`
+  (run leaves first). Confirm what a package imports with `go mod tidy`, not with a text scan.
 - **Prove with the source's own tests:** same pass/skip/fail counts as the original, per package. Scoped
   runs only; the full battery is CI's job.
 - **The word "capability" is reserved** for the 13 SDLC capabilities. Product areas are "domain areas".
