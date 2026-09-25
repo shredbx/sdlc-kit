@@ -1,6 +1,7 @@
 go 1.26
 
 use (
+	./packages/analytics/visitoractivity
 	./packages/calendar
 	./packages/calendar/ical
 	./packages/cms
@@ -12,8 +13,11 @@ use (
 	./packages/contacts/socialnetwork
 	./packages/faq
 	./packages/http/httputil
+	./packages/identity/auth
 	./packages/identity/rbac
 	./packages/identity/user
+	./packages/jobs/scheduler
+	./packages/jobs/scheduler/schedcli
 	./packages/localization/language
 	./packages/location/address
 	./packages/location/geocoordinate
