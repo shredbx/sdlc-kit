@@ -26,3 +26,5 @@ jobs:
       - run: pnpm --filter @sbx/units test
       - run: pnpm --filter @sbx/text-template test
       - run: pnpm --filter @sbx/canvas-kit test
+      - run: pnpm --filter @sbx/animations exec tsc --noEmit -p tsconfig.json
+      - run: pnpm --filter @sbx/core-ui test

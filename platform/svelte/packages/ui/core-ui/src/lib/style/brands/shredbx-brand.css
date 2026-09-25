@@ -1,0 +1,270 @@
+/**
+ * shredbx.com Brand Tokens
+ * Developer-focused dark theme for shredbx.com - SDLC framework showcase with vibrant accents
+ *
+ * Generated from: .sbx/workspace/brands/shredbx-brand.yml
+ * Generated at: 2026-07-10T17:35:49+07:00
+ *
+ * Usage: Apply data-brand attribute to root element
+ *   <html data-brand="shredbx">
+ */
+
+[data-brand="shredbx"] {
+  /* Typography */
+  --font-size-base: 14px;
+  --font-scale-ratio: linear;
+
+  /* Type Scales */
+  --type-body-large-font-size: 16px;
+  --type-body-large-line-height: 24px;
+  --type-body-large-font-weight: 400;
+  --type-body-large-letter-spacing: 0.25px;
+  --type-body-medium-font-size: 14px;
+  --type-body-medium-line-height: 21px;
+  --type-body-medium-font-weight: 400;
+  --type-body-medium-letter-spacing: 0.25px;
+  --type-body-small-font-size: 13px;
+  --type-body-small-line-height: 19.5px;
+  --type-body-small-font-weight: 400;
+  --type-body-small-letter-spacing: 0.25px;
+  --type-display-large-font-size: 24px;
+  --type-display-large-line-height: 31.2px;
+  --type-display-large-font-weight: 700;
+  --type-display-large-letter-spacing: 0px;
+  --type-display-medium-font-size: 24px;
+  --type-display-medium-line-height: 31.2px;
+  --type-display-medium-font-weight: 700;
+  --type-display-medium-letter-spacing: 0px;
+  --type-display-small-font-size: 24px;
+  --type-display-small-line-height: 31.2px;
+  --type-display-small-font-weight: 700;
+  --type-display-small-letter-spacing: 0px;
+  --type-display-xl-font-size: 24px;
+  --type-display-xl-line-height: 31.2px;
+  --type-display-xl-font-weight: 700;
+  --type-display-xl-letter-spacing: 0px;
+  --type-headline-large-font-size: 24px;
+  --type-headline-large-line-height: 31.2px;
+  --type-headline-large-font-weight: 700;
+  --type-headline-large-letter-spacing: 0px;
+  --type-headline-medium-font-size: 16px;
+  --type-headline-medium-line-height: 20.8px;
+  --type-headline-medium-font-weight: 700;
+  --type-headline-medium-letter-spacing: 0px;
+  --type-headline-small-font-size: 16px;
+  --type-headline-small-line-height: 20.8px;
+  --type-headline-small-font-weight: 700;
+  --type-headline-small-letter-spacing: 0px;
+  --type-label-large-font-size: 13px;
+  --type-label-large-line-height: 19.5px;
+  --type-label-large-font-weight: 600;
+  --type-label-large-letter-spacing: 0.1px;
+  --type-label-medium-font-size: 11px;
+  --type-label-medium-line-height: 16.5px;
+  --type-label-medium-font-weight: 700;
+  --type-label-medium-letter-spacing: 0.5px;
+  --type-label-small-font-size: 11px;
+  --type-label-small-line-height: 16.5px;
+  --type-label-small-font-weight: 700;
+  --type-label-small-letter-spacing: 0.5px;
+  --type-title-large-font-size: 16px;
+  --type-title-large-line-height: 20.8px;
+  --type-title-large-font-weight: 600;
+  --type-title-large-letter-spacing: 0.1px;
+  --type-title-medium-font-size: 14px;
+  --type-title-medium-line-height: 21px;
+  --type-title-medium-font-weight: 600;
+  --type-title-medium-letter-spacing: 0.1px;
+  --type-title-small-font-size: 13px;
+  --type-title-small-line-height: 19.5px;
+  --type-title-small-font-weight: 600;
+  --type-title-small-letter-spacing: 0.1px;
+
+  /* Colors */
+  --color-accent-amber: #f59e0b;
+  --color-accent-cyan: #22d3ee;
+  --color-accent-purple: #a78bfa;
+  --color-accent-strong: #a93226;
+  --color-accent-text: #ff6b5c;
+  --color-background: #06060e;
+  --color-badge-guideline: #14b8a6;
+  --color-badge-pattern: #6366f1;
+  --color-badge-protocol: #a855f7;
+  --color-badge-smell: #ef4444;
+  --color-badge-solution: #3b82f6;
+  --color-badge-standard: #10b981;
+  --color-badge-technique: #f59e0b;
+  --color-border: #2A2A2D;
+  --color-border-focus: #c0392b;
+  --color-category-adapters: #06b6d4;
+  --color-category-cli: #3b82f6;
+  --color-category-codegen: #a855f7;
+  --color-category-content: #10b981;
+  --color-category-data: #6366f1;
+  --color-category-format: #f59e0b;
+  --color-category-framework: #a855f7;
+  --color-category-media: #14b8a6;
+  --color-category-secrets: #ef4444;
+  --color-category-ui: #f97316;
+  --color-nav-bg: #141415;
+  --color-nav-bg-elevated: #1C1C1E;
+  --color-nav-border: #2A2A2D;
+  --color-nav-text: #EEEFF1;
+  --color-nav-text-muted: #8B8B90;
+  --color-platform-go: #00ADD8;
+  --color-platform-sveltekit: #FF3E00;
+  --color-primary: #e5392b;
+  --color-primary-active: #a93226;
+  --color-primary-hover: #e74c3c;
+  --color-status-error: #f85149;
+  --color-status-info: #58a6ff;
+  --color-status-success: #3fb950;
+  --color-status-warning: #d29922;
+  --color-surface: #181818;
+  --color-surface-elevated: #1C1C1E;
+  --color-terminal-bg: #0c0c0d;
+  --color-terminal-border: #2A2A2D;
+  --color-terminal-chrome-bg: #181818;
+  --color-terminal-dot-green: #28c840;
+  --color-terminal-dot-red: #ff5f57;
+  --color-terminal-dot-yellow: #febc2e;
+  --color-terminal-text: #EEEFF1;
+  --color-terminal-text-muted: #8B8B90;
+  --color-text: #EEEFF1;
+  --color-text-disabled: #5A5A5E;
+  --color-text-muted: #8B8B90;
+  --color-text-on-accent: #ffffff;
+
+  /* Spacing */
+  --spacing-unit: 4px;
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+  --spacing-9: 48px;
+  --spacing-10: 64px;
+  --spacing-11: 80px;
+  --spacing-12: 96px;
+  --spacing-13: 128px;
+  --spacing-14: 160px;
+  --spacing-15: 192px;
+  --spacing-16: 256px;
+  --spacing-17: 320px;
+  --spacing-18: 384px;
+
+  /* Borders */
+  --border-radius-full: 9999px;
+  --border-radius-large: 12px;
+  --border-radius-medium: 8px;
+  --border-radius-none: 0;
+  --border-radius-small: 4px;
+  --border-width-default: 1px;
+  --border-width-thick: 2px;
+
+  /* Shadows */
+  --shadow-glow: 0 0 20px -5px rgba(192, 57, 43, 0.4);
+  --shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-none: none;
+  --shadow-small: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+
+  /* Motion */
+  --motion-duration-fast: 100ms;
+  --motion-duration-instant: 50ms;
+  --motion-duration-normal: 200ms;
+  --motion-duration-slow: 400ms;
+  --motion-duration-slower: 600ms;
+  --motion-easing-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-easing-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-reduced-motion-duration: 0ms;
+}
+
+/* Variant: dark */
+/* Explicit dark theme — ensures nested dark elements render correctly inside light pages */
+[data-brand="shredbx"][data-theme="dark"],
+[data-brand="shredbx"].dark,
+:root[data-brand="shredbx"] .dark {
+  --color-accent-strong: #a93226;
+  --color-accent-text: #ff6b5c;
+  --color-background: #06060e;
+  --color-border: #2A2A2D;
+  --color-border-focus: #c0392b;
+  --color-primary: #e5392b;
+  --color-primary-active: #a93226;
+  --color-primary-hover: #e74c3c;
+  --color-surface: #181818;
+  --color-surface-elevated: #1C1C1E;
+  --color-text: #EEEFF1;
+  --color-text-disabled: #5A5A5E;
+  --color-text-muted: #8B8B90;
+  --shadow-glow: 0 0 20px -5px rgba(192, 57, 43, 0.4);
+  --shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-small: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+}
+
+/* Variant: light */
+/* Light theme — warm stone-scale tones for inviting portfolio feel */
+[data-brand="shredbx"][data-variant="light"] {
+  --color-accent-strong: #c0392b;
+  --color-accent-text: #c0392b;
+  --color-background: #faf9f8;
+  --color-border: #d6d3d1;
+  --color-border-focus: #e5392b;
+  --color-primary: #e5392b;
+  --color-primary-active: #c0392b;
+  --color-primary-hover: #ff5a4a;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f5f5f4;
+  --color-text: #1c1917;
+  --color-text-disabled: #a8a29e;
+  --color-text-muted: #6b645f;
+  --shadow-glow: 0 0 20px -5px rgba(229, 57, 43, 0.15);
+  --shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Variant: high_contrast */
+/* High contrast variant for accessibility - WCAG AAA compliance */
+[data-brand="shredbx"][data-high-contrast],
+[data-brand="shredbx"].high-contrast {
+  --color-accent-strong: #cc0052;
+  --color-accent-text: #ff4d6d;
+  --color-background: #000000;
+  --color-border: #ffffff;
+  --color-border-focus: #ff0066;
+  --color-primary: #ff0066;
+  --color-primary-active: #cc0052;
+  --color-primary-hover: #ff3385;
+  --color-surface: #0d0d0d;
+  --color-surface-elevated: #1a1a1a;
+  --color-text: #ffffff;
+  --color-text-disabled: #a0a0a0;
+  --color-text-muted: #e5e5e5;
+}
+
+/* Variant: reduced_motion */
+/* Minimal/no animations for motion-sensitive users */
+@media (prefers-reduced-motion: reduce) {
+  [data-brand="shredbx"] {
+    --motion-duration-fast: 0ms;
+    --motion-duration-instant: 0ms;
+    --motion-duration-normal: 0ms;
+    --motion-duration-slow: 0ms;
+    --motion-duration-slower: 0ms;
+    --motion-reduced-motion-duration: 0ms;
+  }
+}

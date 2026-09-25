@@ -1,0 +1,251 @@
+/**
+ * Prompt Studio Brand Tokens
+ * Light-first iris identity for Prompt Studio — a mono-forward prompt-authoring IDE. Base = light; dark is a variant.
+ *
+ * Generated from: .sbx/workspace/brands/promptstudio-brand.yml
+ * Generated at: 2026-07-11T02:20:08+07:00
+ *
+ * Usage: Apply data-brand attribute to root element
+ *   <html data-brand="promptstudio">
+ */
+
+[data-brand="promptstudio"] {
+  /* Typography */
+  --font-family-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-serif: Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  --font-family-email: Arial, Helvetica, sans-serif;
+  --font-size-base: 15px;
+  --font-scale-ratio: 1.2;
+
+  /* Type Scales */
+  --type-body-large-font-size: 15px;
+  --type-body-large-line-height: 23px;
+  --type-body-large-font-weight: 400;
+  --type-body-large-letter-spacing: 0px;
+  --type-body-medium-font-size: 14px;
+  --type-body-medium-line-height: 21px;
+  --type-body-medium-font-weight: 400;
+  --type-body-medium-letter-spacing: 0px;
+  --type-body-small-font-size: 12px;
+  --type-body-small-line-height: 17px;
+  --type-body-small-font-weight: 400;
+  --type-body-small-letter-spacing: 0.1px;
+  --type-display-large-font-size: 40px;
+  --type-display-large-line-height: 46px;
+  --type-display-large-font-weight: 600;
+  --type-display-large-letter-spacing: -0.5px;
+  --type-display-medium-font-size: 32px;
+  --type-display-medium-line-height: 40px;
+  --type-display-medium-font-weight: 600;
+  --type-display-medium-letter-spacing: -0.25px;
+  --type-display-small-font-size: 28px;
+  --type-display-small-line-height: 36px;
+  --type-display-small-font-weight: 600;
+  --type-display-small-letter-spacing: 0px;
+  --type-display-xl-font-size: 48px;
+  --type-display-xl-line-height: 52px;
+  --type-display-xl-font-weight: 600;
+  --type-display-xl-letter-spacing: -1px;
+  --type-headline-large-font-size: 24px;
+  --type-headline-large-line-height: 32px;
+  --type-headline-large-font-weight: 600;
+  --type-headline-large-letter-spacing: 0px;
+  --type-headline-medium-font-size: 20px;
+  --type-headline-medium-line-height: 28px;
+  --type-headline-medium-font-weight: 600;
+  --type-headline-medium-letter-spacing: 0px;
+  --type-headline-small-font-size: 17px;
+  --type-headline-small-line-height: 24px;
+  --type-headline-small-font-weight: 600;
+  --type-headline-small-letter-spacing: 0px;
+  --type-label-large-font-size: 13px;
+  --type-label-large-line-height: 18px;
+  --type-label-large-font-weight: 500;
+  --type-label-large-letter-spacing: 0.1px;
+  --type-label-medium-font-size: 12px;
+  --type-label-medium-line-height: 16px;
+  --type-label-medium-font-weight: 500;
+  --type-label-medium-letter-spacing: 0.2px;
+  --type-label-small-font-size: 11px;
+  --type-label-small-line-height: 15px;
+  --type-label-small-font-weight: 500;
+  --type-label-small-letter-spacing: 0.3px;
+  --type-title-large-font-size: 16px;
+  --type-title-large-line-height: 22px;
+  --type-title-large-font-weight: 600;
+  --type-title-large-letter-spacing: 0px;
+  --type-title-medium-font-size: 14px;
+  --type-title-medium-line-height: 20px;
+  --type-title-medium-font-weight: 600;
+  --type-title-medium-letter-spacing: 0.1px;
+  --type-title-small-font-size: 13px;
+  --type-title-small-line-height: 18px;
+  --type-title-small-font-weight: 600;
+  --type-title-small-letter-spacing: 0.1px;
+
+  /* Colors */
+  --color-accent-ink: #4A4AC4;
+  --color-accent-soft: #EEEFFE;
+  --color-amber: #B45309;
+  --color-amber-soft: #FEF3E7;
+  --color-background: #F7F8FA;
+  --color-border: #E7E9EE;
+  --color-border-focus: #5B5BD6;
+  --color-code: #3A4150;
+  --color-faint: #98A2B3;
+  --color-green: #12805C;
+  --color-green-soft: #E7F5F0;
+  --color-line-2: #DEE1E7;
+  --color-line-strong: #CFD3DB;
+  --color-nav: #FFFFFF;
+  --color-nav-2: #F1F2F4;
+  --color-nav-active: #EEEFFE;
+  --color-nav-active-ink: #4A4AC4;
+  --color-nav-ink: #16181D;
+  --color-nav-line: #E7E9EE;
+  --color-nav-mut: #667085;
+  --color-primary: #5B5BD6;
+  --color-primary-active: #3E3EB0;
+  --color-primary-hover: #4A4AC4;
+  --color-red: #D92D20;
+  --color-red-soft: #FDECEA;
+  --color-secondary: #7C7CF2;
+  --color-status-error: #D92D20;
+  --color-status-info: #3538CD;
+  --color-status-success: #12805C;
+  --color-status-warning: #B45309;
+  --color-subtle: #F1F2F4;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #FBFCFD;
+  --color-surface-elevated: #FFFFFF;
+  --color-text: #16181D;
+  --color-text-disabled: #9AA1AE;
+  --color-text-muted: #667085;
+
+  /* Spacing */
+  --spacing-unit: 4px;
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 32px;
+  --spacing-8: 40px;
+  --spacing-9: 48px;
+  --spacing-10: 64px;
+  --spacing-11: 80px;
+  --spacing-12: 96px;
+  --spacing-13: 128px;
+  --spacing-14: 160px;
+  --spacing-15: 192px;
+  --spacing-16: 256px;
+  --spacing-17: 320px;
+  --spacing-18: 384px;
+
+  /* Borders */
+  --border-radius-full: 9999px;
+  --border-radius-large: 12px;
+  --border-radius-medium: 8px;
+  --border-radius-none: 0;
+  --border-radius-small: 4px;
+  --border-width-default: 1px;
+  --border-width-thick: 2px;
+
+  /* Shadows */
+  --shadow-large: 0 10px 15px -3px rgb(16 24 40 / 0.10), 0 4px 6px -4px rgb(16 24 40 / 0.08);
+  --shadow-medium: 0 4px 6px -1px rgb(16 24 40 / 0.08), 0 2px 4px -2px rgb(16 24 40 / 0.06);
+  --shadow-none: none;
+  --shadow-small: 0 1px 2px 0 rgb(16 24 40 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(16 24 40 / 0.12), 0 8px 10px -6px rgb(16 24 40 / 0.10);
+
+  /* Motion */
+  --motion-duration-fast: 120ms;
+  --motion-duration-instant: 50ms;
+  --motion-duration-normal: 200ms;
+  --motion-duration-slow: 360ms;
+  --motion-duration-slower: 600ms;
+  --motion-easing-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-easing-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-reduced-motion-duration: 0ms;
+}
+
+/* Variant: dark */
+/* Dark theme — deep ink surfaces with a brighter iris primary for AA contrast */
+[data-brand="promptstudio"][data-theme="dark"],
+[data-brand="promptstudio"].dark,
+:root[data-brand="promptstudio"] .dark {
+  --color-accent-ink: #BCBDF8;
+  --color-accent-soft: #25264E;
+  --color-amber: #E3A85E;
+  --color-amber-soft: #372716;
+  --color-background: #0E0F13;
+  --color-border: #282A32;
+  --color-border-focus: #7C7CF2;
+  --color-code: #C3C7D0;
+  --color-faint: #6C7079;
+  --color-green: #49CFA0;
+  --color-green-soft: #12271F;
+  --color-line-2: #33353E;
+  --color-line-strong: #3E414A;
+  --color-nav: #141519;
+  --color-nav-2: #20222A;
+  --color-nav-active: #25264E;
+  --color-nav-active-ink: #BCBDF8;
+  --color-nav-ink: #DADCE2;
+  --color-nav-line: #282A32;
+  --color-nav-mut: #8A8E98;
+  --color-primary: #7C7CF2;
+  --color-primary-active: #6B6BE8;
+  --color-primary-hover: #9494F6;
+  --color-red: #F1776B;
+  --color-red-soft: #3A1C1A;
+  --color-secondary: #9494F6;
+  --color-subtle: #23252C;
+  --color-surface: #17181E;
+  --color-surface-2: #1D1F26;
+  --color-surface-elevated: #1E1F27;
+  --color-text: #E7E9EF;
+  --color-text-disabled: #6B7280;
+  --color-text-muted: #9CA0AA;
+  --shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.7), 0 8px 10px -6px rgb(0 0 0 / 0.6);
+}
+
+/* Variant: high_contrast */
+/* High contrast variant for accessibility — WCAG AAA */
+[data-brand="promptstudio"][data-high-contrast],
+[data-brand="promptstudio"].high-contrast {
+  --color-background: #ffffff;
+  --color-border: #000000;
+  --color-border-focus: #3538CD;
+  --color-primary: #2E2EA8;
+  --color-primary-active: #1B1B6E;
+  --color-primary-hover: #24248A;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-text: #000000;
+  --color-text-disabled: #4a4a4a;
+  --color-text-muted: #1a1a1a;
+}
+
+/* Variant: reduced_motion */
+/* Minimal/no animations for motion-sensitive users */
+@media (prefers-reduced-motion: reduce) {
+  [data-brand="promptstudio"] {
+    --motion-duration-fast: 0ms;
+    --motion-duration-instant: 0ms;
+    --motion-duration-normal: 0ms;
+    --motion-duration-slow: 0ms;
+    --motion-duration-slower: 0ms;
+    --motion-reduced-motion-duration: 0ms;
+  }
+}
