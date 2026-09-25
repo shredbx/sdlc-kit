@@ -343,6 +343,16 @@ Do-not-"fix"-during-the-split list (each is observable behavior): CORS methods o
 rate-limit key functions; upper- vs lower-case error codes; route registration order; per-handler
 `Cache-Control`.
 
+**Defects found in the originals while porting** are recorded, never fixed inside a port (the port is
+byte-identical and the oracle must equal the original). Each needs the user's decision on where it is fixed: in the
+original first (then the port is re-synced), or in the kit's slice as a declared behavior change.
+1. **`identity/auth`, magic-link onboarding keeps the raw refresh token.** `magic_link_service.go`
+   `CompleteOnboarding` creates its session with `tp.RefreshToken` (line 218), while `auth_service.go` stores
+   `HashToken(tp.RefreshToken)` (`createSessionAndTokens`, the original's "F1" fix) and `Logout` / `RefreshToken`
+   look sessions up by `HashToken(presented)`. Read as written, such a session leaves a live bearer token at rest
+   and a later refresh or logout cannot match it. Found by reading, not run. The fix is one line plus a test.
+   Details: `docs/plans/2026-09-25-bos-scope-6b-go-identity-analytics-jobs.md`.
+
 ## 8. Ladder
 
 | Rung | Approved scopes (estimate) | What | Gate |
@@ -544,3 +554,6 @@ and the client repo. Zero framework code, zero process-os definitions.
   commit (11 insertions / 12 deletions). (3) `jobs/scheduler` still imports `news/feed`, ported as is — the one known
   shared-imports-feature edge. (4) The `replace`-closure rule found in 6a is now written in `platform/CLAUDE.md`.
   (5) All 29 skips in the workspace are tests that need a live Postgres; they have not run against one yet.
+  (6) A security defect in the original `auth` (magic-link onboarding stores the raw refresh token) was found by
+  the background review of the port commit and confirmed by reading; recorded in section 7 as a defect found in the
+  originals, not fixed in the port, decision left to the user.

@@ -100,3 +100,72 @@ platform/CLAUDE.md                              modified: the `replace`-closure 
 refinement; wiring to a framework or an app; declaring kit edges (D15); process-os definitions. Client information
 is not touched: it lives in the client library the main session is building, registered after alignment with that
 session, never in `platform/`.
+
+## Results (2026-09-26) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `7d6f98a` | this document, with the baseline |
+| 1 baseline | (scratchpad `go_baseline_6b.json`, table above) | measured on the original module before anything was ported |
+| 2–5 copy, `go.mod`, tidy, `go.work` | `dade4a6` | 72 files: **71 new** (63 verbatim + 4 `go.mod` + 4 `go.sum`) and `go.work` modified |
+| gofmt (kept separate) | `70d9f9f` | 4 files, 11 insertions / 12 deletions, formatting only |
+| 7 `platform/CLAUDE.md` rule, design doc | `2a05921` | table 6.3 and the tree ✔, section 8, M0 9 of about 12, the `replace`-closure rule, decision log |
+| results | (this commit) | — |
+
+**Gates**
+- **Byte-identity:** `diff -r -x go.mod -x go.sum` against the source is empty for all three top-level trees
+  (auth 35, visitoractivity 14, scheduler 14 incl. `schedcli` = 63 files), so nothing was missed either.
+  (Superseded for the 4 files gofmt touched, by `70d9f9f`.)
+- **Tests, each module on its own, equal to the baseline both before and after gofmt:** auth 213, visitoractivity
+  87 pass + 13 skip, scheduler 32, schedcli no test files = **332 pass, 13 skip, 0 fail**, with
+  `VISITOR_ACTIVITY_TEST_DSN` unset in both runs. The 32-module run gives **1,498 / 29 / 0**; the 28 earlier
+  modules are unchanged (compared programmatically: 1,166 / 16 / 0), and the per-module JSON is identical before
+  and after gofmt.
+- **Pins:** every direct third-party requirement equals the original `sbx-core/go.mod` (`jwt/v5` v5.3.1,
+  `go-redis/v9` v9.18.0, `x/crypto` v0.49.0, `uuid` v1.6.0, `pgx/v5` v5.9.1, `testify` v1.11.1); checked by script.
+- **Tidy:** a standalone `go mod tidy` (`GOWORK=off`) succeeds and is a no-op on a second run for all 4 modules.
+- `go vet` clean across 32 modules; `gofmt -l` empty after `70d9f9f`; `go list -m` finds 32.
+- Staged file count (71 new + `go.work`) equals the files on disk (71). `go.work.sum` did not change.
+- `process-cli check`: ok. Nothing pushed. `go-ci.yml` is `go list -m`-based and needed no change.
+
+**`go.mod` shape per module** (direct in-repo requires → full `replace` closure)
+
+| Module | Direct in-repo | `replace` lines | Third-party direct |
+|---|---|---|---|
+| auth | 2 | 2 | 6 (`jwt/v5`, `uuid`, `pgx/v5`, `go-redis/v9`, `testify`, `x/crypto`) |
+| visitoractivity | 1 | 2 | 4 (`uuid`, `pgx/v5`, `go-redis/v9`, `testify`) |
+| scheduler | 2 | 3 | 2 (`uuid`, `pgx/v5`) |
+| schedcli | 2 | 4 | none |
+
+**Findings on the way**
+- **A defect in the original, found by the background security review of `dade4a6` and confirmed by reading the
+  code.** `auth_service.go` stores `HashToken(tp.RefreshToken)` in the session (`createSessionAndTokens`, the
+  original's "F1" fix), and `Logout` and `RefreshToken` look sessions up by `HashToken(presented)`. But
+  `magic_link_service.go` `CompleteOnboarding` builds its session with the **raw** `tp.RefreshToken` (line 218).
+  Read as written: a session created through magic-link onboarding leaves a live refresh token at rest in the
+  `sessions` table, the exposure F1 removed for password login, and a later refresh or logout for that session
+  cannot match its stored value. I found this by reading only; nothing was run. The port is byte-identical to the
+  original, so the defect is the original's, not introduced here. It is **not fixed in the port**: the fix
+  (`HashToken(...)` on that line, plus a test) changes behavior and the oracle must equal the original. It is
+  recorded in the design doc for the user to decide where it is fixed.
+- **Tidy resolved two indirect test dependencies** for `visitoractivity` and `scheduler` (`kr/text` v0.2.0,
+  `go-internal` v1.16.0), the same versions `identity/user` already has. Indirect only.
+- **gofmt:** the same four `auth` files are not gofmt-clean in the original (`interfaces.go`,
+  `reset_request_test.go`, `schema_validation_test.go`, `security_headers.go`).
+- **`jobs/scheduler` still imports `news/feed`,** ported as is, the one known shared-imports-feature edge.
+- **All 29 skips in the workspace need a live Postgres** (dictionary 11, repository/postgres 5, visitoractivity 13)
+  and have not run against one. The repo has a postgres dev bundle (`projects/services/postgres-dev/`), so a live
+  run is possible; it is not part of any planned scope.
+
+**Result on disk**
+
+```
+platform/go/packages/
+├── identity/    user · rbac · auth
+├── analytics/   visitoractivity                     NEW kit
+├── jobs/        scheduler (+schedcli)               NEW kit
+└── … (28 earlier modules unchanged)
+```
+
+32 of 34 Go modules and all 12 Svelte packages are ported. Next: Scope 6c (`real-estate/property`,
+`real-estate/transaction`), its own approval.
