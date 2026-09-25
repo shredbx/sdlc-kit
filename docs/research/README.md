@@ -46,6 +46,13 @@ accordingly).
    workspace's own future AI Assistant product, and an explicit, considered rejection of
    capability-as-namespace organization.
 
+7. **[`bestierealestate-decomposition-recon.md`](./bestierealestate-decomposition-recon.md)** —
+   agent-produced (four read-only passes, 2026-09-25). What it would take to turn the production Go +
+   SvelteKit app into a `bos` system plus a thin consumer: the Go API is not thin in code terms (≈57%
+   generic adapter code, all routes inline in one `main()`), the Svelte app's repetition is parametric, the
+   shared libraries' size, layers and dependencies (34 Go packages, 12 Svelte/TS packages), and what the
+   earlier BOS attempt did and did not prove. Design that follows: `../proposals/bos-system-design.md`.
+
 ## Headline findings
 
 shredbx already solved this problem once, a year ago, in Go. `projects/sbx` (source of the `sbx`

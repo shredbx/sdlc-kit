@@ -3,9 +3,10 @@
 Last updated: 2026-09-25
 tags: bos, bestierealestate, bestays, go, svelte, decomposition, proposal
 
-Status: **DRAFT — proposal, uncommitted, awaiting approval.** Nothing here is implemented. Per
-`CLAUDE.md`, approval is per scope: this document fixes the *direction* and the *first scope*; every
-later scope gets its own before/after file tree and its own confirmation before anything is written.
+Status: **plan and Scope 1 approved on 2026-09-25; Scope 1 is done** (see
+`docs/plans/2026-09-25-bos-scope-1-workspaces-and-leaf-ports.md`). Per `CLAUDE.md`, approval is per scope:
+this document fixes the *direction* and the *first scope*; every later scope gets its own before/after file
+tree and its own confirmation before anything is written.
 
 Client-specific values (brand, copy, contacts, hosts) stay in the client repo. This document names
 projects (`bestierealestate`, `bestays`) because the repo already does, and nothing more.
@@ -172,7 +173,7 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | L0 | language (60/28) · socialnetwork (109/187) | content, contact |
 | L0 | money (843/911) · geocoordinate (65/85) | property-catalog, transactions |
 | L0 | personname (56/187) · phonenumber (56/111) | contact |
-| L0 | notify (272/122) | to be assigned when read (purpose unverified) |
+| L0 | notify (272/122) — Telegram + SMTP notifier (`telegram.go`, `smtp.go`) | kit assigned when read (likely contact/inquiry alerts) |
 | L1 | httputil (405/429) · repository/postgres (1,149/660) | bos-go |
 | L1 | user (412/112) | identity |
 | L1 | dictionary (909/638) | dictionary |
@@ -288,7 +289,7 @@ and the client repo. Zero framework code, zero process-os definitions.
   (`golang.org/x/text`); tests use only the standard `testing` package.
 - Source declares `go 1.26`; the local toolchain is 1.25.6, so the first `go test` auto-fetches 1.26
   (needs network). `go mod tidy` also needs network for `go.sum`.
-- `notify`'s purpose is unverified; it is ported for its L0 position, its kit is assigned when read.
+- `notify` turned out to be a Telegram + SMTP notifier; its kit is assigned when read.
 - Pushing the client repo's initial commit is an outward-facing action and needs explicit confirmation.
 
 ## 10. Boundaries
@@ -312,3 +313,11 @@ and the client repo. Zero framework code, zero process-os definitions.
   D4 recommended.
 - 2026-09-25 — User requires: plan saved as a file, final structure shown, first scope and its
   after-structure shown, *then* confirmation, commit, proceed. This document is that saved plan.
+- 2026-09-25 — User confirmed the plan, the final structure and Scope 1 ("so far confirmed"),
+  including the initial push to the client repo. D4–D8 and D10–D12 were on the table as *Proposed* and
+  were not vetoed, so they are treated as accepted for Scope 1 and stay revisitable; D9 stays open until
+  the M1 spike.
+- 2026-09-25 — Scope 1 done: workspaces, 8 Go and 3 TS packages ported verbatim and proven against the
+  originals, CI added, client repo bootstrapped and mounted. See the Scope 1 log for evidence and the three
+  things found on the way (a `.gitignore` rule that swallows `src/lib/`, one comment-only gofmt finding,
+  and `./...` matching nothing at a `go.work` root).
