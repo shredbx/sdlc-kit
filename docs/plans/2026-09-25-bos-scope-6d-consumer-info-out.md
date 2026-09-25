@@ -74,3 +74,42 @@ library, not a consumer.
 3. **Skip claim** now reads 13 + 13 + 7 = 33.
 4. **Trial merge** with the main session's branch (`git merge-tree`).
 5. `platform/` code unchanged, `process-cli check` ok, nothing pushed.
+
+## Results
+
+Commits in sdlc-kit: `ca8551c` (corrections) and `128b779` (moves). In the consumer's repo, local and unpushed:
+`4f15efe` (the plan and the recon) and `e3e5798` (the regroup, below).
+
+| Gate | Result |
+|---|---|
+| Name scan, commit 2's files | design doc and `platform/CLAUDE.md`: 0 hits. This plan: 1, the abbreviation `BR` named in the gate's own description |
+| Move check | recon sha256 `c42cee1c…037dc6` identical before deleting the original; design doc 588 → 562 lines; the consumer plan's sections 1 to 5 are cut from the design doc by anchor |
+| Skip claim | three files corrected; a search for the old wording finds only the quotations in this file |
+| Trial merge | one conflict, `.gitmodules` |
+| `platform/` code | 0 files under `platform/go` or `platform/svelte` changed by 6d or by the merge |
+
+Left as they are, by the softened rule: three historical plan logs (5 lines that name the consumer), the main session's
+own research files and clients registry, and 73 ported files that name the app they came from in comments and fixtures.
+
+## Sync with the main session
+
+The user said the main session had finished refactoring where client repos are mounted. Its shape is
+`consumers/clients/<client>/<project>/` (one repo per project; a client may have several).
+
+1. **Merge** `feature/agent-framework` (`d8440d9`) into this branch: `a353b16`. One conflict, `.gitmodules`: the main
+   session's nested mount for its own client repo plus this branch's consumer mount, both kept. Everything else merged
+   cleanly, including the research README, which both sides had edited in different places. The merge changed no file
+   under `platform/go` or `platform/svelte`.
+2. **Move the consumer mount** under `consumers/clients/<client>/<project>` with `git mv`, and rename its `.gitmodules`
+   section to match its path, as the main session did for its own: `d94184c`. The pointer stays at the consumer repo's
+   bootstrap commit `9715beb`; its later commits are local, so recording them would point at commits nobody else has.
+3. **One more `../`** in the consumer's `processos.yaml` `libraries:` path (four levels up to sdlc-kit's root instead of
+   three), and its README names the new mount: `e3e5798`. Negative control: with the old three-level path
+   `process-cli check` fails (`libraries[0].path: not_found`); with the new one it passes.
+4. **Gates re-run after the merge**, all equal to before: Go 34 modules 1,790 pass / 33 skip / 0 fail, identical per
+   module to the 6c baseline; `go vet` 34 modules 0 failures; `gofmt -l` 0 files; `pnpm install --frozen-lockfile` up to
+   date; Svelte suites 81 / 10 / 396 / 251 / 10 / 12 / 55 / 160 / 45; `process-cli check` ok from sdlc-kit's root and from
+   inside the consumer's repo. Python was not re-run: nothing in it is this branch's.
+5. **Known local wart:** git's own `.git/config` in this checkout still registers the mount under its old submodule name
+   (the working tree and history are unaffected). `git submodule status` therefore shows it with a `-` here; a fresh clone
+   initialises it under the new name. Nothing is pushed.

@@ -15,7 +15,8 @@ the same day: `docs/plans/2026-09-25-bos-scope-5-svelte-ui-packages.md`; Scope 6
 packages, Scope 6b, auth, visitor activity and the job scheduler, and Scope 6c, property and transaction,
 the same day:
 `docs/plans/2026-09-25-bos-scope-6a-go-feature-packages.md`, `docs/plans/2026-09-25-bos-scope-6b-go-identity-analytics-jobs.md`,
-`docs/plans/2026-09-25-bos-scope-6c-go-real-estate.md`). Per `CLAUDE.md`, approval is per
+`docs/plans/2026-09-25-bos-scope-6c-go-real-estate.md`; Scope 6d, corrections and consumer information out of sdlc-kit,
+plus the sync with the main session: `docs/plans/2026-09-25-bos-scope-6d-consumer-info-out.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -343,7 +344,7 @@ original first (then the port is re-synced), or in the kit's slice as a declared
 
 | Rung | Approved scopes (estimate) | What | Gate |
 |---|---|---|---|
-| **M0 Baseline** (scopes below) | ≈12 (10 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import the first consumer verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
+| **M0 Baseline** (scopes below) | ≈13 (11 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import the first consumer verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
 | M1 `bos-svelte` | ≈5 | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
 | M2 `bos-go` | ≈4 | `Module` contract, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped). The slice also settles where kit wiring lives (D15) | route-table diff = 0 |
 | M3 kits | ≈8 | identity → cms → seo → media → contacts → calendar → news → jobs/analytics/documents, one slice each | oracle slice green per kit |
@@ -352,8 +353,8 @@ original first (then the port is re-synced), or in the kit's slice as a declared
 | M5 Thin-out + regroup | ≈2 | consumer footprint audit; final names; a kit may become the Go module (D6) | full oracle green |
 | M6 Deploy cutover | own plan | bundle spec and/or the mirror/vendor pipeline redone for a multi-repo layout; parallel run; nothing touches production without separate approval | separate approval |
 
-About 37 approved scopes before M6 (33 at the start; Scope 6 turned out to be three scopes and Scope 7 is likely
-two), ±30%; the FAQ slice gives the first real measurement.
+About 38 approved scopes before M6 (33 at the start; Scope 6 turned out to be three scopes plus a docs scope, and
+Scope 7 is likely two), ±30%; the FAQ slice gives the first real measurement.
 
 ### 8.1 The per-kit loop
 
@@ -397,7 +398,9 @@ declare it, so `core-ui` — which needs `animations` and `units` — comes firs
      env-dependent tests; `scheduler` imports `news/feed` (the known edge to invert).
    - **6c (done):** `real-estate/property`, `real-estate/transaction`; `testdata` fixtures; 4 tests skipped
      unconditionally until the app is imported. All 34 Go modules are now ported.
-9. **Scope 7:** baseline import of the first consumer's apps + oracle capture (likely two scopes; its plan is in the
+9. **Scope 6d (done):** corrections (the skip breakdown, the auth-defect severity); consumer information moved out of
+   sdlc-kit into the consumer's repo; sync with the main session's branch.
+10. **Scope 7:** baseline import of the first consumer's apps + oracle capture (likely two scopes; its plan is in the
    consumer's repo). The `auth`
    fix (section 7) should land in the original before the oracle is captured; the re-sync of `identity/auth`
    afterwards would be one more small scope.
@@ -560,3 +563,13 @@ and the client repo. Zero framework code, zero process-os definitions.
   the user's to make; this track does not edit the originals. Sequencing consequence for Scope 7: the oracle is
   captured from the original as it stands, so the fix should land before that capture, then `identity/auth` is
   re-synced in one small scope.
+- 2026-09-26 — Scope 6d done, then the sync with the main session. Two rules from the user: sdlc-kit holds no
+  consumer information (it lives in the consumer's own repo); and, because this repo is private and never shared,
+  client names in the ported code's comments and fixtures are scrubbed along the way in each kit's own slice, not in a
+  bulk scope (the planned 6e is dropped). Two recorded claims were corrected: the 33 skips are 13 DSN-gated, 13
+  unconditional RED placeholders and 7 pointers at app-level tests (not "all need a live Postgres"), and the
+  magic-link session defect is a functional bug plus F1 hygiene, not an exposed credential. The consumer-side parts of
+  this document and the decomposition recon moved to the consumer's repo. Merge with `feature/agent-framework`: one
+  conflict, `.gitmodules`, resolved; the main session had nested its mounts as `consumers/clients/<client>/<project>`,
+  so the consumer mount moved under that shape (D1). Every gate re-run after the merge is equal: 34 Go modules
+  1,790 / 33 / 0 per module, the nine Svelte suites unchanged, `process-cli check` ok from both roots. See the 6d log.
