@@ -39,7 +39,7 @@ asserts every dependency is a ported module.
 - **The 4 skipped `transaction` tests** are unconditional `t.Skip` calls that point at app-level tests in
   `bestierealestate`. They cannot run until the app is imported (Scope 7). (My earlier notes said "testcontainers";
   that word is only a comment in the source. Corrected.)
-- **`gosimple/slug` and `rainycape/unidecode`** are new to the workspace. They enter at the original pins.
+- **`gosimple/slug` and its indirect `gosimple/unidecode`** are new to the workspace. They enter at the original pins.
 - **`property` is the largest package** (4,939 source lines) and `repository/postgres` is in its closure, so `pgx` and
   `go.sum` are expected for both modules.
 
@@ -96,3 +96,64 @@ Fixing anything in the originals; the `identity/auth` defect (its decision is re
 importing the apps or capturing the oracle (Scope 7); any interface change or refinement; wiring to a framework or an
 app; declaring kit edges (D15); process-os definitions. Client information is not touched: it lives in the client
 library the main session is building, registered after alignment with that session, never in `platform/`.
+
+## Results (2026-09-26) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `72cdeb9` | this document, with the baseline |
+| 1 baseline | (scratchpad `go_baseline_6c.json`, table above) | measured on the original module before anything was ported |
+| 2–5 copy, `go.mod`, tidy, `go.work` | `1f1072c` | 56 files: **55 new** (51 verbatim + 2 `go.mod` + 2 `go.sum`) and `go.work` modified |
+| gofmt (kept separate) | `3caa817` | 5 files, 10 insertions / 10 deletions, formatting only |
+| 7 design doc | `b0c7d7e` | table 6.3 and the tree ✔, section 7 decision, section 8, M0 10 of about 12, decision log |
+| results | (this commit) | — |
+
+**Gates**
+- **Byte-identity:** `diff -r -x go.mod -x go.sum` against the source is empty for both packages (property 36 files,
+  transaction 15 = 51), `testdata/` included, so nothing was missed either. (Superseded for the 5 files gofmt touched,
+  by `3caa817`.)
+- **Tests, each module on its own, equal to the baseline both before and after gofmt:** property 232 / 0 / 0,
+  transaction 60 pass + 4 skip = **292 pass, 4 skip, 0 fail**. The 34-module run gives **1,790 / 33 / 0**; the 32
+  earlier modules are unchanged (compared programmatically: 1,498 / 29 / 0, no module differs), and the per-module
+  JSON is identical before and after gofmt. The `testdata/*.yml` fixtures load from the new folders.
+- **Pins:** every direct third-party requirement equals the original `sbx-core/go.mod` (`uuid` v1.6.0, `gosimple/slug`
+  v1.15.0, `pgx/v5` v5.9.1, `yaml.v3` v3.0.1, `testify` v1.11.1); checked by script. The indirect `gosimple/unidecode`
+  v1.0.1 equals the original too.
+- **Tidy:** a standalone `go mod tidy` (`GOWORK=off`) succeeds and is a no-op on a second run for both modules.
+- `go vet` clean across 34 modules; `gofmt -l` empty after `3caa817`; `go list -m` finds 34.
+- Staged file count (55 new + `go.work`) equals the files on disk (55). No file is ignored (`git check-ignore` finds
+  none of the `.yml` fixtures). `go.work.sum` did not change.
+- `process-cli check`: ok. Nothing pushed. `go-ci.yml` is `go list -m`-based and needed no change.
+
+**`go.mod` shape per module** (direct in-repo requires → full `replace` closure)
+
+| Module | Direct in-repo | `replace` lines | Third-party direct |
+|---|---|---|---|
+| property | 5 | 7 | 4 (`uuid`, `gosimple/slug`, `pgx/v5`, `yaml.v3`) |
+| transaction | 3 | 4 | 4 (`uuid`, `pgx/v5`, `testify`, `yaml.v3`) |
+
+**Findings on the way**
+- **Tidy resolved two indirect test dependencies** for both modules (`kr/text` v0.2.0, `go-internal` v1.16.0), the same
+  versions the earlier ports have. The original's `go.mod` lists `go-internal` at v1.14.1 (indirect) and has no
+  `kr/text` line, so these two indirect versions differ from the original's; indirect only, and the tests pass.
+- **gofmt:** five files are not gofmt-clean in the original (`property/image_collection_test.go`,
+  `property/property.go`, `property/service_test.go`, `property/slug_test.go`, `transaction/service.go`).
+- **`mapper.generated.go`** is ported as is in both packages; nothing was regenerated.
+- **The 4 skipped `transaction` tests** are unconditional and point at `internal/deal` tests in the app; they first
+  run at Scope 7.
+- **The copy script needed one change:** it now copies a `testdata/` sub-directory recursively and byte-verifies it,
+  and still rejects any other unexpected sub-directory. Scratchpad tooling only; nothing in the repo.
+- **Decision on the 6b `identity/auth` defect** (recorded in the design doc): fix it in the original first, then
+  re-sync. Not part of this scope's code.
+
+**Result on disk**
+
+```
+platform/go/packages/real-estate/
+├── collection/      (unchanged)
+├── property/        NEW
+└── transaction/     NEW
+```
+
+All 34 Go modules and all 12 Svelte packages are ported. Next: Scope 7 (baseline import of the apps and oracle
+capture), its own approval.
