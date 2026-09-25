@@ -113,7 +113,7 @@ func TestToVEVENTWith_AboutRelationAlsoPreferred(t *testing.T) {
 func TestToVEVENTWith_FallsBackToFirstResolving(t *testing.T) {
 	e := kitchenSink()
 	e.References = []calendar.Reference{
-		{ID: "r1", RefType: "contact", RefID: "c-1", Relation: "attendee", Label: "Lek"},      // resolves ""
+		{ID: "r1", RefType: "contact", RefID: "c-1", Relation: "attendee", Label: "Lek"},       // resolves ""
 		{ID: "r2", RefType: "property", RefID: "p-1", Relation: "attachment", Label: "Unit"},   // first non-empty
 		{ID: "r3", RefType: "property", RefID: "p-2", Relation: "attachment", Label: "Garage"}, // also non-empty
 	}

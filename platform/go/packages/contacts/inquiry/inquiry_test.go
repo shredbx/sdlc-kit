@@ -73,7 +73,10 @@ func TestInquiry_Validate_LocationRequired(t *testing.T) {
 		{name: "optional property type set", mutate: func(i *Inquiry) { i.PropertyType = ptr("villa") }, wantErr: false},
 		{name: "optional property type omitted", mutate: func(i *Inquiry) { i.PropertyType = nil }, wantErr: false},
 		{name: "property type other without custom", mutate: func(i *Inquiry) { i.PropertyType = ptr(PropertyTypeOther) }, wantErr: true},
-		{name: "property type other with custom", mutate: func(i *Inquiry) { i.PropertyType = ptr(PropertyTypeOther); i.PropertyTypeCustom = ptr("Underwater dome") }, wantErr: false},
+		{name: "property type other with custom", mutate: func(i *Inquiry) {
+			i.PropertyType = ptr(PropertyTypeOther)
+			i.PropertyTypeCustom = ptr("Underwater dome")
+		}, wantErr: false},
 		// S6 (2607-055): a property-attached enquiry derives its location from the property,
 		// so location is NOT required when PropertyRef is set (the public form hides the field).
 		{name: "property attached, location nil — not required", mutate: func(i *Inquiry) { i.PropertyRef = ptr("prop-123"); i.Location = nil }, wantErr: false},

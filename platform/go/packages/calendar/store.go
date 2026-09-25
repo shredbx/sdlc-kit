@@ -194,10 +194,10 @@ func (s ReferenceStore) Load(ctx context.Context, eventIDs ...string) (map[strin
 
 	for rows.Next() {
 		var (
-			ref               Reference
-			eventID           string
-			relation, asType  *string
-			subtitle          *string
+			ref              Reference
+			eventID          string
+			relation, asType *string
+			subtitle         *string
 		)
 		if err := rows.Scan(&ref.ID, &eventID, &ref.RefType, &ref.RefID, &relation, &asType, &ref.Label, &subtitle); err != nil {
 			return nil, fmt.Errorf("scan event reference: %w", err)

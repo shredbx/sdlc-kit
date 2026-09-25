@@ -254,4 +254,3 @@ func (s *ContactService) Search(ctx context.Context, opts SearchOptions) ([]Cont
 	}
 	return contacts, total, nil
 }
-

@@ -250,12 +250,12 @@ func TestPageDetails_BrowseFeaturedTypes(t *testing.T) {
 		}
 	}
 
-	ok(PageDetails{})                                                 // nil = unset
-	ok(PageDetails{BrowseFeaturedTypes: &[]string{}})                 // explicit none
+	ok(PageDetails{})                                 // nil = unset
+	ok(PageDetails{BrowseFeaturedTypes: &[]string{}}) // explicit none
 	ok(PageDetails{BrowseFeaturedTypes: &[]string{"business", "pool-villa"}})
-	bad(PageDetails{BrowseFeaturedTypes: &[]string{""}})              // empty code
-	bad(PageDetails{BrowseFeaturedTypes: &[]string{"Business"}})      // uppercase
-	bad(PageDetails{BrowseFeaturedTypes: &[]string{"a;drop"}})        // charset
+	bad(PageDetails{BrowseFeaturedTypes: &[]string{""}})         // empty code
+	bad(PageDetails{BrowseFeaturedTypes: &[]string{"Business"}}) // uppercase
+	bad(PageDetails{BrowseFeaturedTypes: &[]string{"a;drop"}})   // charset
 	seven := &[]string{"a", "b", "c", "d", "e", "f", "g"}
 	bad(PageDetails{BrowseFeaturedTypes: seven}) // over cap
 
@@ -405,7 +405,7 @@ func TestPageDetails_HomeSectionsOrder(t *testing.T) {
 	ok(PageDetails{})
 	ok(d)
 	ok(PageDetails{SectionsOrder: []string{"totally-made-up-token"}}) // grammar is web-owned
-	ok(PageDetails{FaqHome: &FaqHomeConfig{Limit: 0}})                 // 0 = consumer default
+	ok(PageDetails{FaqHome: &FaqHomeConfig{Limit: 0}})                // 0 = consumer default
 
 	over := make([]string, maxHomeSectionTokens+1)
 	for i := range over {

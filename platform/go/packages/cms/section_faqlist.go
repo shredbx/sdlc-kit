@@ -58,7 +58,7 @@ func (m FAQListMode) Validate() error {
 type FAQListSection struct {
 	Mode     FAQListMode `json:"mode" yaml:"mode"`
 	Category string      `json:"category,omitempty" yaml:"category,omitempty"` // category slug (mode=category)
-	Items    []string    `json:"items,omitempty" yaml:"items,omitempty"`      // ordered faq_item IDs (mode=selection)
+	Items    []string    `json:"items,omitempty" yaml:"items,omitempty"`       // ordered faq_item IDs (mode=selection)
 }
 
 // Compile-time check: *FAQListSection satisfies SectionPayload (Validate() error).
