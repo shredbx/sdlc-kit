@@ -12,8 +12,10 @@ Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup,
 `docs/plans/2026-09-25-bos-scope-3c-kits-by-functionality.md`; Scope 4, Svelte foundation, approved and done on
 2026-09-26: `docs/plans/2026-09-25-bos-scope-4-svelte-foundation.md`; Scope 5, the remaining Svelte packages,
 the same day: `docs/plans/2026-09-25-bos-scope-5-svelte-ui-packages.md`; Scope 6a, the first seven Go feature
-packages, and Scope 6b, auth, visitor activity and the job scheduler, the same day:
-`docs/plans/2026-09-25-bos-scope-6a-go-feature-packages.md`, `docs/plans/2026-09-25-bos-scope-6b-go-identity-analytics-jobs.md`). Per `CLAUDE.md`, approval is per
+packages, Scope 6b, auth, visitor activity and the job scheduler, and Scope 6c, property and transaction,
+the same day:
+`docs/plans/2026-09-25-bos-scope-6a-go-feature-packages.md`, `docs/plans/2026-09-25-bos-scope-6b-go-identity-analytics-jobs.md`,
+`docs/plans/2026-09-25-bos-scope-6c-go-real-estate.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -131,7 +133,7 @@ End state of the closure (✔ ported · ○ later scope):
 ```
 platform/go/packages/
 ├── seo ✔ · money ✔ · calendar ✔ (+ical) · faq ✔ · cms ✔      a package named like its kit sits at the kit root
-├── real-estate/     collection ✔ · property ○ · transaction ○
+├── real-estate/     collection ✔ · property ✔ · transaction ✔
 ├── reference-data/  dictionary ✔
 ├── identity/        user ✔ · rbac ✔ · auth ✔
 ├── contacts/        personname ✔ · phonenumber ✔ · socialnetwork ✔ · contact ✔ (+vcard) · inquiry ✔
@@ -280,8 +282,8 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `calendar/ical` | 893/878 | L3 | nested | ✔ |
 | `analytics/visitoractivity` | 1,675/1,945 | L2 | 13 Postgres tests need `VISITOR_ACTIVITY_TEST_DSN` | ✔ |
 | `real-estate/collection` | 292/246 | L1 | | ✔ |
-| `real-estate/property` | 4,939/3,256 | L2 | | |
-| `real-estate/transaction` | 1,290/1,073 | L2 | selling is switchable (D12) | |
+| `real-estate/property` | 4,939/3,256 | L2 | | ✔ |
+| `real-estate/transaction` | 1,290/1,073 | L2 | selling is switchable (D12); 4 skipped tests wait for the app (Scope 7) | ✔ |
 
 ### 6.4 Svelte/TS packages — where each of the 12 goes (`platform/svelte/packages/<kit>/<package>`)
 
@@ -352,12 +354,17 @@ original first (then the port is re-synced), or in the kit's slice as a declared
    look sessions up by `HashToken(presented)`. Read as written, such a session leaves a live bearer token at rest
    and a later refresh or logout cannot match it. Found by reading, not run. The fix is one line plus a test.
    Details: `docs/plans/2026-09-25-bos-scope-6b-go-identity-analytics-jobs.md`.
+   **Decision (2026-09-26): fix it in the original first.** This track never edits the originals, so the fix
+   (`HashToken(...)` on that line, plus a test) is the user's to make there; `identity/auth` is then re-synced from
+   the original in one small scope. Scope 7 captures the oracle from the original as it then stands, so the fix
+   should land first; if it has not, magic-link onboarding is a declared difference between the oracle and the
+   re-synced port.
 
 ## 8. Ladder
 
 | Rung | Approved scopes (estimate) | What | Gate |
 |---|---|---|---|
-| **M0 Baseline** (scopes below) | ≈12 (9 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
+| **M0 Baseline** (scopes below) | ≈12 (10 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
 | M1 `bos-svelte` | ≈5 | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
 | M2 `bos-go` | ≈4 | `Module` contract, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped). The slice also settles where kit wiring lives (D15) | route-table diff = 0 |
 | M3 kits | ≈8 | identity → cms → seo → media → contacts → calendar → news → jobs/analytics/documents, one slice each | oracle slice green per kit |
@@ -409,8 +416,11 @@ declare it, so `core-ui` — which needs `animations` and `units` — comes firs
      hermetic tests.
    - **6b (done):** `identity/auth`, `analytics/visitoractivity`, `jobs/scheduler` (+schedcli); jwt, redis, bcrypt and
      env-dependent tests; `scheduler` imports `news/feed` (the known edge to invert).
-   - **6c:** `real-estate/property`, `real-estate/transaction`; testcontainers, `testdata`.
-9. **Scope 7:** baseline import of the bestierealestate apps + oracle capture (likely two scopes).
+   - **6c (done):** `real-estate/property`, `real-estate/transaction`; `testdata` fixtures; 4 tests skipped
+     unconditionally until the app is imported. All 34 Go modules are now ported.
+9. **Scope 7:** baseline import of the bestierealestate apps + oracle capture (likely two scopes). The `auth`
+   fix (section 7) should land in the original before the oracle is captured; the re-sync of `identity/auth`
+   afterwards would be one more small scope.
 
 Sizing honesty: the earlier inventory priced the library port alone at ≈195 half-day slices under a
 template-row method. Real packages drop the row/template overhead, but the app-side extraction
@@ -557,3 +567,17 @@ and the client repo. Zero framework code, zero process-os definitions.
   (6) A security defect in the original `auth` (magic-link onboarding stores the raw refresh token) was found by
   the background review of the port commit and confirmed by reading; recorded in section 7 as a defect found in the
   originals, not fixed in the port, decision left to the user.
+- 2026-09-26 — Scope 6c done: two Go modules (`real-estate/property`, `real-estate/transaction`) copied verbatim —
+  51 source and `testdata` files, byte-identical — plus 2 authored `go.mod` and 2 `go.sum`; `go.work` 32 → 34 paths, so
+  **all 34 Go modules are ported**. Tests per module equal a baseline measured on the original module (292 pass /
+  4 skip / 0 fail; the 4 skips are unconditional `t.Skip` calls that point at app-level tests, not Postgres); the 32
+  earlier modules are unchanged, so 1,790 / 33 / 0 in all. Findings: (1) the `testdata/` fixtures are copied
+  byte-for-byte and read by relative path; the tests pass in the new folders. (2) Five files are not gofmt-clean in the
+  original; formatted in their own commit (10 insertions / 10 deletions). (3) `gosimple/slug` and its indirect
+  `gosimple/unidecode` enter the workspace at their original pins. (4) `mapper.generated.go` in both packages is
+  ported as is, not regenerated; regeneration belongs to the kit slice. (5) `property` requires five in-repo modules
+  and replaces seven (`geocoordinate` and `database` arrive transitively).
+- 2026-09-26 — Decision on the `identity/auth` defect (section 7, item 1): fix it in the original first. The fix is
+  the user's to make; this track does not edit the originals. Sequencing consequence for Scope 7: the oracle is
+  captured from the original as it stands, so the fix should land before that capture, then `identity/auth` is
+  re-synced in one small scope.
