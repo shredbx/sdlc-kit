@@ -1,3 +1,3 @@
-[submodule "consumers/clients/bestie"]
-	path = consumers/clients/bestie
+[submodule "consumers/clients/bestie/bestays"]
+	path = consumers/clients/bestie/bestays
 	url = git@github.com:shredbx/sdlc-bestie-bestays.git
