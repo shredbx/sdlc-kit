@@ -1,0 +1,12 @@
+go 1.26
+
+use (
+	./packages/geocoordinate
+	./packages/language
+	./packages/money
+	./packages/notify
+	./packages/personname
+	./packages/phonenumber
+	./packages/seo
+	./packages/socialnetwork
+)
