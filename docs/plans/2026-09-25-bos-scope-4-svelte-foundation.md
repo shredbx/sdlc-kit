@@ -58,3 +58,48 @@ package, verbatim; its decomposition into `ui-*` packages is M1.
 
 Any `ui-*` package (Scope 5), decomposing `core-ui` (M1), authoring tests for `animations`, replacing its
 stray `package-lock.json`, Go.
+
+## Results (2026-09-26) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `0e2df9d` | this document |
+| 1–3 copy, lockfile, CI | `4f23f16` | 258 files: **256 new** (animations 25, core-ui 231), `pnpm-lock.yaml`, `svelte-ci.yml` |
+| 4 design doc | `58e73e3` | table 6.4 and the end-state tree marked ✔, section 8, decision log |
+| 5 results | (this commit) | — |
+
+**Gates**
+- `diff -r` is empty for `animations/src` (23 files) and `core-ui/src` (228 files); `diff` is empty for the five
+  root files (`package.json`, `tsconfig.json`; `package.json`, `svelte.config.js`, `vitest.config.ts`). No
+  stray `.DS_Store`.
+- **core-ui:** 21 test files, **251 tests** pass, equal to the original (run twice: directly and through the
+  exact CI command `pnpm --filter @sbx/core-ui test`, 40–44 s).
+- **animations:** `tsc --noEmit -p tsconfig.json` exits 0 (directly and through the CI command).
+- **Workspace links:** `core-ui/node_modules/@sbx/{animations, units}` are symlinks to the workspace packages;
+  the lockfile records `link:../animations` and `link:../../formatting/units`.
+- `pnpm install --frozen-lockfile` passes. The existing three packages still give **81 / 10 / 396**.
+- Staged file count (256) equals the files on disk (256): the `lib/` ignore trap did not bite.
+- `process-cli check`: ok. Nothing pushed.
+
+**Findings on the way**
+- The lockfile gained **100** packages (pnpm's "145" counts reused store entries; my estimate of about 145 was
+  wrong). It also changed three existing lines and removed one: `core-ui`'s `jsdom` dev dependency changed the
+  resolved *peer suffix* of the existing packages' vitest entry (`vitest@4.1.11(vite@8.3.1)` →
+  `vitest@4.1.11(jsdom@25.0.1)(vite@8.3.1)`). No version changed, and their suites are unchanged — but the plan
+  said their entries would not change, and strictly they did.
+- Under the newer Svelte compiler (5.57.1; the original pins 5.50.0) `ModelControls.svelte` prints two
+  `state_referenced_locally` warnings (lines 61–62). The file is byte-identical to the source; whether the
+  original emits them under its own pin was not compared. Tests are unaffected.
+- pnpm reports two deprecations (`lucide-svelte@0.562.0`, sub-dependency `whatwg-encoding@3.1.1`) and
+  peer-dependency warnings; none affect the gates. No dependency was changed to silence them (verbatim first).
+
+**Result on disk**
+
+```
+platform/svelte/packages/
+├── ui/          animations · core-ui
+├── formatting/  units · text-template
+└── media/       canvas-kit
+```
+
+Next: Scope 5 (Svelte `ui-*` packages), its own approval.
