@@ -189,8 +189,30 @@ left unported. A combined `pytest packages/` across all of them fails at collect
 test paths collide) — expected, not a bug, which is exactly why CI runs one `pytest` step per
 package.
 
+**As of 2026-09-25**: two more milestones landed on top of that port. (1) The `process-framework`
+package (an 8th package — the orchestration layer `process-cli` itself is built on) is ported into
+`platform/python/frameworks/process-framework/`, and `process-cli`'s own source is imported at
+`projects/products/process-os/process-cli/` — see `docs/plans/2026-09-25-definitions-library-milestone-9.md`,
+`docs/plans/2026-09-25-process-framework-milestone-10.md`, and
+`docs/plans/2026-09-25-process-os-apps-import-milestones-11-12.md`.
+`process-cli` is now installed **editable from this repo's own source**, not the upstream git
+remote (`process-cli --version` → `0.1.0 (source checkout)` confirms it), and its Claude Code
+plugin is registered from a local marketplace (`process-claude-plugin@process-os-local`) instead of
+the external one — see this file's own "This is a process-os workspace" section above for the
+exact commands. (2) The `infrastructure` capability (one of the 13 already-locked capabilities, see
+"Namespace discipline") is modeled — `service`/`service-bundle` schemas, a `bundle-compose`
+template, `render-bundle`/`run-bundle` actions, a `bootstrap-bundle` process — and its first real
+deliverable, a postgres + pgAdmin dev bundle, is built, tested end to end (`process-cli run
+sbx-sdlc-kit.infrastructure.bootstrap-bundle`), and running at `projects/services/postgres-dev/`
+(own `README.md`/`Makefile` for start/stop). Design: `docs/proposals/infrastructure-services-design.md`.
+
 Next step: **model a real product on this foundation** — the user wants to introduce the actual
 workflow, schemas and code a specific product needs, discussed and modeled the normal way (per
 "Workflow with the user" above: discuss intent → plan the shape → per-definition approval → before/
 after file tree → implement → `process-cli check`). Nothing about that product is decided yet as of
-this note — pick it up fresh with the user rather than assuming scope from here.
+this note — pick it up fresh with the user rather than assuming scope from here. Two proposal docs
+already do reconnaissance for that discussion without deciding it:
+`docs/proposals/product-example-scaffold.md` (process-os reuse vs. adapt, stdio-vs-HTTP MCP, no
+domain picked) and this session's own brainstorm start on postgres vector-search support
+(pgvector), adding redis to the infrastructure capability, and researching DBOS for durable
+Pydantic-AI workflows — none of those three are modeled yet either.
