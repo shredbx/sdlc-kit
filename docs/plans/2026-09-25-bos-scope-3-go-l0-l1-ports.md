@@ -51,8 +51,9 @@ either already ported (`geocoordinate`, `seo`, `money`) or in this set.
 | httputil | 56 | 0 | video | 40 | 0 |
 | image | 89 | 0 | | | |
 
-Total **629 pass, 16 skip, 0 fail**. The 16 skips are the `dictionary` and `repository/postgres` tests that
-need a live Postgres; they stay skipped, exactly as in the original.
+Total **629 pass, 16 skip, 0 fail**. The 16 skips are unconditional `t.Skip` calls, not Postgres-gated (each read
+on 2026-09-26): 13 are "RED placeholder" tests for unimplemented features (`dictionary` 8, `repository/postgres` 5)
+and 3 point at app-level tests (`dictionary`). They stay skipped, exactly as in the original.
 
 ## Tasks
 

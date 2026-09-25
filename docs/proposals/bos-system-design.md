@@ -351,11 +351,14 @@ original first (then the port is re-synced), or in the kit's slice as a declared
 1. **`identity/auth`, magic-link onboarding keeps the raw refresh token.** `magic_link_service.go`
    `CompleteOnboarding` creates its session with `tp.RefreshToken` (line 218), while `auth_service.go` stores
    `HashToken(tp.RefreshToken)` (`createSessionAndTokens`, the original's "F1" fix) and `Logout` / `RefreshToken`
-   look sessions up by `HashToken(presented)`. Read as written, such a session leaves a live bearer token at rest
-   and a later refresh or logout cannot match it. Found by reading, not run. The fix is one line plus a test.
+   look sessions up by `HashToken(presented)`. Reproduced in a scratch copy (2026-09-26): the stored raw value can
+   never match a lookup, so a magic-link session cannot be refreshed (`ErrSessionNotFound`) and `Logout` for it
+   silently does nothing (no JTI revocation). It is a functional bug plus an F1 hygiene violation (a raw token in
+   the DB and the cache), not an exposed credential. Read only: the magic-link path records no IP or user agent,
+   so session pinning never applies to those sessions. The fix is one hunk plus tests.
    Details: `docs/plans/2026-09-25-bos-scope-6b-go-identity-analytics-jobs.md`.
    **Decision (2026-09-26): fix it in the original first.** This track never edits the originals, so the fix
-   (`HashToken(...)` on that line, plus a test) is the user's to make there; `identity/auth` is then re-synced from
+   (`HashToken(...)` on that line, and no token in the cached copy, plus tests) is the user's to make there; `identity/auth` is then re-synced from
    the original in one small scope. Scope 7 captures the oracle from the original as it then stands, so the fix
    should land first; if it has not, magic-link onboarding is a declared difference between the oracle and the
    re-synced port.
@@ -563,8 +566,10 @@ and the client repo. Zero framework code, zero process-os definitions.
   `x/crypto` v0.49.0 for bcrypt). (2) Four `auth` files are not gofmt-clean in the original; formatted in their own
   commit (11 insertions / 12 deletions). (3) `jobs/scheduler` still imports `news/feed`, ported as is — the one known
   shared-imports-feature edge. (4) The `replace`-closure rule found in 6a is now written in `platform/CLAUDE.md`.
-  (5) All 29 skips in the workspace are tests that need a live Postgres; they have not run against one yet.
-  (6) A security defect in the original `auth` (magic-link onboarding stores the raw refresh token) was found by
+  (5) The 29 skips at that point, read one by one afterwards: 13 need a DSN (`visitoractivity`), 13 are unconditional
+  RED placeholders, 3 are pointers at app-level tests; a live Postgres can enable only the 13.
+  (6) A defect in the original `auth` (magic-link onboarding stores the raw refresh token; severity corrected on
+  2026-09-26 to a functional bug plus hygiene, not an exposed credential) was found by
   the background review of the port commit and confirmed by reading; recorded in section 7 as a defect found in the
   originals, not fixed in the port, decision left to the user.
 - 2026-09-26 — Scope 6c done: two Go modules (`real-estate/property`, `real-estate/transaction`) copied verbatim —

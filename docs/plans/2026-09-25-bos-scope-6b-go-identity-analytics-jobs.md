@@ -138,24 +138,28 @@ session, never in `platform/`.
 | schedcli | 2 | 4 | none |
 
 **Findings on the way**
-- **A defect in the original, found by the background security review of `dade4a6` and confirmed by reading the
-  code.** `auth_service.go` stores `HashToken(tp.RefreshToken)` in the session (`createSessionAndTokens`, the
-  original's "F1" fix), and `Logout` and `RefreshToken` look sessions up by `HashToken(presented)`. But
-  `magic_link_service.go` `CompleteOnboarding` builds its session with the **raw** `tp.RefreshToken` (line 218).
-  Read as written: a session created through magic-link onboarding leaves a live refresh token at rest in the
-  `sessions` table, the exposure F1 removed for password login, and a later refresh or logout for that session
-  cannot match its stored value. I found this by reading only; nothing was run. The port is byte-identical to the
-  original, so the defect is the original's, not introduced here. It is **not fixed in the port**: the fix
-  (`HashToken(...)` on that line, plus a test) changes behavior and the oracle must equal the original. It is
-  recorded in the design doc for the user to decide where it is fixed.
+- **A defect in the original, found by the background security review of `dade4a6`, confirmed by reading and
+  then reproduced in a scratch copy (2026-09-26).** `auth_service.go` stores `HashToken(tp.RefreshToken)` in the
+  session (`createSessionAndTokens`, the original's "F1" fix), and `Logout` and `RefreshToken` look sessions up by
+  `HashToken(presented)`. But `magic_link_service.go` `CompleteOnboarding` builds its session with the **raw**
+  `tp.RefreshToken` (line 218) and caches it too. Running it showed the effect is functional, not an exposed
+  credential: the stored raw value can never match a lookup, so a magic-link session cannot be refreshed
+  (`ErrSessionNotFound`) and `Logout` for it silently does nothing (no JTI revocation). It is also an F1 hygiene
+  violation, a raw token in the DB and the cache. (Reading alone suggested "a live token at rest"; that overstated
+  it.) Read only: the magic-link path records no IP or user agent, so session pinning never applies to those
+  sessions. The port is byte-identical to the original, so the defect is the original's, not introduced here. It
+  is **not fixed in the port**: the fix changes behavior and the oracle must equal the original. It is recorded in
+  the design doc; the user fixes it in the original first.
 - **Tidy resolved two indirect test dependencies** for `visitoractivity` and `scheduler` (`kr/text` v0.2.0,
   `go-internal` v1.16.0), the same versions `identity/user` already has. Indirect only.
 - **gofmt:** the same four `auth` files are not gofmt-clean in the original (`interfaces.go`,
   `reset_request_test.go`, `schema_validation_test.go`, `security_headers.go`).
 - **`jobs/scheduler` still imports `news/feed`,** ported as is, the one known shared-imports-feature edge.
-- **All 29 skips in the workspace need a live Postgres** (dictionary 11, repository/postgres 5, visitoractivity 13)
-  and have not run against one. The repo has a postgres dev bundle (`projects/services/postgres-dev/`), so a live
-  run is possible; it is not part of any planned scope.
+- **The 29 skips in the workspace (at 6b), each read on 2026-09-26:** 13 need a DSN
+  (`VISITOR_ACTIVITY_TEST_DSN`, `visitoractivity`); 13 are unconditional "RED placeholder" skips for unimplemented
+  features (`dictionary` 8, `repository/postgres` 5); 3 are unconditional pointers at app-level tests
+  (`dictionary`). A live Postgres can enable only the 13. The repo has a postgres dev bundle
+  (`projects/services/postgres-dev/`), so that run is possible; it is not part of any planned scope.
 
 **Result on disk**
 
