@@ -28,3 +28,8 @@ jobs:
       - run: pnpm --filter @sbx/canvas-kit test
       - run: pnpm --filter @sbx/animations exec tsc --noEmit -p tsconfig.json
       - run: pnpm --filter @sbx/core-ui test
+      - run: pnpm --filter @sbx/ui-seo test
+      - run: pnpm --filter @sbx/ui-contact test
+      - run: pnpm --filter @sbx/ui-calendar test
+      - run: pnpm --filter @sbx/ui-map test
+      - run: pnpm --filter @sbx/ui-image test

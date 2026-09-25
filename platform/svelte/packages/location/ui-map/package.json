@@ -1,0 +1,45 @@
+{
+  "name": "@sbx/ui-map",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/lib/index.ts",
+      "svelte": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    },
+    "./types": {
+      "types": "./src/lib/types.ts",
+      "default": "./src/lib/types.ts"
+    },
+    "./adapters/google": {
+      "types": "./src/lib/adapters/google.ts",
+      "default": "./src/lib/adapters/google.ts"
+    },
+    "./adapters/mapbox": {
+      "types": "./src/lib/adapters/mapbox.ts",
+      "default": "./src/lib/adapters/mapbox.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@sbx/core-ui": "workspace:*",
+    "@sbx/units": "workspace:*",
+    "maplibre-gl": "5.24.0"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "svelte": "^5.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.0"
+  }
+}

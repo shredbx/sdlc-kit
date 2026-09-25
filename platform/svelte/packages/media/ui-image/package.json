@@ -1,0 +1,43 @@
+{
+  "name": "@sbx/ui-image",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/lib/index.ts",
+      "svelte": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    },
+    "./media": {
+      "types": "./src/lib/media/index.ts",
+      "default": "./src/lib/media/index.ts"
+    },
+    "./pipeline": {
+      "types": "./src/lib/pipeline/index.ts",
+      "default": "./src/lib/pipeline/index.ts"
+    },
+    "./Img.svelte": {
+      "svelte": "./src/lib/Img.svelte",
+      "default": "./src/lib/Img.svelte"
+    }
+  },
+  "files": ["src"],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@sbx/core-ui": "workspace:*",
+    "browser-image-compression": "^2.0.2",
+    "heic2any": "^0.0.4"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "svelte": "^5.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.0"
+  }
+}

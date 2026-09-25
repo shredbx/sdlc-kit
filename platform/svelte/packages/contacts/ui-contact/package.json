@@ -1,0 +1,38 @@
+{
+	"name": "@sbx/ui-contact",
+	"version": "0.0.1",
+	"type": "module",
+	"svelte": "./src/lib/index.ts",
+	"types": "./src/lib/index.ts",
+	"exports": {
+		".": {
+			"types": "./src/lib/index.ts",
+			"svelte": "./src/lib/index.ts",
+			"default": "./src/lib/index.ts"
+		},
+		"./types": {
+			"types": "./src/lib/types.ts",
+			"default": "./src/lib/types.ts"
+		},
+		"./adapters/mock": {
+			"types": "./src/lib/adapters/mock.ts",
+			"default": "./src/lib/adapters/mock.ts"
+		}
+	},
+	"files": ["src"],
+	"scripts": {
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@sbx/core-ui": "workspace:*"
+	},
+	"peerDependencies": {
+		"svelte": "^5.0.0"
+	},
+	"devDependencies": {
+		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"svelte": "^5.0.0",
+		"typescript": "^5.0.0",
+		"vitest": "^4.1.0"
+	}
+}
