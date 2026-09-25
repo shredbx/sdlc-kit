@@ -64,3 +64,65 @@ Any Go package, decomposing `core-ui` (M1), authoring tests for the untested pac
 information. When client details are needed they live in the client library the main session is building
 (`processos-workspace/definitions/clients/` scope + `records/clients/`, no `libraries:` entry); registering
 `bestierealestate` there is done after aligning with the main session, never in `platform/`.
+
+## Results (2026-09-26) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `ffc0e25` | this document |
+| 1 baseline | (scratchpad, not committed) | counts below, measured before anything was ported |
+| 2–4 copy, lockfile, CI | `593d45f` | 167 files: **164 new** package files, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `svelte-ci.yml` |
+| 5 design doc, `platform/CLAUDE.md` | `77d8702` | table 6.4 and the tree ✔ (all 12 Svelte packages), section 8, decision log, the pnpm build-script rule |
+| 6 results | (this commit) | — |
+
+**Baseline and result, per tested package** (a copy of the original source in the scratchpad, default tool
+resolution; the port is identical):
+
+| Package | Test files | Tests passed / failed / skipped |
+|---|---|---|
+| `ui-seo` | 1 | 10 / 0 / 0 |
+| `ui-contact` | 1 | 12 / 0 / 0 |
+| `ui-calendar` | 6 | 55 / 0 / 0 |
+| `ui-map` | 9 | 160 / 0 / 0 |
+| `ui-image` | 5 | 45 / 0 / 0 |
+
+22 files, 282 tests; the two count files are equal (compared programmatically).
+
+**Gates**
+- `diff -r -x node_modules` of each whole package against its source is empty for all seven, so nothing
+  was missed either (164 files: 13 + 9 + 24 + 39 + 31 + 4 + 44).
+- Tested packages equal the baseline (table above), directly and through each exact CI command
+  (`pnpm --filter @sbx/<name> test`).
+- Existing suites unchanged: units 81, text-template 10, canvas-kit 396, core-ui 251.
+- Workspace links resolve on disk: `canvas-ui` → `canvas-kit`, `core-ui`, `text-template`, `ui-source-picker`;
+  `ui-source-picker` → `canvas-kit`, `core-ui`; `ui-map` → `core-ui`, `units`.
+- `pnpm install --frozen-lockfile` passes. Staged file count (164) equals the files on disk (164).
+- `process-cli check`: ok. Nothing pushed.
+- **No runtime gate** for `ui-source-picker` and `canvas-ui` (48 files, about 15.4k LOC), as planned: byte-identity,
+  workspace links and the frozen lockfile only. Scope 7 gives their first runtime proof.
+
+**Findings on the way**
+- **A change outside the approved tree:** `pnpm install` exited 1 with `ERR_PNPM_IGNORED_BUILDS` — pnpm 11 blocks
+  the build scripts of `core-js@3.50.0` (via `canvas-ui` → `jspdf` → `canvg`) and `esbuild@0.21.5` (via a vite 5
+  dev dependency of `canvas-ui` and `ui-source-picker`), and a non-zero install would fail CI. I tested the fix in
+  the scratchpad copy first, then added an explicit `allowBuilds` deny for both to `platform/svelte/pnpm-workspace.yaml`.
+  It keeps pnpm's default (scripts do not run); it only records the decision. `core-js` only prints a banner and
+  esbuild's native binary ships as a platform package. The rule is now in `platform/CLAUDE.md`.
+- The lockfile gained 64 packages and lost one entry: `vitefu@1.1.3` in its unsuffixed form became
+  peer-suffixed. No version changed and no existing importer entry changed (unlike Scope 4).
+- The baseline is a copy under default tool resolution (Svelte 5.57.1, vitest 4.1.11), not the original
+  workspace's own pins; a run in the original tree was avoided so nothing there is written.
+- Two dependency deprecations are reported by pnpm (`lucide-svelte@0.562.0`, `whatwg-encoding@3.1.1`); nothing
+  was changed to silence them (verbatim first).
+
+**Result on disk**
+
+```
+platform/svelte/packages/
+├── ui/          animations · core-ui
+├── formatting/  units · text-template
+├── media/       canvas-kit · ui-image · ui-source-picker · canvas-ui
+├── seo/ui-seo · contacts/ui-contact · calendar/ui-calendar · location/ui-map
+```
+
+All 12 Svelte packages are ported. Next: Scope 6 (Go domain packages), its own approval.
