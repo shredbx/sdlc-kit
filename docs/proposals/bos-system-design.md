@@ -3,7 +3,7 @@
 Last updated: 2026-09-25
 tags: bos, bestierealestate, bestays, go, svelte, decomposition, proposal
 
-Status: **plan and Scope 1 approved and done; Scope 2 (package taxonomy and regroup) approved on
+Status: **plan approved; Scope 1 and Scope 2 (package taxonomy and regroup) approved and done on
 2026-09-25** (logs: `docs/plans/2026-09-25-bos-scope-1-workspaces-and-leaf-ports.md`,
 `docs/plans/2026-09-25-bos-scope-2-package-taxonomy-and-regroup.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
@@ -331,7 +331,7 @@ M0 scopes (provisional order; each gets its own before/after tree and approval).
 dependency-driven: `ui-image`, `ui-contact` and `ui-seo` import `core-ui`, and `ui-map`/`ui-calendar`
 declare it, so `core-ui` — which needs `animations` and `units` — comes first.
 1. **Scope 1 (done):** workspaces, 8 Go leaf packages, 3 pure-TS packages.
-2. **Scope 2:** package taxonomy and regroup (no new code).
+2. **Scope 2 (done):** package taxonomy and regroup (no new code).
 3. **Scope 3:** the remaining Go L0/L1 packages (13 modules): address, database, repository (+postgres),
    httputil, user, rbac, dictionary, rss, feed, video, image (the unused `watermark/` sub-package stays
    behind), collection.
@@ -411,6 +411,8 @@ and the client repo. Zero framework code, zero process-os definitions.
 - 2026-09-25 — User: "looks better and more clear now", then "commit plan then lets go, working along
   this worktree" → Scope 2 (taxonomy + regroup) approved, executed in this worktree, nothing pushed. The
   earlier "13 Go ports" proposal became Scope 3, placed into the groups.
+- 2026-09-25 — Scope 2 done: 11 packages regrouped (101 pure renames, tests unchanged: 211 Go, 487 TS),
+  `platform/CLAUDE.md` and the completion-report shape added. See the Scope 2 log.
 - 2026-09-25 — Finding while ordering the Svelte ports: `ui-image` (8 files), `ui-contact` (2) and
   `ui-seo` (2) import `core-ui`; `ui-map`/`ui-calendar` declare it unused; `core-ui` needs `animations` +
   `units`. Svelte order is dependency-driven (section 8); the earlier "adapters first, core-ui last" order

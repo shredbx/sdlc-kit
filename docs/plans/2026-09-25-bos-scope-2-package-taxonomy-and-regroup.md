@@ -49,3 +49,39 @@ more domains → moves down, never sideways. Direction: `values` ← `foundation
 
 The 13 remaining Go L0/L1 ports (Scope 3), all Svelte ports past Scope 1, any framework or kit code, any
 process-os definition, any push.
+
+## Results (2026-09-25) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `c584207` | design-doc taxonomy + this plan |
+| 1–4 moves, workspace paths, lockfile, CI cache | `bf3dfae` | 105 files: **101 pure renames (R100)** — 33 Go + 68 TS — plus `go.work`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `go-ci.yml` |
+| 5–6 `platform/CLAUDE.md`, root `CLAUDE.md` | `32d836a` | new nested governance file; one paragraph added to root |
+| 7 results | (this commit) | — |
+
+**Gates**
+- `git diff -M100%` on the staged change: 101 `R100`, and exactly six other files (the ones in tasks 3–6).
+  Module paths and npm names are unchanged, so no source file was touched.
+- Go, per package `go test` pass counts, unchanged from Scope 1: geocoordinate 17, language 1, money 120,
+  notify 4, personname 21, phonenumber 19, seo 2, socialnetwork 27 = **211**, 0 skips, 0 failures.
+  `go vet` clean; `gofmt -l` empty; `go list -m` still finds all 8 modules from the regrouped `go.work`.
+- TS, vitest unchanged: `@sbx/units` 4 files / 81 tests, `@sbx/text-template` 1 / 10, `@sbx/canvas-kit`
+  21 / 396 = **487**.
+- The regenerated `pnpm-lock.yaml` differs from the old one only in three importer paths and one relative
+  link (`link:../../values/text-template`) — no dependency version changed — and
+  `pnpm install --frozen-lockfile` passes on it.
+- `process-cli check`: ok. Both workflow files and `pnpm-workspace.yaml` parse as YAML.
+
+**Result on disk**
+
+```
+platform/go/packages/
+├── values/       geocoordinate · language · money · personname · phonenumber · seo · socialnetwork
+└── foundation/   notify
+platform/svelte/packages/
+├── values/       text-template · units
+└── media/        canvas-kit
+```
+
+No surprises this scope. Next: Scope 3, the 13 remaining Go L0/L1 modules placed into these groups (its own
+before/after tree and approval).
