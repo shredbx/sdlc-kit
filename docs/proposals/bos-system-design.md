@@ -1,6 +1,6 @@
 # bos — turning bestierealestate into a system plus a thin consumer
 
-Last updated: 2026-09-25
+Last updated: 2026-09-26
 tags: bos, bestierealestate, bestays, go, svelte, decomposition, proposal
 
 Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup, remaining Go L0/L1 ports),
@@ -11,7 +11,8 @@ Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup,
 `docs/plans/2026-09-25-bos-scope-3b-group-renames.md`,
 `docs/plans/2026-09-25-bos-scope-3c-kits-by-functionality.md`; Scope 4, Svelte foundation, approved and done on
 2026-09-26: `docs/plans/2026-09-25-bos-scope-4-svelte-foundation.md`; Scope 5, the remaining Svelte packages,
-the same day: `docs/plans/2026-09-25-bos-scope-5-svelte-ui-packages.md`). Per `CLAUDE.md`, approval is per
+the same day: `docs/plans/2026-09-25-bos-scope-5-svelte-ui-packages.md`; Scope 6a, the first seven Go feature
+packages, the same day: `docs/plans/2026-09-25-bos-scope-6a-go-feature-packages.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -128,11 +129,11 @@ End state of the closure (✔ ported · ○ later scope):
 
 ```
 platform/go/packages/
-├── seo ✔ · money ✔ · calendar ○ (+ical) · faq ○ · cms ○      a package named like its kit sits at the kit root
+├── seo ✔ · money ✔ · calendar ✔ (+ical) · faq ✔ · cms ✔      a package named like its kit sits at the kit root
 ├── real-estate/     collection ✔ · property ○ · transaction ○
 ├── reference-data/  dictionary ✔
 ├── identity/        user ✔ · rbac ✔ · auth ○
-├── contacts/        personname ✔ · phonenumber ✔ · socialnetwork ✔ · contact ○ (+vcard) · inquiry ○
+├── contacts/        personname ✔ · phonenumber ✔ · socialnetwork ✔ · contact ✔ (+vcard) · inquiry ✔
 ├── location/        geocoordinate ✔ · address ✔
 ├── media/           image ✔ · video ✔
 ├── news/            rss ✔ · feed ✔
@@ -253,9 +254,9 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `contacts/phonenumber` | 56/111 | L0 | | ✔ |
 | `contacts/personname` | 56/187 | L0 | | ✔ |
 | `contacts/socialnetwork` | 109/187 | L0 | | ✔ |
-| `contacts/contact` | 1,216/417 | L2 | | |
-| `contacts/contact/vcard` | 677/499 | L3 | nested | |
-| `contacts/inquiry` | 451/279 | L2 | | |
+| `contacts/contact` | 1,216/417 | L2 | | ✔ |
+| `contacts/contact/vcard` | 677/499 | L3 | nested | ✔ |
+| `contacts/inquiry` | 451/279 | L2 | | ✔ |
 | `localization/language` | 60/28 | L0 | | ✔ |
 | `notifications/notify` | 272/122 | L0 | Telegram + SMTP notifier (`telegram.go`, `smtp.go`) | ✔ |
 | `persistence/database` | 965/588 | L0 | migrations, pool (bos-go) | ✔ |
@@ -270,12 +271,12 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `news/rss` | 1,937/2,037 | L0 | | ✔ |
 | `news/feed` | 343/221 | L1 | | ✔ |
 | `reference-data/dictionary` | 909/638 | L1 | flat code/label lookup lists (property-type, land-size-unit, amenities) | ✔ |
-| `cms` | 1,561/1,497 | L2 | self-declared BR-local; genericize or keep, decided in its slice | |
-| `faq` | 580/482 | L2 | | |
+| `cms` | 1,561/1,497 | L2 | self-declared BR-local; ported verbatim, genericize or keep is decided in its slice | ✔ |
+| `faq` | 580/482 | L2 | | ✔ |
 | `media/image` | 2,265/1,541 | L0 | coupled to Postgres and S3 | ✔ |
 | `media/video` | 855/513 | L0 | | ✔ |
-| `calendar` | 797/413 | L2 | | |
-| `calendar/ical` | 893/878 | L3 | nested | |
+| `calendar` | 797/413 | L2 | | ✔ |
+| `calendar/ical` | 893/878 | L3 | nested | ✔ |
 | `analytics/visitoractivity` | 1,675/1,945 | L2 | | |
 | `real-estate/collection` | 292/246 | L1 | | ✔ |
 | `real-estate/property` | 4,939/3,256 | L2 | | |
@@ -345,7 +346,7 @@ rate-limit key functions; upper- vs lower-case error codes; route registration o
 
 | Rung | Approved scopes (estimate) | What | Gate |
 |---|---|---|---|
-| **M0 Baseline** (scopes below) | 8 (3c done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
+| **M0 Baseline** (scopes below) | ≈12 (8 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
 | M1 `bos-svelte` | ≈5 | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
 | M2 `bos-go` | ≈4 | `Module` contract, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped). The slice also settles where kit wiring lives (D15) | route-table diff = 0 |
 | M3 kits | ≈8 | identity → cms → seo → media → contacts → calendar → news → jobs/analytics/documents, one slice each | oracle slice green per kit |
@@ -354,7 +355,8 @@ rate-limit key functions; upper- vs lower-case error codes; route registration o
 | M5 Thin-out + regroup | ≈2 | consumer footprint audit; final names; a kit may become the Go module (D6); move to `clients/bestie/bestierealestate` | full oracle green |
 | M6 Deploy cutover | own plan | bundle spec and/or the mirror/vendor pipeline redone for a multi-repo layout; parallel run; nothing touches production without separate approval | separate approval |
 
-About 33 approved scopes before M6, ±30%; the FAQ slice gives the first real measurement.
+About 37 approved scopes before M6 (33 at the start; Scope 6 turned out to be three scopes and Scope 7 is likely
+two), ±30%; the FAQ slice gives the first real measurement.
 
 ### 8.1 The per-kit loop
 
@@ -390,8 +392,13 @@ declare it, so `core-ui` — which needs `animations` and `units` — comes firs
 7. **Scope 5 (done):** Svelte `seo/ui-seo`, `media/ui-image`, `contacts/ui-contact`, `location/ui-map`,
    `calendar/ui-calendar`, then `media/ui-source-picker` and `media/canvas-ui` (canvas-ui depends on ui-source-picker). All 12 Svelte
    packages are ported.
-8. **Scope 6:** Go L2/L3 domain packages: auth, cms, faq, contact (+vcard), inquiry, calendar (+ical),
-   scheduler (+schedcli), visitoractivity, property, transaction (may split by dependency layer).
+8. **Scope 6, three scopes** (split by risk, not by layer: every in-repo dependency of the 13 remaining Go
+   modules was already ported, except the nested ones):
+   - **6a (done):** `faq`, `cms`, `contacts/inquiry`, `contacts/contact` (+vcard), `calendar` (+ical); 7 modules,
+     hermetic tests.
+   - **6b:** `identity/auth`, `analytics/visitoractivity`, `jobs/scheduler` (+schedcli); jwt, redis, bcrypt and
+     env-dependent tests; `scheduler` imports `news/feed` (the known edge to invert).
+   - **6c:** `real-estate/property`, `real-estate/transaction`; testcontainers, `testdata`.
 9. **Scope 7:** baseline import of the bestierealestate apps + oracle capture (likely two scopes).
 
 Sizing honesty: the earlier inventory priced the library port alone at ≈195 half-day slices under a
@@ -512,3 +519,16 @@ and the client repo. Zero framework code, zero process-os definitions.
   changed. (3) The baseline is a copy under default tool resolution, not the original workspace's own pins.
   All 12 Svelte packages are ported. Client information for `bestierealestate` is deferred to the client library
   (the main session's `clients` scope), to be registered after alignment.
+- 2026-09-26 — Scope 6a done: seven Go modules (`faq`, `cms`, `contacts/inquiry`, `contacts/contact` + `vcard`,
+  `calendar` + `ical`) copied verbatim — 41 source files, byte-identical — plus 7 authored `go.mod` and 7 `go.sum`;
+  `go.work` 21 → 28 paths (28 of 34 modules). Tests per module equal a baseline measured on the original module
+  (326 pass / 0 skip / 0 fail; the 21 earlier modules still 840 / 16 / 0, so 1,166 / 16 / 0 in all). Findings:
+  (1) `replace` directives do not propagate, so a module replaces its whole in-repo dependency closure, not just its
+  direct dependencies — `vcard` requires two in-repo modules and needs nine `replace` lines; the closure was
+  computed from the ported `go.mod` files. (2) Direct third-party versions equal the original pins (`uuid` v1.6.0,
+  `pgx/v5` v5.9.1), checked after tidy because tidy resolves a missing requirement to the latest version;
+  indirect versions come from tidy, as in Scope 3. (3) The same seven files are not gofmt-clean in the originals; they
+  are formatted in their own commit (25 insertions / 23 deletions). (4) No new dependency-direction violation;
+  `scheduler` → `news/feed` remains for 6b. (5) M0 is re-estimated from 8 to about 12 scopes (Scope 6 became three,
+  Scope 7 is likely two) and the ladder from about 33 to about 37; still inside the ±30% band. `cms` is ported
+  verbatim even though it is self-declared client-local; whether to genericize it is decided in its slice.
