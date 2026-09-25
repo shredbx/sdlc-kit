@@ -49,3 +49,42 @@ content and reference data), `media`, `analytics`, `real-estate`.
 ## Not in this scope
 
 Any port, any new group folder, any code change, Scope 4.
+
+## Results (2026-09-25) — done
+
+| Task | Commit | Evidence |
+|---|---|---|
+| 0 plan | `f80eda1` | this document |
+| 1–3 renames, `go.work`, two `replace` paths, lockfile | `de22673` | 55 files: **51 pure renames (R100)** — 35 Go + 16 TS — plus `go.work`, `httputil/go.mod`, `collection/go.mod`, `pnpm-lock.yaml` |
+| 4 design doc, `platform/CLAUDE.md` | `cd07d4e` | renames, a one-line meaning per group, decision log |
+| 5 results | (this commit) | — |
+
+**Gates**
+- `git diff -M100%` on the staged change: 51 `R100`, and exactly six other files (the ones in tasks 2–4).
+  Module paths and npm names are unchanged.
+- Go, all 21 modules, per-package `go test` counts equal to their baselines: **840 pass, 16 skip, 0 fail**
+  (address 82, collection 29, database 43, dictionary 21 + 11 skip, feed 13, geocoordinate 17, httputil 56,
+  image 89, language 1, money 120, notify 4, personname 21, phonenumber 19, rbac 44, repository 56,
+  repository/postgres 53 + 5 skip, rss 93, seo 2, socialnetwork 27, user 10, video 40).
+  `go vet` clean; `gofmt -l` empty; `go list -m` finds 21 modules.
+- TS vitest unchanged: 81 + 10 + 396 = 487. `pnpm install --frozen-lockfile` passes; the lockfile diff is the
+  importer paths, their alphabetical order and one relative link — no version changed.
+- `process-cli check`: ok. Only the two intentional mentions of the old names remain in the living docs
+  (the decision-log entries and D13's rename note); the unrelated "client values" sentences are untouched.
+
+**Result on disk**
+
+```
+platform/go/packages/
+├── datatypes/     address · geocoordinate · language · money · personname · phonenumber · seo · socialnetwork
+├── foundation/    database · repository (+ postgres) · httputil · notify
+├── identity/      user · rbac
+├── content/       dictionary · rss · feed
+├── media/         image · video
+└── real-estate/   collection
+platform/svelte/packages/
+├── datatypes/     text-template · units
+└── media/         canvas-kit
+```
+
+The names are "so far this way" — revisable. Next: Scope 4 (Svelte foundation), its own approval.
