@@ -31,6 +31,8 @@ use (
 	./packages/persistence/repository
 	./packages/persistence/repository/postgres
 	./packages/real-estate/collection
+	./packages/real-estate/property
+	./packages/real-estate/transaction
 	./packages/reference-data/dictionary
 	./packages/seo
 )

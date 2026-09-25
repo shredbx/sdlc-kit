@@ -1,0 +1,53 @@
+type: fixture
+entity: property
+scenario: valid-creation
+tags: [happy-path, api, unit]
+description: Full property aggregate with all 5 sections — minimal valid
+
+input:
+  title: "Luxury Pool Villa in Phuket"
+  text: "Beautiful 3-bedroom pool villa in Rawai with stunning sea views"
+  for_sale: true
+  for_lease: false
+  property_type: pool-villa
+  title_deed: chanote
+  sale_price: 1500000000
+  price_currency: THB
+  cover_image_url: "https://media.bestierealestate.com/properties/test-villa.jpg"
+  is_published: false
+  address:
+    street: "88/12 Moo 6"
+    sub_district: "Rawai"
+    city: "Muang"
+    province: "Phuket"
+    postal_code: "83130"
+    country: "TH"
+    latitude: 7.7710
+    longitude: 98.3397
+  sizes:
+    land_size: 800.0
+    house_size: 350.0
+    living_size: 280.0
+  rooms:
+    bedrooms: 3
+    bathrooms: 4
+    kitchens: 1
+    living_rooms: 2
+  furnished: fully
+  amenities:
+    - code: private-pool
+      group: exterior
+    - code: garden
+      group: exterior
+    - code: covered-parking
+      group: building
+    - code: 24h-security
+      group: building
+
+expected:
+  status: 201
+  is_published: false
+  title: "Luxury Pool Villa in Phuket"
+  for_sale: true
+  for_lease: false
+  property_type: pool-villa
