@@ -25,17 +25,12 @@ accordingly).
    hand-built SDLC engine: `.sbx/` (framework/runtime/decisions/domain-experts), 9 Claude Code
    skills implementing an FDD1–FDD5 pipeline, 5 role agents, hooks (including a real
    filesystem-scoped edit sandbox), and root governance docs.
-4. **[`shredbx-bestierealestate-and-capabilities.md`](./shredbx-bestierealestate-and-capabilities.md)**
-   — agent-produced. A verified (import-grepped, not guessed) domain-specific-vs-already-generic
-   split of shredbx's largest client product; the confirmed "13 capabilities" list and where it
-   lives; the exact tech environment of the Next.js app the first near-term bootstrap should match.
-   Follow-up deep-dive: **[`shredbx-bestierealestate-ai-assistant.md`](./shredbx-bestierealestate-ai-assistant.md)**
-   — verifies the user's claim that BR's AI assistant (`internal/assistantchat`/`aiassistant`/
-   `assistantcapabilities` + the separate Python `assistant-kit` chat engine) really works: confirmed
-   real property-search tool-calling (PydanticAI + LiteLLM/OpenRouter, registry-driven HTTP tools over
-   `pkg/property`/`internal/propertyfilter`), real SSE streaming end to end, a reusable public-chat
-   session/quota pattern, and a Next.js/Vercel-AI-SDK reuse assessment (backend is not Svelte-coupled;
-   the UI layer and the trust-boundary proxy are the parts that would need rebuilding).
+4. **Client-specific deep-dive research** — two agent-produced docs verifying a domain-specific-vs-
+   already-generic split of one client's largest product, the confirmed "13 capabilities" list and
+   where it lives, the exact tech environment of the Next.js app an early bootstrap should match, and
+   (follow-up) a verified real-world example of an AI assistant with tool-calling property search,
+   real SSE streaming, and a reusable public-chat session/quota pattern — moved to that client's own
+   repo to keep client specifics out of sdlc-kit; not duplicated here.
 5. **[`reference-repos-index.md`](./reference-repos-index.md)** — the lookup table for every
    reference repo added so far (including `shredbx-workspace-reference`'s 9 older/parallel projects —
    3 real client iOS Swift apps, a Python whisper transcription service, two more Next.js starters).
@@ -171,16 +166,16 @@ Assistant product, whenever that gets planned.
    is a `process-cli check`-style deterministic gate enough for a while, or do we want a
    `sdlc-sandbox.sh`-style filesystem edit guard from day one?
 5. **First real entity to model** — per the near-term direction, likely the Next.js app-starter
-   (matching `bestays-web`'s environment: Next.js 15 + React 19, App Router/Turbopack, Tailwind v4,
-   shadcn/ui "new-york", Radix, react-hook-form+zod, next-themes — see
-   `shredbx-bestierealestate-and-capabilities.md` Part 3) or the chat-UI experiment itself, once an
-   MVP conversation happens. The Svelte UI package family, the Swift app-starter, and the Go core
-   framework remain plausible alternate starting points.
+   (matching a client's confirmed real-world environment: Next.js 15 + React 19, App Router/Turbopack,
+   Tailwind v4, shadcn/ui "new-york", Radix, react-hook-form+zod, next-themes — detail lives in that
+   client's own repo, not duplicated here) or the chat-UI experiment itself, once an MVP conversation
+   happens. The Svelte UI package family, the Swift app-starter, and the Go core framework remain
+   plausible alternate starting points.
 6. **The `sbx-next` question** — shredbx already has an early, thin, Python-based next-generation
    attempt at replacing `sbx` (`projects/sbx-next`), aimed at exactly the problem `sbx-sdlc-kit` is
    now solving with process-os instead. Worth a quick look at its `LAYOUT.md`/`IMPORT-BATCH-1.md`
    before assuming process-os supersedes it cleanly, in case it already encodes decisions worth
    knowing about.
-7. **`bestierealestate` genericization** — a bigger, separate future effort (per the user). The
-   domain-vs-generic split in `shredbx-bestierealestate-and-capabilities.md` Part 1 is the starting
-   map for that whenever it's taken up.
+7. **Client-app genericization** — a bigger, separate future effort (per the user). The
+   domain-vs-generic split researched for one client's largest product is the starting map for that
+   whenever it's taken up — that research now lives in that client's own repo.

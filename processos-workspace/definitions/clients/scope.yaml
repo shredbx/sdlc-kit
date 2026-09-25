@@ -1,0 +1,6 @@
+# clients: which real clients this workspace serves, and where each one's own repo is. Kept as its
+# own scope (not nested in sbx-sdlc-kit) so a future public export of sbx-sdlc-kit can exclude this
+# scope's definitions/records wholesale, without digging client data out of a shared namespace.
+name: clients
+version: 0.1.0
+uses: []
