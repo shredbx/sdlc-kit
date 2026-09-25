@@ -11,10 +11,11 @@ import (
 // L2 known limitation: the default CSP includes 'unsafe-inline' for style-src
 // because SvelteKit hydration injects inline <style> blocks. A future iteration
 // can adopt per-request CSP nonces by:
-//   1. Generating a random nonce per request
-//   2. Substituting it into the CSP via `style-src 'self' 'nonce-{value}'`
-//   3. Plumbing the nonce into SvelteKit's `csp` config so injected styles
-//      receive the same nonce attribute
+//  1. Generating a random nonce per request
+//  2. Substituting it into the CSP via `style-src 'self' 'nonce-{value}'`
+//  3. Plumbing the nonce into SvelteKit's `csp` config so injected styles
+//     receive the same nonce attribute
+//
 // Deferred until SvelteKit integration is needed. 'unsafe-inline' here only
 // applies to styles (script-src 'self' is strict), so the XSS amplification is
 // minor — an attacker would need a script-execution primitive elsewhere first.

@@ -283,4 +283,3 @@ func (m *mockResetRequestRepo) ExpireOld(_ context.Context) (int64, error) {
 	}
 	return count, nil
 }
-

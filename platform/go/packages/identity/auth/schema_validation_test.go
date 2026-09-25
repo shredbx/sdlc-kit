@@ -25,12 +25,12 @@ func TestMustValidateSchema(t *testing.T) {
 
 	invalid := []string{
 		"",
-		"Public",                            // uppercase
-		"1startswithdigit",                  // leading digit
-		"has-dash",                          // hyphen
-		"has space",                         // space
-		"public; DROP TABLE users--",        // injection
-		"public\nDROP TABLE users",          // newline injection
+		"Public",                             // uppercase
+		"1startswithdigit",                   // leading digit
+		"has-dash",                           // hyphen
+		"has space",                          // space
+		"public; DROP TABLE users--",         // injection
+		"public\nDROP TABLE users",           // newline injection
 		"a" + string(make([]byte, 63)) + "z", // too long
 	}
 	for _, s := range invalid {

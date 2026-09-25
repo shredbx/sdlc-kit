@@ -67,7 +67,6 @@ type SessionCache interface {
 	SetRevoked(ctx context.Context, jti uuid.UUID) error
 }
 
-
 // RateLimiter provides rate limiting for auth endpoints.
 type RateLimiter interface {
 	Allow(ctx context.Context, key string, cfg RateLimitConfig) (*RateLimitResult, error)
