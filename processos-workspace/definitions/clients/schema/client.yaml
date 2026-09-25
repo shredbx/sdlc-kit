@@ -1,0 +1,9 @@
+# One real client: minimal — who they are and where their repo is. Everything else about them
+# (business specifics, FAQ, projects/) lives in that repo, never here.
+name: client
+type: mapping
+fields:
+  codename:  {type: string, required: true}
+  repo_path: {type: string, required: true}
+  repo_url:  {type: string, required: true}
+  status:    {type: string, required: true}

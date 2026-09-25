@@ -14,7 +14,7 @@ a parallel index.
 | Repo | Path | What it is | Deep-dive doc(s) |
 |---|---|---|---|
 | process-os | `/Users/solo/Projects/workspaces/process-os` | The tool sdlc-kit runs on; v3's actual engine, read directly from source | `process-os-patterns.md` |
-| shredbx (v1, live) | `/Users/solo/Projects/workspaces/shredbx` | ~1-year-old real monorepo; source of most porting candidates | `shredbx-codebase-inventory.md`, `shredbx-sdlc-system.md`, `shredbx-bestierealestate-and-capabilities.md`, `shredbx-bestierealestate-ai-assistant.md` (verified deep-dive: BR's AI assistant tool-calling/property-search/streaming, confirmed real end-to-end) |
+| shredbx (v1, live) | `/Users/solo/Projects/workspaces/shredbx` | ~1-year-old real monorepo; source of most porting candidates | `shredbx-codebase-inventory.md`, `shredbx-sdlc-system.md` (two further client-specific deep-dives — a domain/capabilities split and a verified AI-assistant tool-calling/streaming example — moved to that client's own repo) |
 | sbx.framework (v2) | `/Users/solo/Projects/workspaces/sbx.framework` | Paused predecessor; birthplace of process-os's own engine design | `sbx-framework-inventory.md` |
 | sbx-workspace | `/Users/solo/Projects/workspaces/sbx-workspace` | Early filestructure precedent (`platform/python/{applications,frameworks,packages}`, `projects/{products,experiments,prototypes,tools}`, `consumers/`) | CLAUDE.md/README read directly, folder tree only — no standalone doc yet |
 | Python quality comparison | — | process-os's own Python vs. shredbx/sbx.framework Python, craftsmanship verdict | `python-implementation-quality-comparison.md` — **done**. Verdict: process-os is the most internally consistent/disciplined of the five codebases read (error-handling split, typing, packaging uniformity), but has zero lint/type-check/CI (a gap shared by every comparison codebase except sbx.framework's CI, which itself has no Python lint/type job either) and a self-admitted test gap in `types/` (string/integer/float/sequence untested). Recommendation: wire up ruff+mypy+CI at the point of porting, not after. |
@@ -30,7 +30,7 @@ the rest are noted, not opened.
 | Subproject | Stack | What it is | Last commit | Notes |
 |---|---|---|---|---|
 | `whisper-python` | FastAPI + SvelteKit (Python backend) | Speech-to-text service: Whisper model, WebSocket streaming, a parallel/overlapping recording strategy | untracked (no `.git`) | The one real Python codebase here. Clean `routers/services/models` split (`backend/app/`), plus its own independent YAML user-story requirements system (`requirements/system-definition.yml` + `requirements/user-stories/US-*.yml`, even a small `req_cli.py`) — a third independent example (alongside shredbx's `.sbx/` and sbx.framework's rows) of schema/YAML-driven requirements, worth comparing. Pairs with sbx.framework's separate Swift voice-to-text menu-bar app — two unrelated attempts at voice/transcription tooling, worth cross-referencing if that ever becomes a real feature. |
-| `bestays-svelte` | SvelteKit 5 + FastAPI | An earlier, standalone Bestays real-estate attempt (Svelte+**FastAPI**, vs. the live shredbx one's Svelte+**Go**) | 2025-11-12 | CI/CD + codecov already wired. A different backend-language choice for the same product idea — comparison value if the Go rebuild's tradeoffs are ever revisited. |
+| `bestays-svelte` | SvelteKit 5 + FastAPI | An earlier, standalone real-estate app attempt (Svelte+**FastAPI**, vs. the live shredbx client project's Svelte+**Go**) | 2025-11-12 | CI/CD + codecov already wired. A different backend-language choice for the same product idea — comparison value if the Go rebuild's tradeoffs are ever revisited. |
 | `ex-nextjs-zustand-dynamic-forms-demo` | Next.js 15 + Zustand + Immer | Dynamic form builder demo, "Domain-Property-Record-Value" architecture | 2025-12-20 | Worth a real look later — schema-driven dynamic forms is directly relevant to our own entity-modeling ambitions and to the AI-assistant chat UI's form needs. |
 | `seaside-workspace` | Next.js 15 + React 19 + Supabase | CMS-style content-model starter | 2025-10-06 | A second Next.js-starter reference alongside `bestays-web` — worth comparing tech choices (Supabase vs. our own Go-API pattern) when finalizing the Next.js bootstrap. |
 | `remote-claude-code` | unknown (`claude-code-ui/`) | Barely started — one `init` commit | 2025-11-27 | Minimal; skip unless it becomes specifically relevant. |
@@ -41,7 +41,7 @@ the rest are noted, not opened.
 
 ## Not yet added as working directories (seen while listing `___`, not explored)
 
-`/Users/solo/Projects/workspaces/___/` also contains `_old-sbx`, `bestie`, `business_solution`,
+`/Users/solo/Projects/workspaces/___/` also contains `_old-sbx`, `business_solution`,
 `claude-code-sdlc` (name suggests direct relevance to this very workspace's own SDLC design — worth
 a look if more prior art is needed), `copilot-worktrees`, `kite-cable-nextjs` (another possible
 Next.js reference), `whisper-ui-prototype`, `worktrees`. Left untouched — add as a working directory

@@ -22,7 +22,7 @@ class SearchOutput(BaseModel):
 def _mock_transport() -> httpx.MockTransport:
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url.path == "/properties/search"
-        assert request.url.params["location"] == "Koh Phangan"
+        assert request.url.params["location"] == "Test City"
         return httpx.Response(200, json={"count": 1, "results": ["Villa A"]})
 
     return httpx.MockTransport(handler)
@@ -47,11 +47,11 @@ async def test_build_api_tool_calls_endpoint_and_validates_response() -> None:
     def call_tool(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         calls.append(messages[-1])
         if len(calls) == 1:
-            return ModelResponse(parts=[ToolCallPart(tool_name="search_properties", args={"location": "Koh Phangan"})])
+            return ModelResponse(parts=[ToolCallPart(tool_name="search_properties", args={"location": "Test City"})])
         return ModelResponse(parts=[TextPart(content="found it")])
 
     agent = Agent(FunctionModel(call_tool), name="test_agent", tools=[tool])
-    result = await agent.run("find properties in Koh Phangan")
+    result = await agent.run("find properties in Test City")
 
     assert result.output == "found it"
     tool_returns = [part for message in result.all_messages() for part in message.parts if isinstance(part, ToolReturnPart)]
