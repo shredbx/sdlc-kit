@@ -109,16 +109,19 @@ Rules (decided 2026-09-25, Scope 3c, after four review rounds — see the decisi
 
 **Dependency direction:** shared kits (`persistence`, `http`, `money`, `location`, `localization`,
 `formatting`, `notifications`, `jobs`, `ui`, `reference-data`) never import feature kits; no cycles; a
-feature kit may import another only through a declared edge (an architecture test enforces this later).
+feature kit may import another only through a declared edge (`platform/tools/check_kit_edges.py` enforces this in CI;
+the declared edges are data in `platform/tools/kit-edges.toml`).
 Known violation today: `scheduler` (`jobs`) imports `news/feed` — to be inverted so jobs register themselves.
 
 **Full estate behind this** (read-only inventory, 2026-09-25): `sbx-core/pkg` has 89 Go packages — 30
 top-level packages in the app's closure (34 modules with sub-packages), 4 more product packages outside it
 (`authz`, `land`, `mapoutline`, `utilityreading`), 8 still to classify (`catalogue`, `csvimport`,
 `document`, `i18n`, `identitydocument`, `person`, `persistence`, `storage`), 2 superseded stubs (`lease`,
-`leaseparticipant`, superseded by `transaction`) and 45 SDLC/workspace tooling. Svelte: 18 packages under
-`sbx/packages`, 12 in the closure; `ui-video` fits `media`; `i18n-svelte`, `ui-code`, `ui-diagram`,
-`games`, `receipts`, `review-receipts` were seen by name only. The 4 product packages outside the closure
+`leaseparticipant`, superseded by `transaction`) and 45 SDLC/workspace tooling. Svelte: 17 packages under
+`sbx/packages` (15 top-level folders, plus `core/svelte` = `core-ui` and `core/ts/animations`), 12 in the closure; the
+other 5 (`ui-video`, `i18n-svelte`, `ui-code`, `ui-diagram`, `games`) are not imported by the app and were seen by name
+only (`ui-video` fits `media`). `receipts` and `review-receipts` are hook-log folders (one `receipts.jsonl` each), not
+packages; an earlier count of 18 wrongly included them. The 4 product packages outside the closure
 fit existing kits without a new axis.
 
 End state of the closure (✔ ported · ○ later scope):
@@ -344,7 +347,7 @@ original first (then the port is re-synced), or in the kit's slice as a declared
 
 | Rung | Approved scopes (estimate) | What | Gate |
 |---|---|---|---|
-| **M0 Baseline** (scopes below) | ≈13 (11 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import the first consumer verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
+| **M0 Baseline** (scopes below) | ≈14 (12 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import the first consumer verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
 | M1 `bos-svelte` | ≈5 | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
 | M2 `bos-go` | ≈4 | `Module` contract, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped). The slice also settles where kit wiring lives (D15) | route-table diff = 0 |
 | M3 kits | ≈8 | identity → cms → seo → media → contacts → calendar → news → jobs/analytics/documents, one slice each | oracle slice green per kit |
@@ -353,8 +356,8 @@ original first (then the port is re-synced), or in the kit's slice as a declared
 | M5 Thin-out + regroup | ≈2 | consumer footprint audit; final names; a kit may become the Go module (D6) | full oracle green |
 | M6 Deploy cutover | own plan | bundle spec and/or the mirror/vendor pipeline redone for a multi-repo layout; parallel run; nothing touches production without separate approval | separate approval |
 
-About 38 approved scopes before M6 (33 at the start; Scope 6 turned out to be three scopes plus a docs scope, and
-Scope 7 is likely two), ±30%; the FAQ slice gives the first real measurement.
+About 39 approved scopes before M6 (33 at the start; Scope 6 turned out to be three scopes plus two small ones, docs and
+the kit-edge check, and Scope 7 is likely two), ±30%; the FAQ slice gives the first real measurement.
 
 ### 8.1 The per-kit loop
 
@@ -400,7 +403,10 @@ declare it, so `core-ui` — which needs `animations` and `units` — comes firs
      unconditionally until the app is imported. All 34 Go modules are now ported.
 9. **Scope 6d (done):** corrections (the skip breakdown, the auth-defect severity); consumer information moved out of
    sdlc-kit into the consumer's repo; sync with the main session's branch.
-10. **Scope 7:** baseline import of the first consumer's apps + oracle capture (likely two scopes; its plan is in the
+10. **Scope 6e (done):** the kit-edge check: `platform/tools/check_kit_edges.py`, its rules in
+    `platform/tools/kit-edges.toml`, and a CI workflow. (The earlier idea for a 6e, a bulk scrub of client names in the
+    ported code, was dropped.)
+11. **Scope 7:** baseline import of the first consumer's apps + oracle capture (likely two scopes; its plan is in the
    consumer's repo). The `auth`
    fix (section 7) should land in the original before the oracle is captured; the re-sync of `identity/auth`
    afterwards would be one more small scope.
@@ -573,3 +579,10 @@ and the client repo. Zero framework code, zero process-os definitions.
   conflict, `.gitmodules`, resolved; the main session had nested its mounts as `consumers/clients/<client>/<project>`,
   so the consumer mount moved under that shape (D1). Every gate re-run after the merge is equal: 34 Go modules
   1,790 / 33 / 0 per module, the nine Svelte suites unchanged, `process-cli check` ok from both roots. See the 6d log.
+- 2026-09-26 — Scope 6e done: the kit-edge check. `platform/tools/check_kit_edges.py` (standard library only) computes
+  the kit-to-kit edges from `go.mod` and `package.json` (19 on the Go side, 8 on the Svelte side), and fails on a shared
+  kit depending on a feature kit, an undeclared feature-to-feature edge, a cycle, or a stale or mis-filed entry in
+  `platform/tools/kit-edges.toml`. Today it passes with 4 declared edges (`cms`→`contacts`, `cms`→`seo`, `faq`→`seo`,
+  `real-estate`→`seo`) and 1 known violation (`jobs`→`news`). Nine negative controls, run on a scratch copy of the
+  manifests, each fail as intended. It also corrected this document's Svelte package count (17, not 18: two of the
+  folders counted were hook logs). See the 6e log.
