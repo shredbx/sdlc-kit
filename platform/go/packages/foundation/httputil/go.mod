@@ -18,4 +18,4 @@ require (
 	golang.org/x/text v0.35.0 // indirect
 )
 
-replace github.com/shredbx/sbx-core/pkg/money => ../../values/money
+replace github.com/shredbx/sbx-core/pkg/money => ../../datatypes/money

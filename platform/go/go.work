@@ -4,6 +4,14 @@ use (
 	./packages/content/dictionary
 	./packages/content/feed
 	./packages/content/rss
+	./packages/datatypes/address
+	./packages/datatypes/geocoordinate
+	./packages/datatypes/language
+	./packages/datatypes/money
+	./packages/datatypes/personname
+	./packages/datatypes/phonenumber
+	./packages/datatypes/seo
+	./packages/datatypes/socialnetwork
 	./packages/foundation/database
 	./packages/foundation/httputil
 	./packages/foundation/notify
@@ -14,12 +22,4 @@ use (
 	./packages/media/image
 	./packages/media/video
 	./packages/real-estate/collection
-	./packages/values/address
-	./packages/values/geocoordinate
-	./packages/values/language
-	./packages/values/money
-	./packages/values/personname
-	./packages/values/phonenumber
-	./packages/values/seo
-	./packages/values/socialnetwork
 )

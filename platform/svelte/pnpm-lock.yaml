@@ -8,29 +8,29 @@ importers:
 
   .: {}
 
+  packages/datatypes/text-template:
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.0
+        version: 4.1.11(vite@8.3.1)
+
+  packages/datatypes/units:
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.0
+        version: 4.1.11(vite@8.3.1)
+
   packages/media/canvas-kit:
     dependencies:
       '@sbx/text-template':
         specifier: workspace:*
-        version: link:../../values/text-template
-    devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-      vitest:
-        specifier: ^4.1.0
-        version: 4.1.11(vite@8.3.1)
-
-  packages/values/text-template:
-    devDependencies:
-      typescript:
-        specifier: ^5.0.0
-        version: 5.9.3
-      vitest:
-        specifier: ^4.1.0
-        version: 4.1.11(vite@8.3.1)
-
-  packages/values/units:
+        version: link:../../datatypes/text-template
     devDependencies:
       typescript:
         specifier: ^5.0.0
