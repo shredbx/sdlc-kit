@@ -61,6 +61,9 @@ Directory placement is independent of import identity: kits are directories only
   decision in `platform/svelte/pnpm-workspace.yaml` under `allowBuilds` (`false` keeps it denied); never
   approve blindly.
 - **The word "capability" is reserved** for the 13 SDLC capabilities. Product areas are "domain areas".
-- **Nothing in `platform/` names a client.** Client values live in the client's own repo.
+- **Client information lives in the client's own repo, never in sdlc-kit** (docs, recon, records and plans included).
+  New files under `platform/` name no client. Ported code keeps its upstream comments and test fixtures verbatim,
+  so they may still name the app they came from; each kit's own refinement slice scrubs them, there is no bulk
+  scrub.
 - Check `git check-ignore` / staged-vs-on-disk counts after adding files: the root `.gitignore` carries a
   Python template whose `lib/` rule would swallow `src/lib/` (negated for `platform/svelte`).

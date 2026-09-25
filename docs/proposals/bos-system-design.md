@@ -1,7 +1,7 @@
-# bos — turning bestierealestate into a system plus a thin consumer
+# bos — a system of kits and frameworks, and thin consumers
 
 Last updated: 2026-09-26
-tags: bos, bestierealestate, bestays, go, svelte, decomposition, proposal
+tags: bos, go, svelte, decomposition, proposal
 
 Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup, remaining Go L0/L1 ports),
 3b (group renames) and 3c (regroup into kits by functionality) approved and done on 2026-09-25** (logs:
@@ -19,24 +19,25 @@ the same day:
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
-Client-specific values (brand, copy, contacts, hosts) stay in the client repo. This document names
-projects (`bestierealestate`, `bestays`) because the repo already does, and nothing more.
+Everything specific to a consumer (its evidence, layout, oracle numbers, scope plans, brand, copy, contacts, hosts)
+lives in that consumer's own repo; this document holds only the generic system. The first consumer's material is in
+its repo's `docs/bos-consumer-plan.md`.
 
 ---
 
 ## 1. The assignment — the end state
 
-When the work is finished, the Go + SvelteKit product that runs in production today as
-`bestierealestate` runs **identically** (same routes, same API bytes, same rendered pages, same
-database schema), but its source is no longer an app:
+When the work is finished, the first consumer — a Go + SvelteKit product that runs in production today — runs
+**identically** (same routes, same API bytes, same rendered pages, same database schema), but its source is no
+longer an app:
 
 - The code lives **once**, in `sdlc-kit/platform/`, as **packages** (libraries) grouped into **kits** (one
   functionality's family: `seo`, `calendar`, `contacts`, …) and two **frameworks** (`bos-go`,
   `bos-svelte`) that assemble kits into a running app. Where a kit's app-side wiring (handlers,
   repositories, migrations, routes, admin pages) lives is open decision D15.
-- `bestierealestate` is a **consumer**: a configuration spec, branding, seed content, and a minimum of
+- The first consumer is a **consumer**: a configuration spec, branding, seed content, and a minimum of
   genuinely product-specific code. Its own repo, its own process-os workspace.
-- `bestays` (a Next.js app today) becomes the **second consumer** of the same system: same kits, plus
+- A second product (a Next.js app today) becomes the **second consumer** of the same system: same kits, plus
   a new `bookings` kit, minus selling, with its own branding.
 - Each consumer deploys as **its own bundle** (own Postgres + pgAdmin, own Svelte web, own Go API,
   own Python assistant). Code only ever receives *connection configuration*.
@@ -49,23 +50,14 @@ database schema), but its source is no longer an app:
 | Seed content | dictionaries, FAQ items, CMS pages, guides, services | consumer `seed/` |
 | Runtime data | anything an admin edits (Appearance, content, listings) | the consumer's own database |
 
-## 2. Evidence (recon, 2026-09-25; read-only, numbers are from source)
+## 2. Evidence
 
-| Area | Finding |
-|---|---|
-| Go API (`api-chi`) | 37.5k non-test LOC (+37.1k test). `main.go` is 3,860 LOC with a 2,266-line `main()`; ~258 routes registered inline (176 under `/api/manage`); no route table, no OpenAPI. Roughly 57% generic HTTP/Postgres adapter code, 34% real-estate, 9% wiring (±10%). `internal/handler` 17.8k LOC (≈11.3k generic), `internal/repository` 5.9k (≈4.7k generic). Roles declared twice; schema name hardcoded 60×; no runtime "enabled modules". |
-| Migrations | 310 files = 156 logical migrations, applied by `pkg/database.Migrate` (advisory lock + `schema_migrations`). ≈75–80 real-estate, ≈70–75 shared-package-shaped. |
-| Svelte app (`web-svelte`) | 353 `.svelte` + 516 `.ts`, 123.7k non-test LOC. ≈29% property-specific. 229 admin route files with parametric repetition (guides vs services differ by ~13 lines per page). 155 hand-mirrored API types; 52 files each declare `API_BASE_URL`; 302 files use the app's own brand tokens (11k uses); brand strings hardcoded in 178 files; i18n effectively absent. |
-| Shared Go libs | 34 packages of `sbx-core` (30.2k src LOC, 25.3k test LOC), 4 of them sub-packages. All stdlib + pgx/redis/aws/jwt etc. per package; `image` alone drags aws-sdk + webp; `auth` alone drags jwt/bcrypt/redis. |
-| Shared Svelte libs | 12 packages, 85.3k src LOC + 11.1k test LOC. `core-ui` (44.7k) is nine packages under one name; two packages hardcode the consumer's own tokens; `cms` is self-declared "BR-local". |
-| Prior attempt (`sbx.framework/projects/bos`) | Proved the easy slice (≈6 public pages, generic admin, FAQ/guide content, theme←brand←config overlay). Never touched Go or the property domain. Pain: flavor written into one shared app tree; components stored as opaque `.tmpl` text; declared-but-unread claims. |
-| Tests as an equivalence gate | Insufficient alone: Go handler tests build their own routers (real route table untested); Playwright has no visual/DOM baseline and needs the live stack. |
-| Manifests in shredbx | `project.yml` `configuration:` block (modules/templates/bindings/dictionaries) is inert; `package.yml` layer has drifted. |
-
-Sources: `docs/research/shredbx-bestierealestate-and-capabilities.md`;
-`sbx.framework/docs/research/2026-08-06-br-package-inventory.md` (the earlier full package inventory);
-four read-only recon passes on 2026-09-25 (Svelte app, Go API, shared libraries, prior BOS attempt);
-`docs/research/bestierealestate-decomposition-recon.md`.
+The recon behind this design (route counts, LOC splits, the earlier attempt, why tests alone are not an equivalence
+gate) is about the first consumer, so it lives in that consumer's repo: `docs/bos-consumer-plan.md` (section 1) and
+`docs/research/decomposition-recon.md`. Two conclusions this document relies on: the app's "thin consumer" claim was
+measured by imports, not ownership, so the split needs kit slices and not only packages plus a framework; and the
+shared libraries are usable as they are but are coupled to their first consumer in places (called out per package
+in sections 6.3 and 6.4).
 
 ## 3. Vocabulary
 
@@ -75,7 +67,7 @@ four read-only recon passes on 2026-09-25 (Svelte app, Go API, shared libraries,
 | **kit** | One *functionality's* family of packages: `calendar` (core, iCal, later integrations, UI), `contacts`, `seo`. It is the top-level folder under `packages/`. Later it also carries its bos wiring — Go handlers, repositories, migrations, `Register`; Svelte routes, components, admin pages; the spec keys it reads — where that lives is D15. The same idea as Python's `process-kit`. | Its name says what it does to a newcomer, without its parent folder. |
 | **framework** | Composes kits into an app; no domain of its own. `bos-go`, `bos-svelte`. | Only assembles, configures, runs. |
 | **preset** | *Data*: a named bundle of enabled kits, dictionaries, roles, nav skeleton, defaults. `real-estate`. | A choice, not code. |
-| **consumer** | preset + brand + seed + overrides + connection config. `bestierealestate`, later `bestays`. | Would differ between two clients. |
+| **consumer** | preset + brand + seed + overrides + connection config. The first consumer, later a second. | Would differ between two clients. |
 
 `bos` is the name of the whole system (frameworks + kit catalogue + presets). There is **no
 "realestate-platform" tier**: everything a platform tier would hold is either domain code (a kit) or a
@@ -159,7 +151,7 @@ Python (`platform/python`) is untouched — it is one family (`process-kit`: a d
 
 | Option | Verdict |
 |---|---|
-| **A. Strangler in place** — import bestierealestate verbatim so it runs from the new layout, then move one slice at a time out of the consumer into kits; equivalence-checked at every step; stoppable at any step | **Chosen (proposed)** |
+| **A. Strangler in place** — import the first consumer verbatim so it runs from the new layout, then move one slice at a time out of the consumer into kits; equivalence-checked at every step; stoppable at any step | **Chosen (proposed)** |
 | B. Greenfield thin consumer, switch at the end | Rejected: repeats the earlier attempt's mistake (the easy 83% looks done; the hard 17% breaks the promise at the end) |
 | C. Generate the whole app from a spec | Rejected: Go is unexplored; ~37k LOC does not survive as template text |
 
@@ -171,9 +163,9 @@ the second real instance earns a template/action); scoped test runs per package,
 
 | # | Decision | Status |
 |---|---|---|
-| D1 | Client repo `shredbx/sdlc-bestie-bestierealestate`, mounted at `consumers/clients/bestie-bestierealestate`; later regrouped to `consumers/clients/bestie/bestierealestate` (a `git mv` of the submodule path + one `libraries:` path edit) | Confirmed by user |
+| D1 | Each consumer is its own repo, mounted as a submodule at `consumers/clients/<client>/<project>` (one repo per project; a client may have several). Everything about a consumer — docs, records, recon, local definitions — lives in its repo, never in sdlc-kit | Confirmed by user (2026-09-25; mount shape 2026-09-26) |
 | D2 | Each consumer is its own deployable bundle (Postgres + pgAdmin + web + api + assistant); code takes connection config only; no multi-tenancy | Confirmed by user |
-| D3 | `bestays` is consumer #2: same kits + `bookings` kit − selling, own branding | Stated by user |
+| D3 | The second consumer: same kits + a `bookings` kit − selling, own branding | Stated by user |
 | D4 | System `bos` = frameworks + kits + presets; no separate realestate-platform tier | Proposed; user's follow-up answers assumed it but did not explicitly confirm |
 | D5 | Strangler-in-place approach (section 4) | Proposed |
 | D6 | Go: **one module per package** under one `go.work` (34 modules, 4 nested as sub-packages). Reason: `sbx-core` is one module that drags aws-sdk/webp/jwt/redis onto every consumer; per-package modules make "enabled kits" true at the dependency level. Revisit at M5: about a dozen product packages are under 150 LOC, so one module each is heavy — a kit may become the Go module, with packages inside it | Proposed |
@@ -182,7 +174,7 @@ the second real instance earns a template/action); scoped test runs per package,
 | D9 | Consumer routes are committed one-line re-export shims (generated from the spec, drift-checked by `conform`) **or** a build-time composed directory; decided by the M1 spike, lean = shims (an override is then just a real file at that path) | Open — spike decides |
 | D10 | Kit join manifests and presets are process-os **records** (`records/sbx-sdlc-kit/<capability>/{kit,preset}/`), with schemas modeled per-definition after the shape is proven; namespace chosen capability-first (the 13 SDLC capabilities) at that time | Proposed; nothing modeled yet |
 | D11 | Framework reads all env-specific settings from config; neutral env names with a consumer-side mapping so production's existing secrets keep working until cutover; the schema name becomes one config value | Proposed; scheme settled in M2 |
-| D12 | "Selling" must be switchable by configuration, not by deleting code. `transaction` is a package inside the `real-estate` kit next to `property` (not a kit of its own); property offerings (`for_sale`/`for_lease`) are a spec key, and switching `transaction` off is a per-package setting, decided when `bestays` exists and two consumers can be compared | Proposed; revised 2026-09-25 (was: a `property-catalog` / `transactions` kit split); confirmed against code in M4 |
+| D12 | "Selling" must be switchable by configuration, not by deleting code. `transaction` is a package inside the `real-estate` kit next to `property` (not a kit of its own); property offerings (`for_sale`/`for_lease`) are a spec key, and switching `transaction` off is a per-package setting, decided when the second consumer exists and two consumers can be compared | Proposed; revised 2026-09-25 (was: a `property-catalog` / `transactions` kit split); confirmed against code in M4 |
 | D13 | Package layout and placement rules (section 3.1): `platform/<lang>/{packages/<kit>/<package>, frameworks/}`; a kit is a functional family named by functionality (naming test); a package named like its kit is the kit folder; the same kit names on both stacks | Accepted 2026-09-25 after four review rounds; supersedes the Scope 2 taxonomy (`datatypes`, `foundation` + domain groups) and the Scope 3b renames |
 | D14 | "capability" is reserved for the 13 SDLC capabilities; product areas are "domain areas" | Accepted with D13 |
 | D15 | Where a kit's bos wiring (handlers, repositories, migrations, routes, admin pages) lives. Wiring imports bos-go's `Module` contract, so it cannot sit under `packages/` if packages never import frameworks. Candidates: (a) a separate `platform/<lang>/kits/<kit>` layer; (b) inside the kit folder, with the contract extracted as a tiny leaf package | Open — the FAQ slice in M2 decides; nothing in Scopes 3c–7 depends on it |
@@ -206,42 +198,40 @@ sdlc-kit/
 │   │   └── frameworks/bos-svelte/         app shells (public / admin / minimal) · module registry · site-config · theme · API client · auth hooks
 │   │   kit wiring (Go: handlers · repositories · register · migrations; Svelte: routes · components · admin pages)
 │   │   lands in M2/M3; where it lives is open (D15)
-│   └── (later) bookings kit for bestays, in both stacks
+│   └── (later) bookings kit for the second consumer, in both stacks
 ├── processos-workspace/
 │   ├── definitions/sbx-sdlc-kit/<capability>/…    kit / preset / consumer-spec schemas, port + equivalence actions,
 │   │                                              go/svelte package templates — each created only after per-definition approval
 │   └── records/sbx-sdlc-kit/<capability>/{kit,preset}/…    one join manifest per kit (go half ↔ svelte half ↔ provides ↔ requires); the real-estate preset
-├── consumers/clients/
-│   ├── bestie/                            existing submodule (main session; assistant + bestays Next.js today)
-│   └── bestie-bestierealestate/           new submodule (later: bestie/bestierealestate/)
+├── consumers/clients/<client>/<project>/  one submodule per consumer repo, each with its own docs, records and workspace
 └── docs/ …
 ```
 
-### 6.2 The consumer (`bestierealestate`) — thin
+### 6.2 A consumer — thin
 
 ```
-consumers/clients/bestie-bestierealestate/          (its own repo and process-os workspace)
+<consumer repo>/                        (its own repo and process-os workspace, mounted under consumers/clients/)
 ├── processos.yaml                       libraries: sbx-sdlc-kit (readonly)
-├── README.md
+├── README.md · docs/                    its own plan, recon and records — never in sdlc-kit
 ├── spec/
-│   ├── consumer.yaml                    preset: real-estate · kits on/off · offerings · roles
+│   ├── consumer.yaml                    preset · kits on/off · offerings · roles
 │   ├── brand.yaml                       tokens · fonts · wordmark · asset refs
 │   ├── site.yaml                        seed for header nav · footer · content sources
 │   ├── connections.yaml                 env-name mapping (no secrets)
-│   └── dictionaries/                    property types · title deeds · amenities · languages
+│   └── dictionaries/                    the reference lists it uses
 ├── seed/                                FAQ · CMS pages · guides · services
 ├── apps/
-│   ├── api/                             main.go (calls bos-go with the spec) + product/ (BR-only decisions: similar/related ranking …)
-│   ├── web/                             svelte.config.js · vite.config.ts · src/{app.css (brand), routes/ (shims + overrides, e.g. home), static/}
-│   ├── watermark-worker/  backup/       carried verbatim; their own pass later
+│   ├── api/                             main.go (calls bos-go with the spec) + product/ (product-only decisions)
+│   ├── web/                             svelte.config.js · vite.config.ts · src/{app.css (brand), routes/ (shims + overrides), static/}
 │   └── assistant/                       the Python service (main session); reached only by URL
 ├── migrations/                          only what no kit owns (expected near-empty; kit-owned versions keep identical IDs + content)
 ├── deploy/                              bundle spec: postgres + pgadmin + web + api + assistant (M6)
 └── tests/oracle/                        equivalence harness, kept as the regression suite
 ```
 
-Success measure (audited at M5): hand-written consumer code is a small fraction of today's ~180k LOC;
-brand tokens appear only in `brand.yaml`/`app.css`; nothing in `platform/` names a client.
+Success measure (audited at M5): hand-written consumer code is a small fraction of what the first consumer holds
+today; brand tokens appear only in `brand.yaml`/`app.css`; nothing in `platform/` names a client. The first
+consumer's own layout is in its repo's `docs/bos-consumer-plan.md`.
 
 ### 6.3 Go packages — where each of the 34 goes (verbatim, `platform/go/packages/<kit>/<package>`)
 
@@ -274,7 +264,7 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `news/rss` | 1,937/2,037 | L0 | | ✔ |
 | `news/feed` | 343/221 | L1 | | ✔ |
 | `reference-data/dictionary` | 909/638 | L1 | flat code/label lookup lists (property-type, land-size-unit, amenities) | ✔ |
-| `cms` | 1,561/1,497 | L2 | self-declared BR-local; ported verbatim, genericize or keep is decided in its slice | ✔ |
+| `cms` | 1,561/1,497 | L2 | self-declared consumer-local; ported verbatim, genericize or keep is decided in its slice | ✔ |
 | `faq` | 580/482 | L2 | | ✔ |
 | `media/image` | 2,265/1,541 | L0 | coupled to Postgres and S3 | ✔ |
 | `media/video` | 855/513 | L0 | | ✔ |
@@ -292,7 +282,7 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `formatting/units` | 402 | pure TS (date, number, area, land units); depended on by `core-ui` and `ui-map` | ✔ |
 | `formatting/text-template` | 115 | pure TS | ✔ |
 | `ui/animations` | 1,821 | pure TS; no tests (author some); needed by `core-ui` | ✔ |
-| `ui/core-ui` | 44,748 | ported as ONE package first (needs `animations` + `units`); decomposed in M1 into `ui-primitives`, `ui-layouts`, `ui-navigation`, `ui-sections`, `ui-viz`, `ui-blocks`, `ui-theme`, `ui-analytics`, `ui-language` (provisional — only BR-imported subpaths) | ✔ |
+| `ui/core-ui` | 44,748 | ported as ONE package first (needs `animations` + `units`); decomposed in M1 into `ui-primitives`, `ui-layouts`, `ui-navigation`, `ui-sections`, `ui-viz`, `ui-blocks`, `ui-theme`, `ui-analytics`, `ui-language` (provisional — only consumer-imported subpaths) | ✔ |
 | `seo/ui-seo` | 1,285 | imports `core-ui` (2 files); `$app/state` coupling in `SeoHead` only | ✔ |
 | `media/canvas-kit` | 4,474 | pure TS, LOW drift | ✔ |
 | `media/ui-image` | 4,013 | imports `core-ui` (8 files) | ✔ |
@@ -305,23 +295,11 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 `workspace:*` breaks `pnpm install` for a package whose declared workspace dependency is missing, so
 the Svelte port order is dependency-driven: `animations` → `core-ui` → the `ui-*` packages.
 
-### 6.5 App-owned code → kits (provisional; each kit's boundary is proven only when it lands)
+### 6.5 App-owned code → kits (in the consumer's repo)
 
-| Kit | Go half (from `api-chi`) | Svelte half (from `web-svelte`) |
-|---|---|---|
-| identity | `internal/handler` auth/users/audit/reset, roles → spec | `(minimal)` login/callback, `admin/users`, `admin/audit`, `admin/reset-requests`, `manage/account` |
-| cms | `internal/siteconfig`, `internal/page` (generic part), `internal/localization`, cms handlers | `manage/pages/**` (appearance header/footer/theme), sections renderer, public about/terms/privacy/cookies/services/guides |
-| seo | seo endpoints, sitemap/robots/llms | `manage/seo`, SEO tab pages, `robots.txt`/`sitemap.xml`/`llms.txt` routes |
-| media | `internal/watermark`, `canvas`, `media`, `imageimport` | `lib/components/media`, `manage/tools/media-canvas`, `manage/marketing/watermarks` |
-| faq | `RegisterPublic/ManageFaqRoutes` | `manage/faq/**`, public `/faq` |
-| contacts | contact/inquiry handlers, `internal/qr` | `lib/components/contact`, `manage/contacts/**`, `manage/inquiries/**`, public `/contact` |
-| calendar · news · jobs (scheduler) · analytics · documents · reference-data (dictionary) | their handlers/repositories (`internal/newsfeed`, `feedcache`, `document`, `registry`…) | `manage/calendar`, `manage/news`, `admin/schedules`+`admin/backup`, `lib/analytics`+`manage/analytics`, `manage/documents`, `manage/content/dictionaries`+`manage/tags` |
-| real-estate (property) | `internal/propertyfilter`, `autotag`, `areageo`, `agent`, collections, similar/related (extension seam → consumer) | public `/properties/**`, `/search`, `/p/[id]`, `manage/properties/**`, `manage/content/properties/**`, `manage/agents` |
-| real-estate (transaction) | `internal/deal`, transaction handlers | `manage/transactions/**`, public `/sell` |
-| assistant | `aiassistant`, `assistantchat`, `assistantcapabilities` — **held in the consumer**; integrates later with the main session's agent-framework | `manage/ai-assistant/**` — held in the consumer |
-| (framework) | route assembly, middleware order, config, DI | app shells, `NAV_TREE` → derived from kit manifests, API client, auth hooks, site-config loader |
-
-Kit names in this table are the kit folders of section 3.1 (`real-estate` covers both the property and transaction slices). Where a slice's wiring lives is D15.
+Which of a consumer's own handlers, repositories, routes and admin pages belong to which kit is a per-consumer map,
+provisional until each kit lands. The first consumer's is in its repo's `docs/bos-consumer-plan.md`. Kit names there
+are the kit folders of section 3.1. Where a slice's wiring lives is D15.
 
 ## 7. Equivalence oracle — how "identical" is proven
 
@@ -338,12 +316,10 @@ Built before any refactor, captured against the **original** running read-only f
    screenshots at 3 viewports.
 4. **Route table** — dump method, path, middleware, permission per route (requires extracting a
    `buildRouter`); must equal baseline.
-5. **Existing suites stay green** — 925 Go tests (integration via Docker), 180 vitest files, 66
-   Playwright specs.
+5. **Existing suites stay green** — the consumer's own Go, unit and browser test suites, at the counts recorded in its repo.
 
-Do-not-"fix"-during-the-split list (each is observable behavior): CORS methods omit PATCH; mixed
-rate-limit key functions; upper- vs lower-case error codes; route registration order; per-handler
-`Cache-Control`.
+Each consumer keeps a do-not-"fix"-during-the-split list in its own repo: observable behaviors the oracle compares (CORS
+methods, rate-limit keys, error-code casing, route registration order, cache headers).
 
 **Defects found in the originals while porting** are recorded, never fixed inside a port (the port is
 byte-identical and the oracle must equal the original). Each needs the user's decision on where it is fixed: in the
@@ -367,13 +343,13 @@ original first (then the port is re-synced), or in the kit's slice as a declared
 
 | Rung | Approved scopes (estimate) | What | Gate |
 |---|---|---|---|
-| **M0 Baseline** (scopes below) | ≈12 (10 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
+| **M0 Baseline** (scopes below) | ≈12 (10 done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import the first consumer verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
 | M1 `bos-svelte` | ≈5 | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
 | M2 `bos-go` | ≈4 | `Module` contract, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped). The slice also settles where kit wiring lives (D15) | route-table diff = 0 |
 | M3 kits | ≈8 | identity → cms → seo → media → contacts → calendar → news → jobs/analytics/documents, one slice each | oracle slice green per kit |
 | M4 real-estate | ≈3 | the `real-estate` slices (property, transaction); consumer keeps only product decisions via extension seams | full oracle green |
-| M4b second consumer | ≈3 | `bestays` on the same kits + `bookings` − selling; extract the preset; the falsifiability test of every kit boundary | bestays needs config + `bookings` only |
-| M5 Thin-out + regroup | ≈2 | consumer footprint audit; final names; a kit may become the Go module (D6); move to `clients/bestie/bestierealestate` | full oracle green |
+| M4b second consumer | ≈3 | the second consumer on the same kits + `bookings` − selling; extract the preset; the falsifiability test of every kit boundary | the second consumer needs config + `bookings` only |
+| M5 Thin-out + regroup | ≈2 | consumer footprint audit; final names; a kit may become the Go module (D6) | full oracle green |
 | M6 Deploy cutover | own plan | bundle spec and/or the mirror/vendor pipeline redone for a multi-repo layout; parallel run; nothing touches production without separate approval | separate approval |
 
 About 37 approved scopes before M6 (33 at the start; Scope 6 turned out to be three scopes and Scope 7 is likely
@@ -384,10 +360,10 @@ two), ±30%; the FAQ slice gives the first real measurement.
 | Stage | What happens | Gate |
 |---|---|---|
 | 1. Port libraries | Verbatim copy into `packages/<kit>/…`, proven by the source's own tests | same pass/skip/fail counts as the original |
-| 2. Import the app | `api-chi` and `web-svelte` copied verbatim into the consumer and run from this repo; the oracle is captured against the original | oracle equals the original |
+| 2. Import the app | The consumer's Go API and Svelte app copied verbatim into its repo and run from this layout; the oracle is captured against the original | oracle equals the original |
 | 3. Slice a kit | Move the kit's Go handlers, repositories, migrations and `Register`, and its Svelte routes, components and admin pages, out of the consumer into the kit. Code moves, it is never reshaped | oracle slice green: route table, API bytes, DOM, schema |
 | 4. Spec it | The consumer enables the kit by a config key and its own copy is deleted | oracle green, consumer LOC drops |
-| 5. Second consumer | `bestays` needs only config plus `bookings` | boundaries hold, preset extracted |
+| 5. Second consumer | It needs only config plus `bookings` | boundaries hold, preset extracted |
 
 Interfaces and integrations are not separate stages. *Interfaces* already exist in the source (the
 repository interface, the notify provider, image storage, the dictionary backends, the domain/adapter
@@ -421,14 +397,15 @@ declare it, so `core-ui` — which needs `animations` and `units` — comes firs
      env-dependent tests; `scheduler` imports `news/feed` (the known edge to invert).
    - **6c (done):** `real-estate/property`, `real-estate/transaction`; `testdata` fixtures; 4 tests skipped
      unconditionally until the app is imported. All 34 Go modules are now ported.
-9. **Scope 7:** baseline import of the bestierealestate apps + oracle capture (likely two scopes). The `auth`
+9. **Scope 7:** baseline import of the first consumer's apps + oracle capture (likely two scopes; its plan is in the
+   consumer's repo). The `auth`
    fix (section 7) should land in the original before the oracle is captured; the re-sync of `identity/auth`
    afterwards would be one more small scope.
 
 Sizing honesty: the earlier inventory priced the library port alone at ≈195 half-day slices under a
 template-row method. Real packages drop the row/template overhead, but the app-side extraction
 (≈16k generic Go adapter LOC, ≈70k generic Svelte LOC) is on top. This is a multi-month track; every
-rung leaves bestierealestate runnable and oracle-green.
+rung leaves the first consumer runnable and oracle-green.
 
 ## 9. Scope 1 — workspaces and Wave 1 (done)
 
@@ -436,8 +413,8 @@ rung leaves bestierealestate runnable and oracle-green.
 and the client repo. Zero framework code, zero process-os definitions.
 
 **Tasks**
-1. Persist the recon (`docs/research/bestierealestate-decomposition-recon.md`) and index it.
-2. Bootstrap `shredbx/sdlc-bestie-bestierealestate` (initial commit) and add it as a submodule.
+1. Persist the recon (now in the consumer's repo, `docs/research/decomposition-recon.md`) and index it.
+2. Bootstrap the consumer's repo (initial commit) and add it as a submodule.
 3. `platform/go/`: `go.work` + 8 leaf packages, each with an authored `go.mod`, sources copied verbatim.
 4. `platform/svelte/`: pnpm workspace root + 3 pure-TS packages, sources copied verbatim.
 5. `.gitignore` (`node_modules/`, `.svelte-kit/`), `go-ci.yml`, `svelte-ci.yml`.
@@ -460,16 +437,14 @@ and the client repo. Zero framework code, zero process-os definitions.
 ## 10. Boundaries
 
 - Production is never touched; the shredbx originals stay read-only source until M6.
-- Out of this track: the AI-assistant service (main session's `agent-framework`; the BR surfaces are
+- Out of this track: the AI-assistant service (main session's `agent-framework`; the assistant surfaces are
   carried in the consumer until integration), `watermark-worker`, `backup`, and the deploy pipeline.
 - No process-os definitions from a single example. First candidates, once M1/M2 prove the shape: the
   kit manifest schema and the consumer-spec schema; then a `port-package` action and Go/Svelte package
   templates after the second/third port; then a `check-equivalence` action. Each gets its own approval.
-- Coordination: the main session works on `feature/agent-framework` and the `bestie` client repo;
-  expect a trivial merge on `.gitmodules`. The chat contract stays framework-neutral
-  (`{message} → {reply}`), so a Svelte `bestays` can reuse it (`core-ui` already ships `ChatWidget`).
-- Worth checking when `bestays` starts: BR has `migration-packs/2607-001-legacy-supabase-properties`;
-  by its name it may already hold the Supabase→Postgres path (unverified).
+- Coordination: the main session works on `feature/agent-framework` and the client repos it mounts; mounts nest as
+  `consumers/clients/<client>/<project>`. The chat contract stays framework-neutral
+  (`{message} → {reply}`), so a Svelte consumer can reuse it (`core-ui` already ships `ChatWidget`).
 
 ## 11. Decision log
 
@@ -541,8 +516,7 @@ and the client repo. Zero framework code, zero process-os definitions.
   this was not in the approved tree and was needed for the frozen-install gate. (2) The lockfile gained 64 packages
   and lost one entry (`vitefu@1.1.3` unsuffixed → peer-suffixed); no version and no existing importer entry
   changed. (3) The baseline is a copy under default tool resolution, not the original workspace's own pins.
-  All 12 Svelte packages are ported. Client information for `bestierealestate` is deferred to the client library
-  (the main session's `clients` scope), to be registered after alignment.
+  All 12 Svelte packages are ported. Consumer information is kept out of sdlc-kit; it lives in the consumer's repo.
 - 2026-09-26 — Scope 6a done: seven Go modules (`faq`, `cms`, `contacts/inquiry`, `contacts/contact` + `vcard`,
   `calendar` + `ical`) copied verbatim — 41 source files, byte-identical — plus 7 authored `go.mod` and 7 `go.sum`;
   `go.work` 21 → 28 paths (28 of 34 modules). Tests per module equal a baseline measured on the original module
