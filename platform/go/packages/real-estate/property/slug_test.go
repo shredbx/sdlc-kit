@@ -30,7 +30,7 @@ func TestDeriveSlug_ASCII(t *testing.T) {
 func TestDeriveSlug_Transliterates(t *testing.T) {
 	for _, in := range []string{
 		"บ้านวิลล่าริมทะเลเกาะพะงัน", // Thai
-		"Вилла у моря",              // Cyrillic
+		"Вилла у моря", // Cyrillic
 	} {
 		got := DeriveSlug(in).String()
 		if !kebabASCII.MatchString(got) {

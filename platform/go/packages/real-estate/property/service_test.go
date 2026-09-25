@@ -17,16 +17,16 @@ func TestPropertyService_Create_Valid(t *testing.T) {
 	svc := property.NewPropertyService(nil, nil, "bestierealestate")
 
 	input := property.Property{
-		Title:           ptr("Luxury Pool Villa in Phuket"),
-		Text:            ptr("Beautiful 3-bedroom pool villa in Rawai with stunning sea views"),
+		Title:         ptr("Luxury Pool Villa in Phuket"),
+		Text:          ptr("Beautiful 3-bedroom pool villa in Rawai with stunning sea views"),
 		ForSale:       true,
 		ForLease:      false,
 		PropertyType:  ptr(property.PropertyPoolVilla),
 		TitleDeed:     ptr(property.TitleChanote),
 		SalePrice:     ptr(int64(1500000000)),
 		PriceCurrency: ptr(money.CurrencyCode("THB")),
-		CoverImageID:    ptr("11111111-1111-1111-1111-111111111111"),
-		IsPublished:     false,
+		CoverImageID:  ptr("11111111-1111-1111-1111-111111111111"),
+		IsPublished:   false,
 		Address: property.Address{
 			Street:      "88/12 Moo 6",
 			SubDistrict: "Rawai",

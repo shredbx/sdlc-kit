@@ -173,7 +173,7 @@ func TestLinksForUnits(t *testing.T) {
 	uA, uB, uHidden := "unit-a", "unit-b", "unit-hidden"
 	links := []property.UnitCollectionLink{
 		{UnitID: uA, CollectionID: "common", SortOrder: 0},
-		{UnitID: uB, CollectionID: "common", SortOrder: 0},   // shared album
+		{UnitID: uB, CollectionID: "common", SortOrder: 0},      // shared album
 		{UnitID: uHidden, CollectionID: "common", SortOrder: 0}, // hidden unit — must be excluded
 		{UnitID: uHidden, CollectionID: "solo", SortOrder: 0},   // hidden-only album — must be excluded
 	}

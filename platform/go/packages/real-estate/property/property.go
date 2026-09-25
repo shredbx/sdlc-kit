@@ -418,8 +418,8 @@ func (t *Translations) Scan(src any) error {
 // Pointer fields are nullable — nil = draft (not yet set by the agent).
 // is_published is a bool (not pointer) — always present, gates public visibility.
 type Property struct {
-	ID           string     `json:"id" yaml:"id"`
-	Title        *string    `json:"title,omitempty" yaml:"title,omitempty" validate:"omitempty,min=1,max=500"`
+	ID    string  `json:"id" yaml:"id"`
+	Title *string `json:"title,omitempty" yaml:"title,omitempty" validate:"omitempty,min=1,max=500"`
 
 	// Slug is the public URL key (/properties/{slug}) — NOT NULL, unique among LIVE
 	// properties. Auto-derived from Title via the graceful candidate ladder

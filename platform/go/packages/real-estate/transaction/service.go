@@ -341,8 +341,8 @@ func (s *TransactionService) LoadMoney(ctx context.Context, txn *Transaction) er
 		return nil
 	}
 	var (
-		saleAmt, rentAmt, depAmt    int64
-		saleCur, rentCur, depCur    string
+		saleAmt, rentAmt, depAmt int64
+		saleCur, rentCur, depCur string
 	)
 	err := s.pool.QueryRow(ctx,
 		`SELECT
