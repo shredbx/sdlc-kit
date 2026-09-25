@@ -1,9 +1,16 @@
 go 1.26
 
 use (
+	./packages/calendar
+	./packages/calendar/ical
+	./packages/cms
+	./packages/contacts/contact
+	./packages/contacts/contact/vcard
+	./packages/contacts/inquiry
 	./packages/contacts/personname
 	./packages/contacts/phonenumber
 	./packages/contacts/socialnetwork
+	./packages/faq
 	./packages/http/httputil
 	./packages/identity/rbac
 	./packages/identity/user
