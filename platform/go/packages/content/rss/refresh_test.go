@@ -14,7 +14,7 @@ import (
 // and captures the per-source fetch state the Refresh run writes.
 type stubStore struct {
 	items     map[string]rss.FeedItem // key: sourceID + "\x00" + guid
-	order     []string                 // insertion order of keys (for stable newest-first when times tie)
+	order     []string                // insertion order of keys (for stable newest-first when times tie)
 	fetch     map[string]stubFetchState
 	enabled   []rss.FeedSource
 	upsertErr error

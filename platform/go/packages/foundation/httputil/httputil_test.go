@@ -149,9 +149,9 @@ func TestDecodeAndValidate_TrailingGarbage(t *testing.T) {
 
 func TestParseUUID(t *testing.T) {
 	cases := []struct {
-		name    string
-		raw     string
-		wantOK  bool
+		name       string
+		raw        string
+		wantOK     bool
 		wantStatus int
 	}{
 		{"valid", "550e8400-e29b-41d4-a716-446655440000", true, http.StatusOK},
@@ -214,9 +214,9 @@ const (
 func TestParseEnum(t *testing.T) {
 	allowed := []imagePurpose{purposeProperty, purposeAgent}
 	cases := []struct {
-		name   string
-		raw    string
-		wantOK bool
+		name      string
+		raw       string
+		wantOK    bool
 		wantValue imagePurpose
 	}{
 		{"valid", "property", true, purposeProperty},

@@ -31,15 +31,15 @@ import (
 // Address represents a postal/physical address with optional GPS coordinates.
 // It is an immutable value object — create new instances rather than mutating.
 type Address struct {
-	Street      string          `json:"street" yaml:"street"`
-	Unit        string          `json:"unit,omitempty" yaml:"unit,omitempty"`
-	SubDistrict string          `json:"sub_district,omitempty" yaml:"sub_district,omitempty"`
-	City        string          `json:"city" yaml:"city"`
-	Province    string          `json:"province,omitempty" yaml:"province,omitempty"`
-	PostalCode  string          `json:"postal_code,omitempty" yaml:"postal_code,omitempty"`
-	Country     string          `json:"country" yaml:"country"`
-	Latitude    float64         `json:"latitude,omitempty" yaml:"latitude,omitempty"`
-	Longitude   float64         `json:"longitude,omitempty" yaml:"longitude,omitempty"`
+	Street      string  `json:"street" yaml:"street"`
+	Unit        string  `json:"unit,omitempty" yaml:"unit,omitempty"`
+	SubDistrict string  `json:"sub_district,omitempty" yaml:"sub_district,omitempty"`
+	City        string  `json:"city" yaml:"city"`
+	Province    string  `json:"province,omitempty" yaml:"province,omitempty"`
+	PostalCode  string  `json:"postal_code,omitempty" yaml:"postal_code,omitempty"`
+	Country     string  `json:"country" yaml:"country"`
+	Latitude    float64 `json:"latitude,omitempty" yaml:"latitude,omitempty"`
+	Longitude   float64 `json:"longitude,omitempty" yaml:"longitude,omitempty"`
 	// Polygon — optional parcel boundary in GeoJSON Polygon format.
 	// Zero-value (Type == "", no coordinates) means "no boundary drawn".
 	// Stored as JSONB at the consumer's discretion; pkg/address only

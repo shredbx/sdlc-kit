@@ -124,9 +124,9 @@ func TestNewAuthorizer_FlattensHierarchy(t *testing.T) {
 	// Incremental config: each role declares ONLY the perms it adds to its parent.
 	cfg := rbac.RBACConfig{
 		Roles: map[rbac.RoleCode]rbac.PermissionSet{
-			rbac.RoleTeamMember: rbac.NewPermissionSet(rbac.PermDashboardView),       // ONE perm
-			rbac.RoleAdmin:      rbac.NewPermissionSet(rbac.PermUserRead),            // ONE perm
-			rbac.RoleSuperAdmin: rbac.NewPermissionSet(rbac.PermUserManageRoles),     // ONE perm
+			rbac.RoleTeamMember: rbac.NewPermissionSet(rbac.PermDashboardView),   // ONE perm
+			rbac.RoleAdmin:      rbac.NewPermissionSet(rbac.PermUserRead),        // ONE perm
+			rbac.RoleSuperAdmin: rbac.NewPermissionSet(rbac.PermUserManageRoles), // ONE perm
 		},
 		RoleHierarchy: []rbac.RoleCode{rbac.RoleTeamMember, rbac.RoleAdmin, rbac.RoleSuperAdmin},
 	}

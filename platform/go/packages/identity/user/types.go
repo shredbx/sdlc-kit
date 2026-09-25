@@ -57,10 +57,10 @@ type ActivateUserInput struct {
 
 // Sentinel errors for user operations.
 var (
-	ErrUserNotFound    = &UserError{Code: "user_not_found", Message: "User not found"}
-	ErrEmailExists     = &UserError{Code: "email_exists", Message: "Email already exists"}
-	ErrInvalidEmail    = &UserError{Code: "invalid_email", Message: "Invalid email format"}
-	ErrEmailTooLong    = &UserError{Code: "email_too_long", Message: "Email exceeds maximum length"}
+	ErrUserNotFound      = &UserError{Code: "user_not_found", Message: "User not found"}
+	ErrEmailExists       = &UserError{Code: "email_exists", Message: "Email already exists"}
+	ErrInvalidEmail      = &UserError{Code: "invalid_email", Message: "Invalid email format"}
+	ErrEmailTooLong      = &UserError{Code: "email_too_long", Message: "Email exceeds maximum length"}
 	ErrUserAlreadyActive = &UserError{Code: "user_already_active", Message: "User is already active"}
 	ErrUserNotActive     = &UserError{Code: "user_not_active", Message: "User is not active"}
 )

@@ -84,7 +84,7 @@ func fakePNGHeader(t *testing.T, w, h int) []byte {
 	var ihdr bytes.Buffer
 	_ = binary.Write(&ihdr, binary.BigEndian, uint32(w))
 	_ = binary.Write(&ihdr, binary.BigEndian, uint32(h))
-	ihdr.Write([]byte{8, 2, 0, 0, 0}) // bitDepth=8, colorType=RGB, compression/filter/interlace=0
+	ihdr.Write([]byte{8, 2, 0, 0, 0})                    // bitDepth=8, colorType=RGB, compression/filter/interlace=0
 	_ = binary.Write(&buf, binary.BigEndian, uint32(13)) // IHDR length
 	buf.WriteString("IHDR")
 	buf.Write(ihdr.Bytes())

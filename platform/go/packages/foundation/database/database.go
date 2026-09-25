@@ -43,10 +43,10 @@ import (
 
 // Common errors
 var (
-	ErrConnectionFailed = errors.New("database connection failed")
-	ErrMigrationFailed  = errors.New("migration failed")
+	ErrConnectionFailed  = errors.New("database connection failed")
+	ErrMigrationFailed   = errors.New("migration failed")
 	ErrTransactionFailed = errors.New("transaction failed")
-	ErrAuditLogFailed   = errors.New("audit log failed")
+	ErrAuditLogFailed    = errors.New("audit log failed")
 )
 
 // Config holds database configuration.
@@ -329,13 +329,13 @@ var txControlLineRe = regexp.MustCompile(`^[ \t]*(?i:BEGIN|START[ \t]+TRANSACTIO
 var dollarTagRe = regexp.MustCompile(`^\$[A-Za-z_][A-Za-z0-9_]*\$|^\$\$`)
 
 // sqlRegion tracks whether the scan position is inside a region that spans
-// lines: a single-quoted string ('' escape; backslash escapes only in E'…'
+// lines: a single-quoted string (” escape; backslash escapes only in E'…'
 // strings — standard_conforming_strings semantics), a double-quoted identifier,
 // a dollar-quoted body, or a (nestable) block comment. Line comments (--) never
 // span lines, so scanLine simply stops at them.
 type sqlRegion struct {
 	inSingle   bool
-	eString    bool   // the open single-quoted string is E'…' (backslash escapes)
+	eString    bool // the open single-quoted string is E'…' (backslash escapes)
 	inDouble   bool
 	dollarTag  string // "" = not inside a dollar-quoted body
 	blockDepth int    // /* … */ nesting depth (PostgreSQL block comments nest)
@@ -486,9 +486,9 @@ func ResolveSchema(dbURL string) string {
 
 // ExecFileResult reports the outcome of an ExecFile run.
 type ExecFileResult struct {
-	Bytes      int    // size of the source file in bytes
-	DurationMs int64  // wall-clock spent inside the transaction
-	DryRun     bool   // true → transaction was rolled back
+	Bytes      int   // size of the source file in bytes
+	DurationMs int64 // wall-clock spent inside the transaction
+	DryRun     bool  // true → transaction was rolled back
 }
 
 // ExecFile reads a SQL file and executes it in a single transaction against db.

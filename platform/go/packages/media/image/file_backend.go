@@ -253,9 +253,9 @@ func (b *FileBackend) writeMetadata(img *Image) error {
 // FileObjectStore stores binary image data as files on disk.
 // Used for development and testing — no R2/S3 needed.
 type FileObjectStore struct {
-	rootDir   string
-	baseURL   string // URL prefix for generated URLs (e.g., "http://localhost:5000/images")
-	mu        sync.RWMutex
+	rootDir string
+	baseURL string // URL prefix for generated URLs (e.g., "http://localhost:5000/images")
+	mu      sync.RWMutex
 }
 
 // NewFileObjectStore creates a filesystem-based object store.

@@ -4,16 +4,16 @@ package repository
 type Op int
 
 const (
-	OpEq       Op = iota // =
-	OpNeq                // !=
-	OpGt                 // >
-	OpGte                // >=
-	OpLt                 // <
-	OpLte                // <=
-	OpIn                 // IN (...)
-	OpLike               // LIKE
-	OpIsNull             // IS NULL
-	OpIsNotNull          // IS NOT NULL
+	OpEq        Op = iota // =
+	OpNeq                 // !=
+	OpGt                  // >
+	OpGte                 // >=
+	OpLt                  // <
+	OpLte                 // <=
+	OpIn                  // IN (...)
+	OpLike                // LIKE
+	OpIsNull              // IS NULL
+	OpIsNotNull           // IS NOT NULL
 	// OpArrayContains: array column contains ALL given elements (Postgres `@>`).
 	OpArrayContains // col @> $N::TEXT[]
 )

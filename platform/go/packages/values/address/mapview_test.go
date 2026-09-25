@@ -121,4 +121,3 @@ func TestMapView_UnmarshalJSON_NullProducesZero(t *testing.T) {
 		t.Errorf("Unmarshal(null) should be zero, got %+v", mv)
 	}
 }
-

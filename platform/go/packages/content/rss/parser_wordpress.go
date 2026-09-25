@@ -35,8 +35,8 @@ type wpItem struct {
 	PubDate    string         `xml:"pubDate"`
 	Categories []string       `xml:"category"`
 	Desc       string         `xml:"description"`
-	Encoded    string         `xml:"encoded"` // content:encoded
-	Media      []wpMediaBlock `xml:"content"` // media:content (may nest media:thumbnail)
+	Encoded    string         `xml:"encoded"`   // content:encoded
+	Media      []wpMediaBlock `xml:"content"`   // media:content (may nest media:thumbnail)
 	Thumbnail  wpMediaURL     `xml:"thumbnail"` // bare media:thumbnail
 }
 

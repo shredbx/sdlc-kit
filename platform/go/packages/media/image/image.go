@@ -196,7 +196,7 @@ type Image struct {
 	URL string `json:"url" yaml:"url"` // CDN URL — permanent
 
 	Format  ImageFormat `json:"format"   yaml:"format"`
-	Size    int64       `json:"size"     yaml:"size"`    // bytes
+	Size    int64       `json:"size"     yaml:"size"` // bytes
 	AltText string      `json:"alt_text" yaml:"alt_text"`
 	// Purpose is the asset facet (cover, gallery, photo, qr, …) — the {facet}
 	// segment of the key and the value stored in images.purpose. See ImageFacet.

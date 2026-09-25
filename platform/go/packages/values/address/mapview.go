@@ -14,11 +14,11 @@ import (
 // Coordinate ordering on Center is [lng, lat] for parity with GeoJSON. UI
 // layers that use {lat, lng} object literals must swap at the boundary.
 type MapView struct {
-	Zoom    float64    `json:"zoom,omitempty"`
+	Zoom    float64     `json:"zoom,omitempty"`
 	Center  *[2]float64 `json:"center,omitempty"` // [longitude, latitude]
-	MapType string     `json:"map_type,omitempty"`
-	Heading float64    `json:"heading,omitempty"`
-	Tilt    float64    `json:"tilt,omitempty"`
+	MapType string      `json:"map_type,omitempty"`
+	Heading float64     `json:"heading,omitempty"`
+	Tilt    float64     `json:"tilt,omitempty"`
 }
 
 // IsZero reports whether all fields are zero values — i.e. no view state
