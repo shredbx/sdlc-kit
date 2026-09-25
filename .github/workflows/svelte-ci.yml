@@ -1,0 +1,28 @@
+name: svelte-ci
+
+on:
+  push:
+    paths: ["platform/svelte/**", ".github/workflows/svelte-ci.yml"]
+  pull_request:
+    paths: ["platform/svelte/**", ".github/workflows/svelte-ci.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform/svelte
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: platform/svelte/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: platform/svelte/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @sbx/units test
+      - run: pnpm --filter @sbx/text-template test
+      - run: pnpm --filter @sbx/canvas-kit test
