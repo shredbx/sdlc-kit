@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: platform/go/go.work
-          cache-dependency-path: platform/go/packages/*/go.sum
+          cache-dependency-path: platform/go/**/go.sum
       # Each package is its own module, so `./...` at the go.work root matches nothing: `go list -m` names
       # every workspace module and `/...` turns each into a package pattern.
       - run: test -z "$(gofmt -l .)"

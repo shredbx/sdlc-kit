@@ -1,12 +1,12 @@
 go 1.26
 
 use (
-	./packages/geocoordinate
-	./packages/language
-	./packages/money
-	./packages/notify
-	./packages/personname
-	./packages/phonenumber
-	./packages/seo
-	./packages/socialnetwork
+	./packages/foundation/notify
+	./packages/values/geocoordinate
+	./packages/values/language
+	./packages/values/money
+	./packages/values/personname
+	./packages/values/phonenumber
+	./packages/values/seo
+	./packages/values/socialnetwork
 )

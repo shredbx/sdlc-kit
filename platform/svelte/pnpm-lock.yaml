@@ -8,11 +8,11 @@ importers:
 
   .: {}
 
-  packages/canvas-kit:
+  packages/media/canvas-kit:
     dependencies:
       '@sbx/text-template':
         specifier: workspace:*
-        version: link:../text-template
+        version: link:../../values/text-template
     devDependencies:
       typescript:
         specifier: ^5.0.0
@@ -21,7 +21,7 @@ importers:
         specifier: ^4.1.0
         version: 4.1.11(vite@8.3.1)
 
-  packages/text-template:
+  packages/values/text-template:
     devDependencies:
       typescript:
         specifier: ^5.0.0
@@ -30,7 +30,7 @@ importers:
         specifier: ^4.1.0
         version: 4.1.11(vite@8.3.1)
 
-  packages/units:
+  packages/values/units:
     devDependencies:
       typescript:
         specifier: ^5.0.0
