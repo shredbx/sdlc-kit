@@ -54,6 +54,9 @@ Directory placement is independent of import identity: kits are directories only
   (run leaves first). Confirm what a package imports with `go mod tidy`, not with a text scan.
 - **Prove with the source's own tests:** same pass/skip/fail counts as the original, per package. Scoped
   runs only; the full battery is CI's job.
+- **pnpm 11 fails an install on an unreviewed dependency build script.** Read the script, then record the
+  decision in `platform/svelte/pnpm-workspace.yaml` under `allowBuilds` (`false` keeps it denied); never
+  approve blindly.
 - **The word "capability" is reserved** for the 13 SDLC capabilities. Product areas are "domain areas".
 - **Nothing in `platform/` names a client.** Client values live in the client's own repo.
 - Check `git check-ignore` / staged-vs-on-disk counts after adding files: the root `.gitignore` carries a

@@ -10,7 +10,8 @@ Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup,
 `docs/plans/2026-09-25-bos-scope-3-go-l0-l1-ports.md`,
 `docs/plans/2026-09-25-bos-scope-3b-group-renames.md`,
 `docs/plans/2026-09-25-bos-scope-3c-kits-by-functionality.md`; Scope 4, Svelte foundation, approved and done on
-2026-09-26: `docs/plans/2026-09-25-bos-scope-4-svelte-foundation.md`). Per `CLAUDE.md`, approval is per
+2026-09-26: `docs/plans/2026-09-25-bos-scope-4-svelte-foundation.md`; Scope 5, the remaining Svelte packages,
+the same day: `docs/plans/2026-09-25-bos-scope-5-svelte-ui-packages.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -142,8 +143,8 @@ platform/go/packages/
 platform/svelte/packages/
 ├── ui/              core-ui ✔ · animations ✔
 ├── formatting/      units ✔ · text-template ✔
-├── media/           canvas-kit ✔ · canvas-ui ○ · ui-image ○ · ui-source-picker ○
-└── seo/ui-seo ○ · contacts/ui-contact ○ · calendar/ui-calendar ○ · location/ui-map ○          → 12 packages
+├── media/           canvas-kit ✔ · canvas-ui ✔ · ui-image ✔ · ui-source-picker ✔
+└── seo/ui-seo ✔ · contacts/ui-contact ✔ · calendar/ui-calendar ✔ · location/ui-map ✔          → 12 packages
 ```
 
 `core-ui` (in `ui`) depends on `formatting/units`: shared kits are imported by others, never the reverse.
@@ -288,14 +289,14 @@ Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test 
 | `formatting/text-template` | 115 | pure TS | ✔ |
 | `ui/animations` | 1,821 | pure TS; no tests (author some); needed by `core-ui` | ✔ |
 | `ui/core-ui` | 44,748 | ported as ONE package first (needs `animations` + `units`); decomposed in M1 into `ui-primitives`, `ui-layouts`, `ui-navigation`, `ui-sections`, `ui-viz`, `ui-blocks`, `ui-theme`, `ui-analytics`, `ui-language` (provisional — only BR-imported subpaths) | ✔ |
-| `seo/ui-seo` | 1,285 | imports `core-ui` (2 files); `$app/state` coupling in `SeoHead` only | |
+| `seo/ui-seo` | 1,285 | imports `core-ui` (2 files); `$app/state` coupling in `SeoHead` only | ✔ |
 | `media/canvas-kit` | 4,474 | pure TS, LOW drift | ✔ |
-| `media/ui-image` | 4,013 | imports `core-ui` (8 files) | |
-| `media/ui-source-picker` | 1,137 | zero tests | |
-| `media/canvas-ui` | 14,299 | zero tests, 8 deep imports into `core-ui`'s `Modal.svelte`, token contract with no declarations | |
-| `calendar/ui-calendar` | 3,851 | declares `core-ui`, imports it 0 times | |
-| `contacts/ui-contact` | 1,172 | imports `core-ui` (2 files); hardcodes consumer tokens | |
-| `location/ui-map` | 7,995 | declares `core-ui`, imports it 0 times; parcel/plot code | |
+| `media/ui-image` | 4,013 | imports `core-ui` (8 files) | ✔ |
+| `media/ui-source-picker` | 1,137 | zero tests | ✔ |
+| `media/canvas-ui` | 14,299 | zero tests, depends on `ui-source-picker`, 8 deep imports into `core-ui`'s `Modal.svelte`, token contract with no declarations | ✔ |
+| `calendar/ui-calendar` | 3,851 | declares `core-ui`, imports it 0 times | ✔ |
+| `contacts/ui-contact` | 1,172 | imports `core-ui` (2 files); hardcodes consumer tokens | ✔ |
+| `location/ui-map` | 7,995 | declares `core-ui`, imports it 0 times; parcel/plot code | ✔ |
 
 `workspace:*` breaks `pnpm install` for a package whose declared workspace dependency is missing, so
 the Svelte port order is dependency-driven: `animations` → `core-ui` → the `ui-*` packages.
@@ -386,8 +387,9 @@ declare it, so `core-ui` — which needs `animations` and `units` — comes firs
 4. **Scope 3b (done):** group renames for clarity (`values` → `datatypes`, `engagement` → `crm`).
 5. **Scope 3c (done):** regroup into kits by functionality (section 3.1); 145 renames, no new code.
 6. **Scope 4 (done):** Svelte foundation: `ui/animations`, then `ui/core-ui` (one package, verbatim).
-7. **Scope 5:** Svelte `seo/ui-seo`, `media/ui-image`, `contacts/ui-contact`, `location/ui-map`,
-   `calendar/ui-calendar`, then `media/ui-source-picker` and `media/canvas-ui`.
+7. **Scope 5 (done):** Svelte `seo/ui-seo`, `media/ui-image`, `contacts/ui-contact`, `location/ui-map`,
+   `calendar/ui-calendar`, then `media/ui-source-picker` and `media/canvas-ui` (canvas-ui depends on ui-source-picker). All 12 Svelte
+   packages are ported.
 8. **Scope 6:** Go L2/L3 domain packages: auth, cms, faq, contact (+vcard), inquiry, calendar (+ical),
    scheduler (+schedcli), visitoractivity, property, transaction (may split by dependency layer).
 9. **Scope 7:** baseline import of the bestierealestate apps + oracle capture (likely two scopes).
@@ -498,3 +500,15 @@ and the client repo. Zero framework code, zero process-os definitions.
   the resolved peer suffix of the existing packages' vitest entry (`vitest@4.1.11(vite@8.3.1)` →
   `…(jsdom@25.0.1)(vite@8.3.1)`); no version changed and their suites are unchanged. Svelte 5.57.1 / vitest 4.1.11
   resolved against the original's 5.50.0 / 4.1.0 (accepted). 5 of 12 Svelte packages ported. See the Scope 4 log.
+- 2026-09-26 — Scope 5 done: the remaining seven Svelte packages (`seo/ui-seo`, `contacts/ui-contact`,
+  `calendar/ui-calendar`, `location/ui-map`, `media/{ui-image, ui-source-picker, canvas-ui}`) copied verbatim — 164
+  files, byte-identical. The five tested packages equal a pre-port baseline measured on a copy of the original
+  source (ui-seo 10, ui-contact 12, ui-calendar 55, ui-map 160, ui-image 45 tests; 22 files); the two untested ones
+  (48 files) have no runtime gate until Scope 7. Findings: (1) pnpm 11 exits non-zero on unreviewed dependency
+  build scripts — `core-js` (via `canvas-ui` → `jspdf` → `canvg`) and `esbuild@0.21.5` (via a vite 5 dev dependency
+  of `canvas-ui` and `ui-source-picker`) — so `pnpm-workspace.yaml` now denies both explicitly with `allowBuilds`;
+  this was not in the approved tree and was needed for the frozen-install gate. (2) The lockfile gained 64 packages
+  and lost one entry (`vitefu@1.1.3` unsuffixed → peer-suffixed); no version and no existing importer entry
+  changed. (3) The baseline is a copy under default tool resolution, not the original workspace's own pins.
+  All 12 Svelte packages are ported. Client information for `bestierealestate` is deferred to the client library
+  (the main session's `clients` scope), to be registered after alignment.
