@@ -36,7 +36,12 @@ Three levels: **role** (`packages/` vs `frameworks/`; a `tools/` may join later)
 **Dependency direction:** shared kits (`persistence`, `http`, `money`, `location`, `localization`,
 `formatting`, `notifications`, `jobs`, `ui`, `reference-data`) never import feature kits; no cycles; a
 feature kit imports another only through a declared edge. Known violation to invert: `scheduler` (`jobs`)
-imports `news/feed`.
+imports `news/feed`. **`platform/tools/check_kit_edges.py` enforces this** (CI: `kit-edges.yml`; locally,
+`python3 platform/tools/check_kit_edges.py`). It reads the kit from each package's folder and the edges from `go.mod`
+and `package.json`. The shared kits, the declared feature-to-feature edges and the known violation are data in
+`platform/tools/kit-edges.toml`: to allow a new feature-to-feature edge, add it there with its reason; when the
+`jobs` violation is inverted, delete its entry (a stale entry fails the check). `platform/tools/` holds
+language-neutral checks over both stacks; it is not a package role.
 
 Directory placement is independent of import identity: kits are directories only.
 

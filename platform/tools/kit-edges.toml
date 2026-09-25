@@ -1,0 +1,39 @@
+# Rules for platform/tools/check_kit_edges.py. Design: docs/proposals/bos-system-design.md, section 3.1.
+#
+# A kit is a folder under platform/<lang>/packages/. A kit either is shared or is not; every kit that is not
+# listed here is a feature kit. Shared kits never depend on feature kits. A feature kit depends on another
+# only through an edge declared below, with the reason. The check fails on any other edge, and on any entry
+# here that no package depends on any more, so this file cannot drift from the code.
+
+shared = [
+  "persistence", "http", "money", "location", "localization",
+  "formatting", "notifications", "jobs", "ui", "reference-data",
+]
+
+# Feature kit -> feature kit, on purpose. The edge is kit-level: it may exist on either stack or both.
+[[declared]]
+from = "cms"
+to = "contacts"
+reason = "cms imports contacts/socialnetwork (Go)"
+
+[[declared]]
+from = "cms"
+to = "seo"
+reason = "cms imports seo (Go)"
+
+[[declared]]
+from = "faq"
+to = "seo"
+reason = "faq imports seo (Go)"
+
+[[declared]]
+from = "real-estate"
+to = "seo"
+reason = "real-estate/collection and real-estate/property import seo (Go)"
+
+# Shared kit -> feature kit: a violation that exists today. It passes only while listed here, and the entry
+# must go when the edge is removed.
+[[known_violation]]
+from = "jobs"
+to = "news"
+reason = "jobs/scheduler imports news/feed; invert it so jobs register themselves (the jobs slice, M3)"
