@@ -39,7 +39,7 @@ type RateProvider interface {
 //   - The rate is guarded: nil or sign <= 0 -> ErrInvalidRate.
 //   - Exact conversion is done with math/big, then rounded HALF-EVEN (banker's)
 //     to int64 minor units:
-//       to_minor = round_half_even( m.Amount * rate * 10^(to.decimals - from.decimals) )
+//     to_minor = round_half_even( m.Amount * rate * 10^(to.decimals - from.decimals) )
 //   - A result outside [MinInt64, MaxInt64] -> ErrOverflow (never wrapped).
 //
 // Money is signed: a negative amount converts to a negative amount.
