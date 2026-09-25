@@ -1,0 +1,6 @@
+name: chat-api-postgres
+kind: datastore
+description: Postgres database for chat-api-python's session storage.
+image: postgres:16
+ports: ["54322:5432"]
+env: [POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB]

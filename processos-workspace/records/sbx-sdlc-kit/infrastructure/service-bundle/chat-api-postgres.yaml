@@ -1,0 +1,3 @@
+name: chat-api-postgres
+description: Postgres for chat-api-python's session storage (real deployment, not postgres-dev).
+services: [chat-api-postgres]

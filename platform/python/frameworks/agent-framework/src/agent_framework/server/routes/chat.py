@@ -27,7 +27,9 @@ def build_router(agents: dict[str, RegisteredAgent], store: SessionStore) -> API
         if registered is None:
             raise HTTPException(status_code=404, detail=f"no agent named {name!r}")
         deps = registered.build_deps(session)
-        result = await registered.agent.run(request.message, deps=deps)
+        result = await registered.agent.run(request.message, deps=deps, message_history=session.messages)
+        session.messages = result.all_messages()
+        await store.save(session)
         return ChatResponse(reply=str(result.output))
 
     return router
