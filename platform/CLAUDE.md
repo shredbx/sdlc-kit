@@ -1,42 +1,50 @@
 # platform/ — where packages, kits and frameworks live
 
 Loaded automatically when working under `platform/`. Full design and the reasons behind every rule
-below: `docs/proposals/bos-system-design.md` (section 3.1 is the taxonomy).
+below: `docs/proposals/bos-system-design.md` (section 3.1 is the layout).
 
 ## Layout
 
-`platform/<lang>/{packages/<group>/<package>, kits/<domain>, frameworks/<name>}` for `go` and `svelte`.
-`platform/python` is one family (process-kit) belonging to another track and sits outside this
-taxonomy.
+`platform/<lang>/{packages/<kit>/<package>, frameworks/<name>}` for `go` and `svelte`.
+`platform/python` is one family (process-kit) belonging to another track and sits outside this layout.
 
-- **package** — one job, one language, depends only downward.
-- **kit** — one domain area across both stacks (handlers, repositories, migrations, routes,
-  components, admin pages). Finer-grained than groups: a kit draws packages from several groups.
+Three levels: **role** (`packages/` vs `frameworks/`; a `tools/` may join later), **kit**, **package**.
+
+- **package** — one library, one job, one language, own module; depends only downward.
+- **kit** — one functionality's family of packages: the top-level folder under `packages/` (`seo`,
+  `calendar`, `contacts`, `persistence`). It grows by adding packages; nothing moves. Later it also carries
+  its bos wiring (handlers, migrations, routes, admin pages) — where that lives is open decision D15.
 - **framework** — composes kits; no domain of its own (`bos-go`, `bos-svelte`).
 
-## Placing a package
+## Naming and placing a package
 
-Test, in order — the first that fits wins:
+1. **Placement test:** which functionality does this package serve? Put it in that kit. Create the kit when
+   its first package lands — never pre-scaffold. A package no single feature owns gets a shared kit named
+   for what it does (`persistence`, `http`, `money`).
+2. **Naming test:** a kit name must tell a newcomer what is inside without its parent folder. Generic nouns
+   (`property`, `transaction`, `collection`, `dictionary`, `units`) are package names only, under a kit that
+   qualifies them (`real-estate/property`, `reference-data/dictionary`). Never `utils`, `common`, `core`,
+   `shared` or `misc` as a kit.
+3. **A package named like its kit is the kit folder:** `packages/seo`, not `packages/seo/seo`. Every other
+   package is a subfolder (`packages/calendar/ical`). A kit with no package of its own name is just a group
+   (`identity/`, `contacts/`).
+4. The same kit names apply on both stacks (`seo` holds the Go package `seo` and the Svelte package `ui-seo`).
+5. **Not bos:** SDLC/workspace tooling (`sdlc`, `vault`, `project`, `workspace`, `trace`, `dokploy`, …)
+   never enters these trees.
+6. Used by two or more feature kits → it moves **down** into a shared kit, never sideways.
 
-1. Pure data type or small logic, no I/O, no product vocabulary → `datatypes` (money, phone number,
-   address, units, text template).
-2. Generic technical plumbing (Go) or UI base (Svelte), no product vocabulary → `foundation` — the
-   building blocks everything else stands on.
-3. Product vocabulary → the domain area it serves: `identity` (users, roles, login), `content` (managed
-   content and reference data), `media`, `crm` (contacts, inquiries, appointments), `analytics`,
-   `real-estate`. Create the folder when its first package lands — never pre-scaffold.
-4. Used by two or more domain areas → it moves **down** (`datatypes` / `foundation`), never sideways.
+**Dependency direction:** shared kits (`persistence`, `http`, `money`, `location`, `localization`,
+`formatting`, `notifications`, `jobs`, `ui`, `reference-data`) never import feature kits; no cycles; a
+feature kit imports another only through a declared edge. Known violation to invert: `scheduler` (`jobs`)
+imports `news/feed`.
 
-**Dependency direction:** `datatypes` ← `foundation` ← domain areas. A domain area may import another only
-through a declared edge. Known violation to invert: `scheduler` (foundation) imports `feed` (content).
-
-The same groups apply to both stacks. Directory placement is independent of import identity: groups are
-directories only.
+Directory placement is independent of import identity: kits are directories only.
 
 ## Rules for every port
 
 - **Verbatim first.** Ported sources are byte-identical to the shredbx original. Authored files are only
   workspace roots, `go.mod`/`go.sum`, CI and docs. Any refactor (formatting included) is its own commit.
+- **Port only what the app uses.** Other product packages wait for a consumer that needs them.
 - **Names stay verbatim until M5:** Go module paths `github.com/shredbx/sbx-core/pkg/<name>`, npm names
   `@sbx/*`. Do not rename imports while porting.
 - **Go modules:** one module per package (a sub-package with its own `go.mod` is a nested module inside its

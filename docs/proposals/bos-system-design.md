@@ -3,12 +3,13 @@
 Last updated: 2026-09-25
 tags: bos, bestierealestate, bestays, go, svelte, decomposition, proposal
 
-Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup, remaining Go L0/L1 ports)
-and 3b (group renames for clarity) approved and done on 2026-09-25** (logs:
+Status: **plan approved; Scopes 1–3 (leaf ports, package taxonomy and regroup, remaining Go L0/L1 ports),
+3b (group renames) and 3c (regroup into kits by functionality) approved and done on 2026-09-25** (logs:
 `docs/plans/2026-09-25-bos-scope-1-workspaces-and-leaf-ports.md`,
 `docs/plans/2026-09-25-bos-scope-2-package-taxonomy-and-regroup.md`,
 `docs/plans/2026-09-25-bos-scope-3-go-l0-l1-ports.md`,
-`docs/plans/2026-09-25-bos-scope-3b-group-renames.md`). Per `CLAUDE.md`, approval is per
+`docs/plans/2026-09-25-bos-scope-3b-group-renames.md`,
+`docs/plans/2026-09-25-bos-scope-3c-kits-by-functionality.md`). Per `CLAUDE.md`, approval is per
 scope: this document fixes the *direction* and the *first scopes*; every later scope gets its own
 before/after file tree and its own confirmation before anything is written.
 
@@ -23,9 +24,10 @@ When the work is finished, the Go + SvelteKit product that runs in production to
 `bestierealestate` runs **identically** (same routes, same API bytes, same rendered pages, same
 database schema), but its source is no longer an app:
 
-- The code lives **once**, in `sdlc-kit/platform/`, as **packages** (libraries), **kits** (one
-  domain area across Go and Svelte: handlers, repositories, migrations, routes, components, admin
-  pages) and two **frameworks** (`bos-go`, `bos-svelte`) that assemble kits into a running app.
+- The code lives **once**, in `sdlc-kit/platform/`, as **packages** (libraries) grouped into **kits** (one
+  functionality's family: `seo`, `calendar`, `contacts`, …) and two **frameworks** (`bos-go`,
+  `bos-svelte`) that assemble kits into a running app. Where a kit's app-side wiring (handlers,
+  repositories, migrations, routes, admin pages) lives is open decision D15.
 - `bestierealestate` is a **consumer**: a configuration spec, branding, seed content, and a minimum of
   genuinely product-specific code. Its own repo, its own process-os workspace.
 - `bestays` (a Next.js app today) becomes the **second consumer** of the same system: same kits, plus
@@ -63,8 +65,8 @@ four read-only recon passes on 2026-09-25 (Svelte app, Go API, shared libraries,
 
 | Term | Meaning | Test for "does this belong here?" |
 |---|---|---|
-| **package** | One job, one language, depends only downward. `money`, `repository`, `ui-seo`. Lives in a *group* (section 3.1). | Reusable with no knowledge of any other domain area. |
-| **kit** | One *domain area* across both stacks: Go handlers + repositories + register + migrations, Svelte routes + components + admin pages, and the spec keys it reads. `faq`, `identity`, `property-catalog`. | Carries domain vocabulary (property, booking, faq). |
+| **package** | One library, one job, one language, own module and dependencies. `money`, `repository`, `ui-seo`. Lives in a *kit* (section 3.1). | Reusable with no knowledge of any other functionality. |
+| **kit** | One *functionality's* family of packages: `calendar` (core, iCal, later integrations, UI), `contacts`, `seo`. It is the top-level folder under `packages/`. Later it also carries its bos wiring — Go handlers, repositories, migrations, `Register`; Svelte routes, components, admin pages; the spec keys it reads — where that lives is D15. The same idea as Python's `process-kit`. | Its name says what it does to a newcomer, without its parent folder. |
 | **framework** | Composes kits into an app; no domain of its own. `bos-go`, `bos-svelte`. | Only assembles, configures, runs. |
 | **preset** | *Data*: a named bundle of enabled kits, dictionaries, roles, nav skeleton, defaults. `real-estate`. | A choice, not code. |
 | **consumer** | preset + brand + seed + overrides + connection config. `bestierealestate`, later `bestays`. | Would differ between two clients. |
@@ -78,56 +80,74 @@ customization; presets are data and kits are already separate, so promotion stay
 The word **capability** is reserved for the 13 SDLC capabilities (`architecture`, `infrastructure`, …)
 that govern this workspace's process-os namespaces. Product areas are called **domain areas**.
 
-### 3.1 Package taxonomy and placement rules
+### 3.1 Package layout and placement rules
 
-One taxonomy for both stacks: `platform/<lang>/packages/<group>/<package>`.
+One layout for both stacks: `platform/<lang>/{packages/<kit>/<package>, frameworks/<name>}`. Three levels:
 
-- **`datatypes`** — pure data types and small logic: no I/O, no product vocabulary (money, phone number,
-  address, units, text template).
-- **`foundation`** — the generic building blocks everything else stands on: backend plumbing (Go) or the
-  UI base (Svelte); no product vocabulary.
-- **Domain areas** — anything with product vocabulary, in the area it serves: `identity` (users, roles,
-  login), `content` (managed content and reference data), `media`, `crm` (contacts, inquiries,
-  appointments), `analytics`, `real-estate`. A domain folder is created when its first package lands,
-  never pre-scaffolded.
+| Level | Names | Why it exists |
+|---|---|---|
+| role | `packages/` · `frameworks/` (a `tools/` may join later) | dependency direction: frameworks depend on packages, never the reverse (the pair Python already has) |
+| kit | `seo`, `calendar`, `contacts`, `persistence` … | groups one functionality's packages; a kit grows without anything moving |
+| package | `address`, `ical`, `repository` … | one library, one module, isolated dependencies |
 
-**Placement test, in order:**
-1. Pure data type or small logic, no I/O, no product vocabulary → `datatypes`.
-2. Generic technical plumbing or UI base, no product vocabulary → `foundation`.
-3. Product vocabulary → the domain area it serves.
-4. Used by two or more domain areas → it moves *down* (`datatypes` / `foundation`), never sideways.
+Rules (decided 2026-09-25, Scope 3c, after four review rounds — see the decision log):
 
-**Dependency direction:** `datatypes` ← `foundation` ← domain areas. A domain area may import another
-only through a declared edge (an architecture test enforces this later). Known violation today:
-`scheduler` (foundation) imports `feed` (content) — to be inverted so jobs register themselves.
+1. **The top level of `packages/` is a kit, named by functionality.**
+2. **Naming test:** a kit name must tell a newcomer what is inside without its parent folder. Generic nouns
+   (`property`, `transaction`, `collection`, `dictionary`, `units`) are package names only, under a kit
+   that qualifies them (`real-estate/property`, `reference-data/dictionary`).
+3. **A package with the same name as its kit is the kit folder** (`packages/seo`, not `packages/seo/seo`);
+   every other package is a subfolder (`packages/calendar/ical`). A kit with no package of its own name is
+   just a group (`identity/`, `contacts/`). Nested modules already exist in the tree
+   (`persistence/repository/postgres`); Go's own stdlib has both shapes (`net` + `net/http`; `text/` is only a group).
+4. **Placement test:** which functionality does this package serve? Put it in that kit; create the kit when
+   its first package lands, never pre-scaffold. A package no single feature owns gets a shared kit named for
+   what it does (`persistence`, `http`, `money`).
+5. Directory placement is independent of import identity: module paths and npm names stay verbatim until
+   M5 (D7).
+6. **Not bos:** the 45 SDLC/workspace-tooling packages in `sbx-core` (`sdlc`, `vault`, `project`,
+   `workspace`, `trace`, `dokploy`, …) never enter the product tree.
 
-**Directory placement is independent of import identity.** Groups are directories only; module paths
-and npm names stay verbatim until M5 (D7). Kits are finer-grained than groups: a kit draws packages
-from several groups.
+**Dependency direction:** shared kits (`persistence`, `http`, `money`, `location`, `localization`,
+`formatting`, `notifications`, `jobs`, `ui`, `reference-data`) never import feature kits; no cycles; a
+feature kit may import another only through a declared edge (an architecture test enforces this later).
+Known violation today: `scheduler` (`jobs`) imports `news/feed` — to be inverted so jobs register themselves.
+
+**Full estate behind this** (read-only inventory, 2026-09-25): `sbx-core/pkg` has 89 Go packages — 30
+top-level packages in the app's closure (34 modules with sub-packages), 4 more product packages outside it
+(`authz`, `land`, `mapoutline`, `utilityreading`), 8 still to classify (`catalogue`, `csvimport`,
+`document`, `i18n`, `identitydocument`, `person`, `persistence`, `storage`), 2 superseded stubs (`lease`,
+`leaseparticipant`, superseded by `transaction`) and 45 SDLC/workspace tooling. Svelte: 18 packages under
+`sbx/packages`, 12 in the closure; `ui-video` fits `media`; `i18n-svelte`, `ui-code`, `ui-diagram`,
+`games`, `receipts`, `review-receipts` were seen by name only. The 4 product packages outside the closure
+fit existing kits without a new axis.
+
+End state of the closure (✔ ported · ○ later scope):
 
 ```
 platform/go/packages/
-├── datatypes/     money · phonenumber · language · geocoordinate · personname · socialnetwork · seo · address
-├── foundation/    database · repository (+postgres) · httputil · notify · scheduler (+schedcli)
-├── identity/      user · rbac · auth
-├── content/       dictionary · rss · feed · cms · faq
-├── media/         image · video
-├── crm/           contact (+vcard) · inquiry · calendar (+ical)
-├── analytics/     visitoractivity
-└── real-estate/   collection · property · transaction            → 34 modules (30 top-level + 4 nested)
+├── seo ✔ · money ✔ · calendar ○ (+ical) · faq ○ · cms ○      a package named like its kit sits at the kit root
+├── real-estate/     collection ✔ · property ○ · transaction ○
+├── reference-data/  dictionary ✔
+├── identity/        user ✔ · rbac ✔ · auth ○
+├── contacts/        personname ✔ · phonenumber ✔ · socialnetwork ✔ · contact ○ (+vcard) · inquiry ○
+├── location/        geocoordinate ✔ · address ✔
+├── media/           image ✔ · video ✔
+├── news/            rss ✔ · feed ✔
+├── persistence/     database ✔ · repository ✔ (+postgres)
+├── localization/language ✔ · notifications/notify ✔ · http/httputil ✔
+└── analytics/visitoractivity ○ · jobs/scheduler ○ (+schedcli)          → 34 modules (30 top-level + 4 nested)
 
 platform/svelte/packages/
-├── datatypes/     units · text-template
-├── foundation/    animations · core-ui (decomposed in M1)
-├── content/       ui-seo
-├── media/         canvas-kit · ui-image · canvas-ui · ui-source-picker
-├── crm/           ui-calendar · ui-contact
-└── real-estate/   ui-map                                          → 12 packages
+├── ui/              core-ui ○ · animations ○
+├── formatting/      units ✔ · text-template ✔
+├── media/           canvas-kit ✔ · canvas-ui ○ · ui-image ○ · ui-source-picker ○
+└── seo/ui-seo ○ · contacts/ui-contact ○ · calendar/ui-calendar ○ · location/ui-map ○          → 12 packages
 ```
 
-`units` sits in `datatypes` because `core-ui` and `ui-map` depend on it, even though its Thai land units
-are real-estate flavoured: the dependency direction wins. Python (`platform/python`) is untouched — it
-is one family (process-kit) belonging to another track.
+`core-ui` (in `ui`) depends on `formatting/units`: shared kits are imported by others, never the reverse.
+Python (`platform/python`) is untouched — it is one family (`process-kit`: a dist-name prefix over a flat
+`packages/`) belonging to another track.
 
 ## 4. Approach
 
@@ -150,15 +170,16 @@ the second real instance earns a template/action); scoped test runs per package,
 | D3 | `bestays` is consumer #2: same kits + `bookings` kit − selling, own branding | Stated by user |
 | D4 | System `bos` = frameworks + kits + presets; no separate realestate-platform tier | Proposed; user's follow-up answers assumed it but did not explicitly confirm |
 | D5 | Strangler-in-place approach (section 4) | Proposed |
-| D6 | Go: **one module per package** under one `go.work` (34 modules, 4 nested as sub-packages). Reason: `sbx-core` is one module that drags aws-sdk/webp/jwt/redis onto every consumer; per-package modules make "enabled kits" true at the dependency level | Proposed |
+| D6 | Go: **one module per package** under one `go.work` (34 modules, 4 nested as sub-packages). Reason: `sbx-core` is one module that drags aws-sdk/webp/jwt/redis onto every consumer; per-package modules make "enabled kits" true at the dependency level. Revisit at M5: about a dozen product packages are under 150 LOC, so one module each is heavy — a kit may become the Go module, with packages inside it | Proposed |
 | D7 | Names stay **verbatim** through M0 (`github.com/shredbx/sbx-core/pkg/<name>` module paths — nested module paths are legal, longest prefix wins — and `@sbx/*` npm names); final names decided at M5 via a mechanical codemod. Directories are grouped from Scope 2 (D13): placement and import identity are independent | Proposed |
 | D8 | Oracle runs on deterministic seed + synthetic users only, never on production backups | Proposed |
 | D9 | Consumer routes are committed one-line re-export shims (generated from the spec, drift-checked by `conform`) **or** a build-time composed directory; decided by the M1 spike, lean = shims (an override is then just a real file at that path) | Open — spike decides |
 | D10 | Kit join manifests and presets are process-os **records** (`records/sbx-sdlc-kit/<capability>/{kit,preset}/`), with schemas modeled per-definition after the shape is proven; namespace chosen capability-first (the 13 SDLC capabilities) at that time | Proposed; nothing modeled yet |
 | D11 | Framework reads all env-specific settings from config; neutral env names with a consumer-side mapping so production's existing secrets keep working until cutover; the schema name becomes one config value | Proposed; scheme settled in M2 |
-| D12 | "Selling" must be switchable by configuration, not by deleting code: the real-estate kit splits into `property-catalog` and `transactions`, with property offerings (`for_sale`/`for_lease`) a spec key | Proposed; inference from recon, confirmed against code in M4 |
-| D13 | Package taxonomy and placement rules (section 3.1): `platform/<lang>/packages/<group>/<package>`, groups `datatypes`, `foundation` + domain areas created lazily; the same taxonomy on both stacks | Accepted 2026-09-25; renamed the same day for clarity: `values` → `datatypes`, `engagement` → `crm` (Scope 3b) |
+| D12 | "Selling" must be switchable by configuration, not by deleting code. `transaction` is a package inside the `real-estate` kit next to `property` (not a kit of its own); property offerings (`for_sale`/`for_lease`) are a spec key, and switching `transaction` off is a per-package setting, decided when `bestays` exists and two consumers can be compared | Proposed; revised 2026-09-25 (was: a `property-catalog` / `transactions` kit split); confirmed against code in M4 |
+| D13 | Package layout and placement rules (section 3.1): `platform/<lang>/{packages/<kit>/<package>, frameworks/}`; a kit is a functional family named by functionality (naming test); a package named like its kit is the kit folder; the same kit names on both stacks | Accepted 2026-09-25 after four review rounds; supersedes the Scope 2 taxonomy (`datatypes`, `foundation` + domain groups) and the Scope 3b renames |
 | D14 | "capability" is reserved for the 13 SDLC capabilities; product areas are "domain areas" | Accepted with D13 |
+| D15 | Where a kit's bos wiring (handlers, repositories, migrations, routes, admin pages) lives. Wiring imports bos-go's `Module` contract, so it cannot sit under `packages/` if packages never import frameworks. Candidates: (a) a separate `platform/<lang>/kits/<kit>` layer; (b) inside the kit folder, with the contract extracted as a tiny leaf package | Open — the FAQ slice in M2 decides; nothing in Scopes 3c–7 depends on it |
 
 ## 6. Final structure
 
@@ -167,23 +188,19 @@ the second real instance earns a template/action); scoped test runs per package,
 ```
 sdlc-kit/
 ├── platform/
-│   ├── CLAUDE.md                          placement test · dependency direction · group map (auto-loaded here)
+│   ├── CLAUDE.md                          layout · naming test · placement · dependency direction (auto-loaded here)
 │   ├── python/ …                          (unchanged: packages/×7, frameworks/{process-framework, agent-framework})
 │   ├── go/
 │   │   ├── go.work
-│   │   ├── packages/<group>/<package>     34 modules, verbatim ports of sbx-core pkg/*  (section 3.1, table 6.3)
-│   │   ├── kits/                          Go half of each domain area: handlers · repositories · register · migrations/
-│   │   │   ├── identity/  content/  seo/  media/  dictionary/  faq/  contact/  calendar/
-│   │   │   ├── news/  scheduler/  analytics/  documents/
-│   │   │   ├── property-catalog/  transactions/       (the real-estate kits, split so selling can be switched off)
-│   │   │   └── assistant/                              (thin proxy to the Python service; held in consumer first)
-│   │   └── frameworks/bos-go/             Module interface · buildRouter · config · migration composer · middleware chain
+│   │   ├── packages/<kit>/<package>       34 modules, verbatim ports of sbx-core pkg/*  (section 3.1, table 6.3)
+│   │   └── frameworks/bos-go/             Module contract · buildRouter · config · migration composer · middleware chain
 │   ├── svelte/
 │   │   ├── pnpm-workspace.yaml · package.json · pnpm-lock.yaml
-│   │   ├── packages/<group>/<package>     12 packages (section 3.1, table 6.4); core-ui decomposed into ui-* packages (provisional)
-│   │   ├── kits/                          Svelte half, same domain names: routes · components · admin pages
+│   │   ├── packages/<kit>/<package>       12 packages (section 3.1, table 6.4); core-ui decomposed into ui-* packages (provisional)
 │   │   └── frameworks/bos-svelte/         app shells (public / admin / minimal) · module registry · site-config · theme · API client · auth hooks
-│   └── (later) bookings kit for bestays, in both halves
+│   │   kit wiring (Go: handlers · repositories · register · migrations; Svelte: routes · components · admin pages)
+│   │   lands in M2/M3; where it lives is open (D15)
+│   └── (later) bookings kit for bestays, in both stacks
 ├── processos-workspace/
 │   ├── definitions/sbx-sdlc-kit/<capability>/…    kit / preset / consumer-spec schemas, port + equivalence actions,
 │   │                                              go/svelte package templates — each created only after per-definition approval
@@ -220,64 +237,64 @@ consumers/clients/bestie-bestierealestate/          (its own repo and process-os
 Success measure (audited at M5): hand-written consumer code is a small fraction of today's ~180k LOC;
 brand tokens appear only in `brand.yaml`/`app.css`; nothing in `platform/` names a client.
 
-### 6.3 Go packages — where each of the 34 goes (verbatim, `platform/go/packages/<group>/<package>`)
+### 6.3 Go packages — where each of the 34 goes (verbatim, `platform/go/packages/<kit>/<package>`)
 
 Layer = dependency layer within the closure (L0 = no in-repo imports). Src/test LOC from source.
-✔ = ported. Nested modules sit inside their parent's folder.
+✔ = ported. Nested modules sit inside their parent's folder. A package named like its kit is the kit folder.
 
-| Group | Package (src / test LOC) | Layer | Serves kit | Status |
+| Path under `packages/` | Src / test LOC | Layer | Notes | Status |
 |---|---|---|---|---|
-| datatypes | money (843/911) | L0 | property-catalog, transactions | ✔ |
-| datatypes | phonenumber (56/111) | L0 | contact | ✔ |
-| datatypes | language (60/28) | L0 | content, contact | ✔ |
-| datatypes | geocoordinate (65/85) | L0 | property-catalog | ✔ |
-| datatypes | personname (56/187) | L0 | contact | ✔ |
-| datatypes | socialnetwork (109/187) | L0 | content, contact | ✔ |
-| datatypes | seo (137/118) | L0 | seo | ✔ |
-| datatypes | address (409/761) | L1 | property-catalog, contact, content | ✔ |
-| foundation | notify (272/122) — Telegram + SMTP notifier (`telegram.go`, `smtp.go`) | L0 | kit assigned when read (likely contact/inquiry alerts) | ✔ |
-| foundation | database (965/588) | L0 | bos-go (migrations, pool) | ✔ |
-| foundation | repository (411/557) | L0 | bos-go, all kits | ✔ |
-| foundation | repository/postgres (1,149/660) — nested | L1 | bos-go | ✔ |
-| foundation | httputil (405/429) | L1 | bos-go | ✔ |
-| foundation | scheduler (955/915) — imports `content/feed` today (edge to invert) | L2 | scheduler | |
-| foundation | scheduler/schedcli (232/0) — nested | L3 | scheduler | |
-| identity | rbac (374/362) | L0 | identity | ✔ |
-| identity | user (412/112) | L1 | identity | ✔ |
-| identity | auth (2,631/3,189) | L2 | identity | |
-| content | rss (1,937/2,037) | L0 | news | ✔ |
-| content | dictionary (909/638) | L1 | dictionary | ✔ |
-| content | feed (343/221) | L1 | news | ✔ |
-| content | cms (1,561/1,497) — self-declared BR-local; genericize or keep, decided in the content kit | L2 | content | |
-| content | faq (580/482) | L2 | faq | |
-| media | image (2,265/1,541) — coupled to Postgres and S3 | L0 | media | ✔ |
-| media | video (855/513) | L0 | media | ✔ |
-| crm | contact (1,216/417) | L2 | contact | |
-| crm | contact/vcard (677/499) — nested | L3 | contact | |
-| crm | inquiry (451/279) | L2 | contact | |
-| crm | calendar (797/413) | L2 | calendar | |
-| crm | calendar/ical (893/878) — nested | L3 | calendar | |
-| analytics | visitoractivity (1,675/1,945) | L2 | analytics | |
-| real-estate | collection (292/246) | L1 | property-catalog | ✔ |
-| real-estate | property (4,939/3,256) | L2 | property-catalog | |
-| real-estate | transaction (1,290/1,073) | L2 | transactions | |
+| `money` | 843/911 | L0 | | ✔ |
+| `seo` | 137/118 | L0 | | ✔ |
+| `location/geocoordinate` | 65/85 | L0 | | ✔ |
+| `location/address` | 409/761 | L1 | | ✔ |
+| `contacts/phonenumber` | 56/111 | L0 | | ✔ |
+| `contacts/personname` | 56/187 | L0 | | ✔ |
+| `contacts/socialnetwork` | 109/187 | L0 | | ✔ |
+| `contacts/contact` | 1,216/417 | L2 | | |
+| `contacts/contact/vcard` | 677/499 | L3 | nested | |
+| `contacts/inquiry` | 451/279 | L2 | | |
+| `localization/language` | 60/28 | L0 | | ✔ |
+| `notifications/notify` | 272/122 | L0 | Telegram + SMTP notifier (`telegram.go`, `smtp.go`) | ✔ |
+| `persistence/database` | 965/588 | L0 | migrations, pool (bos-go) | ✔ |
+| `persistence/repository` | 411/557 | L0 | | ✔ |
+| `persistence/repository/postgres` | 1,149/660 | L1 | nested | ✔ |
+| `http/httputil` | 405/429 | L1 | | ✔ |
+| `jobs/scheduler` | 955/915 | L2 | imports `news/feed` today (edge to invert) | |
+| `jobs/scheduler/schedcli` | 232/0 | L3 | nested | |
+| `identity/rbac` | 374/362 | L0 | | ✔ |
+| `identity/user` | 412/112 | L1 | | ✔ |
+| `identity/auth` | 2,631/3,189 | L2 | | |
+| `news/rss` | 1,937/2,037 | L0 | | ✔ |
+| `news/feed` | 343/221 | L1 | | ✔ |
+| `reference-data/dictionary` | 909/638 | L1 | flat code/label lookup lists (property-type, land-size-unit, amenities) | ✔ |
+| `cms` | 1,561/1,497 | L2 | self-declared BR-local; genericize or keep, decided in its slice | |
+| `faq` | 580/482 | L2 | | |
+| `media/image` | 2,265/1,541 | L0 | coupled to Postgres and S3 | ✔ |
+| `media/video` | 855/513 | L0 | | ✔ |
+| `calendar` | 797/413 | L2 | | |
+| `calendar/ical` | 893/878 | L3 | nested | |
+| `analytics/visitoractivity` | 1,675/1,945 | L2 | | |
+| `real-estate/collection` | 292/246 | L1 | | ✔ |
+| `real-estate/property` | 4,939/3,256 | L2 | | |
+| `real-estate/transaction` | 1,290/1,073 | L2 | selling is switchable (D12) | |
 
-### 6.4 Svelte/TS packages — where each of the 12 goes (`platform/svelte/packages/<group>/<package>`)
+### 6.4 Svelte/TS packages — where each of the 12 goes (`platform/svelte/packages/<kit>/<package>`)
 
-| Group | Package (src LOC) | Notes | Status |
+| Path under `packages/` | Src LOC | Notes | Status |
 |---|---|---|---|
-| datatypes | units (402) | pure TS; depended on by `core-ui` and `ui-map` (hence `datatypes`) | ✔ |
-| datatypes | text-template (115) | pure TS | ✔ |
-| foundation | animations (1,821) | pure TS; no tests (author some); needed by `core-ui` | |
-| foundation | core-ui (44,748) | ported as ONE package first (needs `animations` + `units`); decomposed in M1 into `ui-primitives`, `ui-layouts`, `ui-navigation`, `ui-sections`, `ui-viz`, `ui-blocks`, `ui-theme`, `ui-analytics`, `ui-language` (provisional — only BR-imported subpaths) | |
-| content | ui-seo (1,285) | imports `core-ui` (2 files); `$app/state` coupling in `SeoHead` only | |
-| media | canvas-kit (4,474) | pure TS, LOW drift | ✔ |
-| media | ui-image (4,013) | imports `core-ui` (8 files) | |
-| media | ui-source-picker (1,137) | zero tests | |
-| media | canvas-ui (14,299) | zero tests, 8 deep imports into `core-ui`'s `Modal.svelte`, token contract with no declarations | |
-| crm | ui-calendar (3,851) | declares `core-ui`, imports it 0 times | |
-| crm | ui-contact (1,172) | imports `core-ui` (2 files); hardcodes consumer tokens | |
-| real-estate | ui-map (7,995) | declares `core-ui`, imports it 0 times; parcel/plot code | |
+| `formatting/units` | 402 | pure TS (date, number, area, land units); depended on by `core-ui` and `ui-map` | ✔ |
+| `formatting/text-template` | 115 | pure TS | ✔ |
+| `ui/animations` | 1,821 | pure TS; no tests (author some); needed by `core-ui` | |
+| `ui/core-ui` | 44,748 | ported as ONE package first (needs `animations` + `units`); decomposed in M1 into `ui-primitives`, `ui-layouts`, `ui-navigation`, `ui-sections`, `ui-viz`, `ui-blocks`, `ui-theme`, `ui-analytics`, `ui-language` (provisional — only BR-imported subpaths) | |
+| `seo/ui-seo` | 1,285 | imports `core-ui` (2 files); `$app/state` coupling in `SeoHead` only | |
+| `media/canvas-kit` | 4,474 | pure TS, LOW drift | ✔ |
+| `media/ui-image` | 4,013 | imports `core-ui` (8 files) | |
+| `media/ui-source-picker` | 1,137 | zero tests | |
+| `media/canvas-ui` | 14,299 | zero tests, 8 deep imports into `core-ui`'s `Modal.svelte`, token contract with no declarations | |
+| `calendar/ui-calendar` | 3,851 | declares `core-ui`, imports it 0 times | |
+| `contacts/ui-contact` | 1,172 | imports `core-ui` (2 files); hardcodes consumer tokens | |
+| `location/ui-map` | 7,995 | declares `core-ui`, imports it 0 times; parcel/plot code | |
 
 `workspace:*` breaks `pnpm install` for a package whose declared workspace dependency is missing, so
 the Svelte port order is dependency-driven: `animations` → `core-ui` → the `ui-*` packages.
@@ -287,16 +304,18 @@ the Svelte port order is dependency-driven: `animations` → `core-ui` → the `
 | Kit | Go half (from `api-chi`) | Svelte half (from `web-svelte`) |
 |---|---|---|
 | identity | `internal/handler` auth/users/audit/reset, roles → spec | `(minimal)` login/callback, `admin/users`, `admin/audit`, `admin/reset-requests`, `manage/account` |
-| content | `internal/siteconfig`, `internal/page` (generic part), `internal/localization`, cms handlers | `manage/pages/**` (appearance header/footer/theme), sections renderer, public about/terms/privacy/cookies/services/guides |
+| cms | `internal/siteconfig`, `internal/page` (generic part), `internal/localization`, cms handlers | `manage/pages/**` (appearance header/footer/theme), sections renderer, public about/terms/privacy/cookies/services/guides |
 | seo | seo endpoints, sitemap/robots/llms | `manage/seo`, SEO tab pages, `robots.txt`/`sitemap.xml`/`llms.txt` routes |
 | media | `internal/watermark`, `canvas`, `media`, `imageimport` | `lib/components/media`, `manage/tools/media-canvas`, `manage/marketing/watermarks` |
 | faq | `RegisterPublic/ManageFaqRoutes` | `manage/faq/**`, public `/faq` |
-| contact | contact/inquiry handlers, `internal/qr` | `lib/components/contact`, `manage/contacts/**`, `manage/inquiries/**`, public `/contact` |
-| calendar · news · scheduler · analytics · documents · dictionary | their handlers/repositories (`internal/newsfeed`, `feedcache`, `document`, `registry`…) | `manage/calendar`, `manage/news`, `admin/schedules`+`admin/backup`, `lib/analytics`+`manage/analytics`, `manage/documents`, `manage/content/dictionaries`+`manage/tags` |
-| property-catalog | `internal/propertyfilter`, `autotag`, `areageo`, `agent`, collections, similar/related (extension seam → consumer) | public `/properties/**`, `/search`, `/p/[id]`, `manage/properties/**`, `manage/content/properties/**`, `manage/agents` |
-| transactions | `internal/deal`, transaction handlers | `manage/transactions/**`, public `/sell` |
+| contacts | contact/inquiry handlers, `internal/qr` | `lib/components/contact`, `manage/contacts/**`, `manage/inquiries/**`, public `/contact` |
+| calendar · news · jobs (scheduler) · analytics · documents · reference-data (dictionary) | their handlers/repositories (`internal/newsfeed`, `feedcache`, `document`, `registry`…) | `manage/calendar`, `manage/news`, `admin/schedules`+`admin/backup`, `lib/analytics`+`manage/analytics`, `manage/documents`, `manage/content/dictionaries`+`manage/tags` |
+| real-estate (property) | `internal/propertyfilter`, `autotag`, `areageo`, `agent`, collections, similar/related (extension seam → consumer) | public `/properties/**`, `/search`, `/p/[id]`, `manage/properties/**`, `manage/content/properties/**`, `manage/agents` |
+| real-estate (transaction) | `internal/deal`, transaction handlers | `manage/transactions/**`, public `/sell` |
 | assistant | `aiassistant`, `assistantchat`, `assistantcapabilities` — **held in the consumer**; integrates later with the main session's agent-framework | `manage/ai-assistant/**` — held in the consumer |
 | (framework) | route assembly, middleware order, config, DI | app shells, `NAV_TREE` → derived from kit manifests, API client, auth hooks, site-config loader |
+
+Kit names in this table are the kit folders of section 3.1 (`real-estate` covers both the property and transaction slices). Where a slice's wiring lives is D15.
 
 ## 7. Equivalence oracle — how "identical" is proven
 
@@ -322,31 +341,55 @@ rate-limit key functions; upper- vs lower-case error codes; route registration o
 
 ## 8. Ladder
 
-| Rung | What | Gate |
+| Rung | Approved scopes (estimate) | What | Gate |
+|---|---|---|---|
+| **M0 Baseline** (scopes below) | 8 (3c done) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
+| M1 `bos-svelte` | ≈5 | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
+| M2 `bos-go` | ≈4 | `Module` contract, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped). The slice also settles where kit wiring lives (D15) | route-table diff = 0 |
+| M3 kits | ≈8 | identity → cms → seo → media → contacts → calendar → news → jobs/analytics/documents, one slice each | oracle slice green per kit |
+| M4 real-estate | ≈3 | the `real-estate` slices (property, transaction); consumer keeps only product decisions via extension seams | full oracle green |
+| M4b second consumer | ≈3 | `bestays` on the same kits + `bookings` − selling; extract the preset; the falsifiability test of every kit boundary | bestays needs config + `bookings` only |
+| M5 Thin-out + regroup | ≈2 | consumer footprint audit; final names; a kit may become the Go module (D6); move to `clients/bestie/bestierealestate` | full oracle green |
+| M6 Deploy cutover | own plan | bundle spec and/or the mirror/vendor pipeline redone for a multi-repo layout; parallel run; nothing touches production without separate approval | separate approval |
+
+About 33 approved scopes before M6, ±30%; the FAQ slice gives the first real measurement.
+
+### 8.1 The per-kit loop
+
+| Stage | What happens | Gate |
 |---|---|---|
-| **M0 Baseline** (scopes 1–7 below) | Port the 34 Go + 12 Svelte libraries verbatim with their own tests green; import bestierealestate verbatim so it runs from the new layout; capture the oracle | tests green, oracle captured |
-| M1 `bos-svelte` | Shell + module registry; package conventions settled; brand-token codemod; one API client; spec v0; decompose core-ui | pixel + DOM diff = 0 |
-| M2 `bos-go` | `Module` interface, `buildRouter`, config, single roles list, migration composer; proven on one vertical slice: **FAQ** (small, generic, public + admin, already `Register*Routes`-shaped) | route-table diff = 0 |
-| M3 kits | identity → content → seo → media → faq/contact → calendar → news → scheduler/analytics/documents | oracle slice green per kit |
-| M4 real-estate kits | `property-catalog`, `transactions`; consumer keeps only product decisions via extension seams | full oracle green |
-| M4b second consumer | `bestays` on the same kits + `bookings` − selling; extract the preset; the falsifiability test of every kit boundary | bestays needs config + `bookings` only |
-| M5 Thin-out + regroup | consumer footprint audit; final names; move to `clients/bestie/bestierealestate` | full oracle green |
-| M6 Deploy cutover | its own plan: bundle spec and/or the mirror/vendor pipeline redone for a multi-repo layout; parallel run; nothing touches production without separate approval | separate approval |
+| 1. Port libraries | Verbatim copy into `packages/<kit>/…`, proven by the source's own tests | same pass/skip/fail counts as the original |
+| 2. Import the app | `api-chi` and `web-svelte` copied verbatim into the consumer and run from this repo; the oracle is captured against the original | oracle equals the original |
+| 3. Slice a kit | Move the kit's Go handlers, repositories, migrations and `Register`, and its Svelte routes, components and admin pages, out of the consumer into the kit. Code moves, it is never reshaped | oracle slice green: route table, API bytes, DOM, schema |
+| 4. Spec it | The consumer enables the kit by a config key and its own copy is deleted | oracle green, consumer LOC drops |
+| 5. Second consumer | `bestays` needs only config plus `bookings` | boundaries hold, preset extracted |
+
+Interfaces and integrations are not separate stages. *Interfaces* already exist in the source (the
+repository interface, the notify provider, image storage, the dictionary backends, the domain/adapter
+split); each kit's requires/provides is recorded when its slice lands, not designed ahead. *Integrations*
+are adapter modules behind those interfaces (`repository/postgres` already is one); this migration adds
+none — Google Calendar and similar are growth after M4b, because the goal is an identical app. Once the
+loop has survived three kits it may be proposed as a process-os process (separate approval).
+
+Policy: **port only what the app uses** (34 Go modules, 12 Svelte packages). Other product packages
+(`authz`, `land`, `mapoutline`, `utilityreading`, …) wait for a consumer that needs them.
 
 M0 scopes (provisional order; each gets its own before/after tree and approval). The Svelte order is
 dependency-driven: `ui-image`, `ui-contact` and `ui-seo` import `core-ui`, and `ui-map`/`ui-calendar`
 declare it, so `core-ui` — which needs `animations` and `units` — comes first.
 1. **Scope 1 (done):** workspaces, 8 Go leaf packages, 3 pure-TS packages.
-2. **Scope 2 (done):** package taxonomy and regroup (no new code).
+2. **Scope 2 (done):** package taxonomy and regroup (no new code); superseded by 3b and 3c.
 3. **Scope 3 (done):** the remaining Go L0/L1 packages (13 modules): address, database, repository (+postgres),
    httputil, user, rbac, dictionary, rss, feed, video, image (the unused `watermark/` sub-package stays
    behind), collection.
-4. **Scope 4:** Svelte foundation: `animations`, then `core-ui` (one package, verbatim).
-5. **Scope 5:** Svelte `ui-seo`, `ui-image`, `ui-contact`, `ui-map`, `ui-calendar`, then
-   `ui-source-picker` and `canvas-ui`.
-6. **Scope 6:** Go L2/L3 domain packages: auth, cms, faq, contact (+vcard), inquiry, calendar (+ical),
-   scheduler (+schedcli), visitoractivity, property, transaction.
-7. **Scope 7:** baseline import of the bestierealestate apps + oracle capture.
+4. **Scope 3b (done):** group renames for clarity (`values` → `datatypes`, `engagement` → `crm`).
+5. **Scope 3c (done):** regroup into kits by functionality (section 3.1); 145 renames, no new code.
+6. **Scope 4:** Svelte foundation: `ui/animations`, then `ui/core-ui` (one package, verbatim).
+7. **Scope 5:** Svelte `seo/ui-seo`, `media/ui-image`, `contacts/ui-contact`, `location/ui-map`,
+   `calendar/ui-calendar`, then `media/ui-source-picker` and `media/canvas-ui`.
+8. **Scope 6:** Go L2/L3 domain packages: auth, cms, faq, contact (+vcard), inquiry, calendar (+ical),
+   scheduler (+schedcli), visitoractivity, property, transaction (may split by dependency layer).
+9. **Scope 7:** baseline import of the bestierealestate apps + oracle capture (likely two scopes).
 
 Sizing honesty: the earlier inventory priced the library port alone at ≈195 half-day slices under a
 template-row method. Real packages drop the row/template overhead, but the app-side extraction
@@ -434,3 +477,16 @@ and the client repo. Zero framework code, zero process-os definitions.
   `ui-seo` (2) import `core-ui`; `ui-map`/`ui-calendar` declare it unused; `core-ui` needs `animations` +
   `units`. Svelte order is dependency-driven (section 8); the earlier "adapters first, core-ui last" order
   was wrong.
+- 2026-09-25 — Scope 3c review, four rounds. (1) The user, on `datatypes/seo`: "seo is seo, address-book is
+  address … impossible to maintain" — a scope should be a **kit**, a family of packages that will grow (a
+  calendar gains many integrations), wrapped later by frameworks, like Python's `process-kit`. (2) `kits/` as
+  a folder was rejected: Python has `packages/` + `frameworks/` and the kit is the family, not a role folder.
+  (3) `seo/seo`, `money/money`: a structural stutter, and the design had been sized from the app's closure
+  only; the full estate was inventoried (89 Go / 18 Svelte packages; 45 Go packages are SDLC tooling and
+  stay out) → rule "a package named like its kit is the kit folder". (4) `property` rejected as a generic kit
+  name → `real-estate`; naming test written down; `dictionary` → `reference-data`; `transaction` moved into
+  `real-estate`. D12 revised, D13 replaced, D15 opened. The process (per-kit loop, section 8.1) and the ladder
+  were confirmed with "so far yes". Plan: `docs/plans/2026-09-25-bos-scope-3c-kits-by-functionality.md`.
+- 2026-09-25 — Scope 3c done: 145 renames (129 Go, 16 TS), byte-identical except one `replace` line in each of
+  four `go.mod` files, plus `go.work` and the lockfile importer paths. Go 840 pass / 16 skip / 0 fail equal to the
+  baseline per module; TS 81 / 10 / 396. See the 3c log.
