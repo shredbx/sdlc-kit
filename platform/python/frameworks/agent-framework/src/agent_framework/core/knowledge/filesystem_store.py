@@ -25,8 +25,5 @@ class FilesystemKnowledgeStore(KnowledgeStore):
             canonical_question=data["canonical_question"],
             variations=tuple(data.get("variations", [])),
             tags=tuple(data.get("tags", [])),
-            variants=tuple(
-                KnowledgeVariant(when=v["when"], answer_template=v["answer_template"], tone_note=v.get("tone_note"))
-                for v in data["variants"]
-            ),
+            variants=tuple(KnowledgeVariant(when=v["when"], answer_template=v["answer_template"], tone_note=v.get("tone_note")) for v in data["variants"]),
         )

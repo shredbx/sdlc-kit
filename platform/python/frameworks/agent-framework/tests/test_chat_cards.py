@@ -32,9 +32,7 @@ async def test_plain_str_output_leaves_cards_none() -> None:
 def _structured_reply_model(messages: list, info: AgentInfo) -> ModelResponse:
     reply = AgentReply(
         text="Here's what I found:",
-        cards=[
-            Card(id="123", title="Sea View Villa", subtitle="villa · Srithanu", price_display="฿45,000", link="/p/123")
-        ],
+        cards=[Card(id="123", title="Sea View Villa", subtitle="villa · Srithanu", price_display="฿45,000", link="/p/123")],
     )
     final_result_tool = info.output_tools[0]
     return ModelResponse(parts=[ToolCallPart(tool_name=final_result_tool.name, args=reply.model_dump())])
