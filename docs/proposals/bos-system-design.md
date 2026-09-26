@@ -673,3 +673,7 @@ and the client repo. Zero framework code, zero process-os definitions.
   converted, each proven by a byte round trip. An example harness that used `go.work` without `replace` made the `go` tool look up
   `github.com`; examples are now wired with `require` + `replace` and proven offline. See section 9 of
   `docs/proposals/unit-model-design.md`.
+- 2026-09-26 — Scope U2c done (the unit model, Go, three modules with third-party requirements): records and rendered READMEs for
+  `language`, `rbac` and `database`. The `requirement` type became one form per stack (Python, Go `path@version`); `dependencies` means
+  third-party runtime requirements, gated against `go list`, not `go.mod`. All 20 records check. See section 9 of
+  `docs/proposals/unit-model-design.md`.

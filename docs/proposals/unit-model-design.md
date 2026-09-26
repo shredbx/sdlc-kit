@@ -206,3 +206,26 @@ What this slice taught:
   not enter it. The identity rule already covers it (id `repository-postgres`); nothing needed changing.
 - **`requirement` is still Python-shaped.** U2c records the first modules with third-party dependencies (`persistence/database` uses pgx),
   so the type is loosened there.
+
+### U2c: Go, three modules with third-party requirements (2026-09-26)
+
+`language`, `rbac` and `database` have a record pair and a rendered README each (`docs/plans/2026-09-26-unit-model-scope-U2c.md`). All 20
+records (8 Python, 12 Go) hold every check, and the README examples pass under the offline harness.
+
+What this slice taught:
+
+- **`requirement` is one type with one form per stack.** Written as the stack's manifest writes it: Python `pyyaml>=6`, Go `path@version`. The
+  pattern is an alternation that gains an alternative when a stack's first record needs it (npm at U3). Which stack a string belongs to is
+  checked by the verify step, which knows `stack`, not by the schema.
+- **`dependencies` means third-party runtime requirements; `uses` means in-repo units; dev and test requirements are not recorded.** The
+  Python records already worked this way; my first Go proposal (record every direct `require`) would have made the same field mean two
+  things. The gate compares a record with what non-test code imports (`go list`), not with the text of `go.mod`, because `go.mod` cannot
+  tell a test-only requirement from a runtime one (7 of 47 direct requires are test-only, all `testify`). Svelte will need a peer-dependency
+  field of its own (8 of 12 packages peer-require `svelte`), and its 15 `workspace:*` entries are `uses`.
+- **A README for a unit that needs a service shows two programs.** One runs with nothing (`database`: schema resolution, the failure path of
+  `New`, version numbering) and one is compiled and vetted but never run (connect, migrate, transaction). The harness treats every code block
+  after the first as compile-only. The verify process should do the same.
+- **The example harness handles third-party requirements offline.** After `require` + `replace`, `go mod tidy` runs from the module cache
+  with the real go1.26 binary (`GOPROXY=off`, `GOSUMDB=off`) and makes no lookup. The Install section says "then run `go mod tidy`".
+- **Reading the code again found hazards the comments do not mention** (aliased permission sets, an unquoted schema name, a flattened error
+  cause, an advisory lock taken and released through a pool). They are in the READMEs; the fixes belong to each kit's refinement slice.

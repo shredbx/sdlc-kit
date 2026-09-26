@@ -1,0 +1,58 @@
+name: language
+tagline: >-
+  A one-function check that a string is a real ISO-639-1 language code, backed by the language data in `golang.org/x/text`.
+commands:
+  - "go test ./...    # this module's tests"
+overview: |-
+  `language` answers one question for a content-localization write path: is this a real language? `IsValid(code)` is true only for a lowercase two-letter ISO-639-1 code that is assigned to a language. It runs two gates. The shape gate needs no lookup: exactly two lowercase ASCII letters, which rejects `EN`, `english`, `eng`, `e1` and the empty string. The registry gate asks `golang.org/x/text/language` to parse the code as a base language and requires the result to round-trip to the same two letters, which rejects well-formed but unassigned pairs such as `zz` and `xx`, and `und`, the undefined language.
+
+  There is no table in this package to maintain: the language data comes from the `golang.org/x/text` dependency. `IsValid` accepts any assigned language, whether or not a project offers it. A project's own list of offered languages decides what to show; this check decides what may be stored. Display names are out of scope: the package comment leaves them to `Intl.DisplayNames` in the browser or `x/text/language/display` on the server.
+install: |-
+  `language` is a Go module in the `platform/go` workspace and is not published. Inside the workspace it is listed in `platform/go/go.work`, so there is nothing to install: import it.
+
+  From another module, require it and point the `replace` at this folder (the path is relative to your `go.mod`), then run `go mod tidy` to pull in its one third-party requirement, `golang.org/x/text`:
+
+  ```
+  require github.com/shredbx/sbx-core/pkg/language v0.0.0
+
+  replace github.com/shredbx/sbx-core/pkg/language => <path to platform/go/packages/localization/language>
+  ```
+
+  The import path keeps its original name, `github.com/shredbx/sbx-core/pkg/language`, until the naming pass; only the folder was regrouped.
+usage: |-
+  Check a few codes:
+
+  ```go
+  package main
+
+  import (
+  	"fmt"
+
+  	"github.com/shredbx/sbx-core/pkg/language"
+  )
+
+  func main() {
+  	for _, code := range []string{"en", "th", "zz", "EN", "eng", "und", ""} {
+  		fmt.Printf("%q: %v\n", code, language.IsValid(code))
+  	}
+  }
+  ```
+
+  It prints:
+
+  ```
+  "en": true
+  "th": true
+  "zz": false
+  "EN": false
+  "eng": false
+  "und": false
+  "": false
+  ```
+sections:
+  - heading: "## Configuration"
+    body: |-
+      None. `IsValid` has no settings and keeps no state.
+  - heading: "## Tests"
+    body: |-
+      `go test ./...` in this folder, or `go -C platform/go/packages/localization/language test ./...` from the repository root. The test pins the valid and the invalid codes shown above, and more.

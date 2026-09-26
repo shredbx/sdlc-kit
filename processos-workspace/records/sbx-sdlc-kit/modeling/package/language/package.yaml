@@ -1,0 +1,8 @@
+stack: go
+kit: localization
+name: language
+path: platform/go/packages/localization/language
+version: 0.0.0
+description: "IsValid: a check that a string is a real ISO-639-1 language code, backed by the language data in golang.org/x/text."
+uses: []
+dependencies: [golang.org/x/text@v0.35.0]
