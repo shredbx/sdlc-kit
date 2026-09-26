@@ -155,3 +155,29 @@ Still open, on purpose:
 - **The catalog and sync-and-verify** wait for the second real instance (Go), by the rule of three.
 - **How to draft the 46 new Go and Svelte READMEs** (in YAML, or in markdown and converted to a record) is decided in the Go scope, after
   writing the first three.
+
+### U2a: Go, first slice (2026-09-26)
+
+`seo`, `money` and `location/geocoordinate` have a record pair and a rendered README each (`docs/plans/2026-09-26-unit-model-scope-U2a.md`).
+Every check on all 11 records (8 Python, 3 Go) holds: valid, `name` equals the last path segment, `path` holds a README, every `uses` id has
+a record, the render equals the README byte for byte, `conform` passes, and the README examples compile and print what the README says.
+
+What the Go slice taught:
+
+- **The slice must be closed under `uses`.** `calendar/ical` looked like a leaf and is not (it requires `calendar`). Ordering the Go
+  modules by dependency level (14, 7, 10, 3) keeps every `uses` reference resolvable at every step. The reference-integrity check
+  is a candidate part of the verify process.
+- **A Go folder is not its module path** (folder `http/httputil`, module `pkg/httputil`). The identity rule already follows the module
+  path, so the record id is `httputil`; the folder is in `path`. Nothing needed changing.
+- **Writing a README from the code found a wrong claim** in a package comment (`money`: "no floating-point errors"). A README written
+  from the code is a review of the comment.
+- **Verified examples are cheap and worth keeping.** A complete program per README, compiled and run through a scratch workspace, with its
+  output embedded, means the README cannot show code that was not run. The verify process should include "examples compile and print
+  what the README says".
+- **Authoring in YAML is still the awkward part.** The three drafts were generated from a script that held the prose as strings and embedded
+  the compiled programs, which worked but keeps the text in a script. For the many READMEs to come, the natural way is to write markdown
+  and convert it to a record. The `readme` template is rigid (title, tagline, command block, `## Overview`, `## Install`, `## Usage`, then
+  further `## ` sections), so a parser action (README to record) is feasible. **Decision needed before U2b:** author in markdown and convert,
+  or keep generating records from a script.
+- **`requirement` is still Python-shaped.** It is loosened when the first module with third-party dependencies is recorded; `persistence/database`
+  (pgx) is the first such level-0 module.

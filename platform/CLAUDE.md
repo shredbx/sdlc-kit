@@ -65,6 +65,11 @@ Directory placement is independent of import identity: kits are directories only
 - **pnpm 11 fails an install on an unreviewed dependency build script.** Read the script, then record the
   decision in `platform/svelte/pnpm-workspace.yaml` under `allowBuilds` (`false` keeps it denied); never
   approve blindly.
+- **A unit's README is rendered from its record, never hand-edited.** A unit that has a record
+  (`processos-workspace/records/sbx-sdlc-kit/modeling/package/<id>/{package,readme}.yaml`) has a README that is the render of
+  its `readme.yaml`: `process-cli render sbx-sdlc-kit.documentation.readme <record> --into <scratch under output/>`, then copy
+  it into the unit's folder. Edit the record and render again. A byte compare against the render catches a hand edit;
+  `conform` alone does not. Design: `docs/proposals/unit-model-design.md`.
 - **The word "capability" is reserved** for the 13 SDLC capabilities. Product areas are "domain areas".
 - **Client information lives in the client's own repo, never in sdlc-kit** (docs, recon, records and plans included).
   New files under `platform/` name no client. Ported code keeps its upstream comments and test fixtures verbatim,

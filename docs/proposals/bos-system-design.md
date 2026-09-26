@@ -664,3 +664,7 @@ and the client repo. Zero framework code, zero process-os definitions.
 - 2026-09-26 — Scope C0 (docs only): the bos convention (section 6.6, decision D17: four configuration layers, a static page is content,
   generated shim routes for SvelteKit) and the rung-by-rung view of what a consumer uses (section 8.2). The four layers were confirmed by
   the user. The consumer-specific mapping lives in the consumer's own repo.
+- 2026-09-26 — Scope U2a done (the unit model, Go first slice): records and rendered READMEs for `seo`, `money` and
+  `location/geocoordinate`; one rule in `platform/CLAUDE.md` (a unit's README is rendered from its record). All 11 records
+  check; the READMEs' examples compile and print what they claim. The dependency levels of the 34 Go modules are 14, 7, 10
+  and 3 (a first count was wrong), so the rest go in dependency order. See section 9 of `docs/proposals/unit-model-design.md`.
