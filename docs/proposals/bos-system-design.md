@@ -168,6 +168,11 @@ on usability and UX after its Python scope. Design, evidence, the track (U0 to U
 | B. Greenfield thin consumer, switch at the end | Rejected: repeats the earlier attempt's mistake (the easy 83% looks done; the hard 17% breaks the promise at the end) |
 | C. Generate the whole app from a spec | Rejected: Go is unexplored; ~37k LOC does not survive as template text |
 
+**Revised 2026-09-26 (D5).** The user's direction is to start from an empty app on the frameworks and to use the working app as the baseline, so
+option B's earlier objection (the easy part looks done and the hard part breaks the promise at the end) is answered a different way: the hard
+parts (the database, the admin, the property domain) are named milestones with their own baselines from the start, and every milestone has a
+parity gate against the old app (`docs/proposals/bos-app-roadmap.md`, section 1).
+
 Working method carried over from the Python port: **port verbatim first, prove with the source's own
 tests, then refactor**; **build to prove, then model** (no process-os definitions from one example;
 the second real instance earns a template/action); scoped test runs per package, full runs only in CI.
@@ -180,7 +185,7 @@ the second real instance earns a template/action); scoped test runs per package,
 | D2 | Each consumer is its own deployable bundle (Postgres + pgAdmin + web + api + assistant); code takes connection config only; no multi-tenancy | Confirmed by user |
 | D3 | The second consumer: same kits + a `bookings` kit − selling, own branding | Stated by user |
 | D4 | System `bos` = frameworks + kits + presets; no separate realestate-platform tier | Proposed; user's follow-up answers assumed it but did not explicitly confirm |
-| D5 | Strangler-in-place approach (section 4) | Proposed |
+| D5 | Approach. **Revised 2026-09-26: spine first, baseline parity.** The new app is built from an empty app on the two frameworks; the old app, run in place and read-only, is the baseline; each milestone ports one part and must produce a comparable output (`docs/proposals/bos-app-roadmap.md`). Replaces the earlier "strangler in place" (import the old app, then move slices out of it) | Direction from the user 2026-09-26; supersedes the Proposed strangler |
 | D6 | Go: **one module per package** under one `go.work` (34 modules, 4 nested as sub-packages). Reason: `sbx-core` is one module that drags aws-sdk/webp/jwt/redis onto every consumer; per-package modules make "enabled kits" true at the dependency level. Revisit at M5: about a dozen product packages are under 150 LOC, so one module each is heavy — a kit may become the Go module, with packages inside it | Proposed |
 | D7 | Names stay **verbatim** through M0 (`github.com/shredbx/sbx-core/pkg/<name>` module paths — nested module paths are legal, longest prefix wins — and `@sbx/*` npm names); final names decided at M5 via a mechanical codemod. Directories are grouped from Scope 2 (D13): placement and import identity are independent | Proposed |
 | D8 | Oracle runs on deterministic seed + synthetic users only, never on production backups | Proposed |
@@ -190,9 +195,15 @@ the second real instance earns a template/action); scoped test runs per package,
 | D12 | "Selling" must be switchable by configuration, not by deleting code. `transaction` is a package inside the `real-estate` kit next to `property` (not a kit of its own); property offerings (`for_sale`/`for_lease`) are a spec key, and switching `transaction` off is a per-package setting, decided when the second consumer exists and two consumers can be compared | Proposed; revised 2026-09-25 (was: a `property-catalog` / `transactions` kit split); confirmed against code in M4 |
 | D13 | Package layout and placement rules (section 3.1): `platform/<lang>/{packages/<kit>/<package>, frameworks/}`; a kit is a functional family named by functionality (naming test); a package named like its kit is the kit folder; the same kit names on both stacks | Accepted 2026-09-25 after four review rounds; supersedes the Scope 2 taxonomy (`datatypes`, `foundation` + domain groups) and the Scope 3b renames |
 | D14 | "capability" is reserved for the 13 SDLC capabilities; product areas are "domain areas" | Accepted with D13 |
-| D15 | Where a kit's bos wiring (handlers, repositories, migrations, routes, admin pages) lives. Wiring imports bos-go's `Module` contract, so it cannot sit under `packages/` if packages never import frameworks. Candidates: (a) a separate `platform/<lang>/kits/<kit>` layer; (b) inside the kit folder, with the contract extracted as a tiny leaf package | Open — the FAQ slice in M2 decides; nothing in Scopes 3c–7 depends on it |
+| D15 | Where a kit's bos wiring (handlers, repositories, migrations, routes, admin pages) lives. Wiring imports bos-go's `Module` contract, so it cannot sit under `packages/` if packages never import frameworks. Candidates: (a) a separate `platform/<lang>/kits/<kit>` layer; (b) inside the kit folder, with the contract extracted as a tiny leaf package | Open — the FAQ slice in M2 decides; nothing in Scopes 3c–7 depends on it. Lean (2026-09-26): (b), wiring inside the kit folder (`docs/proposals/bos-constructor.md`, section 8; decided by the first dynamic milestone) |
 | D16 | Unit definitions (trial): every package and framework has a process-os record (`modeling`: the `package` record; `documentation`: the `readme` record) in the workspace, and its README is rendered from it into the unit's existing `platform/<lang>/` folder by render-then-copy; the stack is a field, not a folder; writing and validating reach `platform/` through staging because `render` and `conform` only accept folders inside `runtime.output`. Python first, the processes after three real instances. Complements D10, which covers kit join manifests and presets | Trial from 2026-09-26; the final structure is decided after the U1 review (`docs/proposals/unit-model-design.md`, section 6) |
 | D17 | Configuration layers (the bos convention, section 6.6): **spec** (YAML in the consumer, validated by `process-cli` against a schema composed from the enabled kits), **seed** (readable content keyed by slug, applied to fresh environments only; existing data is never re-seeded), **runtime** (the database, edited in the admin), **environment** (secrets, named through `connections.yaml`). A static page is content, not code. bos-svelte generates shim route files from the kit manifests because SvelteKit routes are files (the Svelte half of D15) | Proposed 2026-09-26; the four layers confirmed by the user 2026-09-26; details settle in M1 and M2 |
+| D18 | Kit entry points, revised 2026-09-26: a kit is a dynamic feature (`docs/proposals/bos-constructor.md`, section 8): a Go module that declares route groups (`bos-go` applies the gating in one fixed order), a Svelte manifest, spec keys and needs in a kit manifest record, three configuration levels (framework root, kit, block). Derived from what the old app does, behavior-preserving; proven by the first dynamic milestone | Proposed 2026-09-26 |
+| D19 | The Docker bundle (`docs/proposals/bos-app-roadmap.md`, section 4), revised 2026-09-26: composed by the existing `infrastructure` machinery, extended (the `service` schema gains `build`, `depends_on`, `healthcheck`; a `verify-link` action; a `bootstrap-app-bundle` process); **the first bundle is the empty app's, in milestone M0**, with only the API and the web; a database only when a kit needs it; two profiles with the same images; no secrets in tracked files; the production bundle and cutover are a separate plan and approval | Proposed 2026-09-26 |
+| D20 | The baseline and parity levels (`docs/proposals/bos-app-roadmap.md`, section 1): the old app, run in place read-only, is the oracle; five levels (P-HTTP, P-TOK, P-TXT, P-PIX, P-API) replace byte-identical markup; the baseline is captured incrementally, only for what the next milestone ports | Proposed 2026-09-26 |
+| D21 | The constructor model (`docs/proposals/bos-constructor.md`): a site is pages; a page picks a layout preset; slots hold blocks; a block picks a renderer, a content type and a data source; presets at four levels; branding is data; atomic components, one folder each with typed metadata beside the component; a page is one file; the same model from static files to the API to a database; **code declares, data selects**; the file structures mirror agent-framework and take the best conventions of WordPress, Shopify, Next.js, NestJS and Astro | Proposed 2026-09-26 |
+| D22 | Brand and tokens (`docs/proposals/bos-constructor.md`, section 4.6): one folder, `site/brand/`, holds the config, the token source files in the W3C Design Tokens structure authored as YAML (three tiers: primitive, semantic, component; modes as overrides), presets, assets and plugins; generated output is never committed; the pipeline's extension points (transform, format, validator) are the plugin kinds; every kind of the constructor follows the same one-folder convention, each sub-folder created when its first item exists; an existing brand is imported by a one-shot importer in the app's repo that writes the tokens and a mapping file, and is verified by value against the running old app | Proposed 2026-09-26 |
+| D23 | Assets and static delivery (`docs/proposals/bos-constructor.md`, section 4.7): sources stay in `site/` (`brand/assets/`, `media/`); delivery is generated into `.bos/build/static/` with a typed asset map; two URL classes (stable and content-hashed) with two cache policies; conventional file names win and the rest is derived from the logo mark (favicon set, apple-touch icon, manifest icons, social card, tinted logos); fonts are self-hosted with a license file each and no external host is ever contacted; responsive images; the document head is generated from the map; a stable file never shadows a route; uploads (the dynamic phase) reuse the same derivation | Proposed 2026-09-26 |
 
 ## 6. Final structure
 
@@ -243,6 +254,10 @@ sdlc-kit/
 ├── deploy/                              bundle spec: postgres + pgadmin + web + api + assistant (M6)
 └── tests/oracle/                        equivalence harness, kept as the regression suite
 ```
+
+**Revised 2026-09-26 (D21, D22).** The `spec/` folder above is replaced by `bos.yaml` (the link between the two halves) and a `site/` folder with
+one folder per kind: `site/brand/` (config, token sources, presets, assets, plugins), `pages/`, `content/`, `media/`, `types/`, `blocks/`. See
+`docs/proposals/bos-constructor.md`, sections 4.6 and 6.2. The dynamic-only parts (`connections.yaml`, `deploy`) arrive with their milestones.
 
 Success measure (audited at M5): hand-written consumer code is a small fraction of what the first consumer holds
 today; brand tokens appear only in `brand.yaml`/`app.css`; nothing in `platform/` names a client. The first
@@ -402,6 +417,13 @@ original first (then the port is re-synced), or in the kit's slice as a declared
 
 About 39 approved scopes before M6 (33 at the start; Scope 6 turned out to be three scopes plus two small ones, docs and
 the kit-edge check, and Scope 7 is likely two), ±30%; the FAQ slice gives the first real measurement.
+
+**Revised 2026-09-26.** The milestone-level plan is `docs/proposals/bos-app-roadmap.md`, built on D5 (spine first), D20 (baseline and parity) and
+D21 (the constructor, `docs/proposals/bos-constructor.md`). It begins with a baseline harness (B0) and an empty app on both frameworks (M0),
+then branding (M1), the atomic library and the first pages (M2), content types and sources (M3) and the constructor experience (M4), and only
+then the dynamic phase (M5 to M10). It replaces M0's "import the first consumer verbatim, then capture the oracle": the old app is run in place
+as the oracle, and nothing is imported. It estimates about 21 scopes for the static phase and about 46 to the real-estate kit, within this
+ladder's range.
 
 ### 8.1 The per-kit loop
 
@@ -677,3 +699,9 @@ and the client repo. Zero framework code, zero process-os definitions.
   `language`, `rbac` and `database`. The `requirement` type became one form per stack (Python, Go `path@version`); `dependencies` means
   third-party runtime requirements, gated against `go list`, not `go.mod`. All 20 records check. See section 9 of
   `docs/proposals/unit-model-design.md`.
+- 2026-09-26 — Scope P0 (docs only, direction from the user): the approach is now **spine first with baseline parity** (D5, D20): an empty app
+  on `bos-go` and `bos-svelte`, linked and run as a bundle through an action and a Makefile, then branding, static pages from a constructor
+  model (D21), then the dynamic phase; the old app, run in place read-only, is the baseline. `docs/proposals/bos-constructor.md` (the model, the
+  file structures, what is taken from WordPress, Shopify, Next.js, NestJS, Astro and agent-framework, and what is dropped from the earlier
+  YAML-based bos) and `docs/proposals/bos-app-roadmap.md` (milestones B0 to M10, the bundle, the action, the Makefile). Proposals: nothing is
+  modeled or built. The consumer-specific baseline and parity plan is in the consumer's repo.

@@ -21,7 +21,7 @@ rewritten; final names are decided at M5.
 |---|---|---|---|
 | 0 | Save and commit the plan | `25a4419` | `docs/proposals/bos-system-design.md` |
 | 1 | Bootstrap the client repo (initial commit, push) | client repo `9715beb` | README, `.gitignore`, `processos.yaml` (`libraries:` → `sbx-sdlc-kit`, readonly), `processos-workspace/{definitions,records}/.gitkeep` |
-| 2 | Mount it as a submodule | `ef5e50f` | `consumers/clients/bestie-bestierealestate` @ `9715beb`; `process-cli check` is clean from inside it and the `sbx-sdlc-kit` scope resolves via `../../../` |
+| 2 | Mount it as a submodule | `ef5e50f` | `consumers/clients/bestie-bestierealestate` @ `9715beb` (since regrouped to `consumers/clients/bestie/bestierealestate`); `process-cli check` is clean from inside it and the `sbx-sdlc-kit` scope resolves via `../../../` |
 | 3 | `platform/go`: `go.work` + 8 leaf packages | `ea11a9e` | see gates |
 | 4 | `platform/svelte`: pnpm workspace + 3 pure-TS packages, `.gitignore` | `13454d8` | see gates |
 | 5 | gofmt fix (kept separate) | `6c866ed` | `money/rate.go`, comment-only |
