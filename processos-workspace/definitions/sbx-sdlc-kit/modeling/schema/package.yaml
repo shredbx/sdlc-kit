@@ -1,0 +1,15 @@
+# A package, framework or product of this repository, described as a record: what it is, where it sits (its stack and kit)
+# and what it is built on. Forked from process-os.package and generalized from Python only: `module` becomes `kit`, `stack`
+# is new, and `kind`'s value for a plain package is `package`. `dependencies` still holds Python requirement strings; Go and
+# Svelte units bring their own manifests in later scopes (docs/proposals/unit-model-design.md, sections 3 and 5).
+name: package
+type: mapping
+fields:
+  kind:         {type: package-kind}                      # left out, it is a package
+  stack:        {type: stack, required: true}             # python, go or svelte: where its code is, under platform/
+  kit:          {type: package-name}                      # the family a package belongs to: process-kit. A framework has none
+  name:         {type: package-name, required: true}      # the unit's folder: action, or process-framework
+  version:      {type: std.version, required: true}
+  description:  {type: string, required: true}            # one sentence: what it is for
+  uses:         {type: package-list, required: true}      # the units it is built on, by what the stack installs: process-kit-types
+  dependencies: {type: requirement-list, required: true}  # anything else it needs installed

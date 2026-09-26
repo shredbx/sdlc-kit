@@ -1,0 +1,7 @@
+stack: python
+kit: process-kit
+name: template
+version: 0.1.0
+description: "Templates: render files from data, and check that existing files still conform to a template."
+uses: [process-kit-types, process-kit-schema]
+dependencies: [jinja2>=3]

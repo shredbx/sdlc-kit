@@ -1,0 +1,6 @@
+# What a unit is: a package (in packages/), a framework (in frameworks/) or a product (in products/). They are
+# laid out alike; they differ in where they live and how they are named. Forked from process-os.package-kind, whose
+# value `kit` is renamed `package` here: in this repository a kit is a family of packages, not one package.
+name: package-kind
+type: string
+enum: [package, framework, product]

@@ -1,0 +1,7 @@
+stack: python
+kit: process-kit
+name: schema
+version: 0.1.0
+description: "Definitions: read a schema from a file, text, parsed data or a folder, and use it as a type."
+uses: [process-kit-types]
+dependencies: [pyyaml>=6]

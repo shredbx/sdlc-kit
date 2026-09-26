@@ -1,0 +1,7 @@
+# One further, named section of a README, in the order given. heading carries its own markdown depth
+# ("## MCP", "### No config pinned"), so the template never has to guess a nesting level.
+name: readme-section
+type: mapping
+fields:
+  heading: {type: string, required: true}
+  body:    {type: string, required: true}

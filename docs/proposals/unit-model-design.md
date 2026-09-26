@@ -1,7 +1,7 @@
 # The unit model — one structured definition for every package, framework and kit
 
-**Status:** trial, started 2026-09-26 (scope U0). The structure below is decided *for the U1 trial*, then judged on
-usability and UX (section 6) and kept, refined or replaced. Every definition it introduces still needs its own approval.
+**Status:** trial, started 2026-09-26. U0 (decisions) and U1 (Python) are done; the review against section 6 is in section 9.
+The structure is decided *for the trial*, judged on usability and UX (section 6) and kept, refined or replaced. Every definition it introduces still needs its own approval.
 
 Last updated: 2026-09-26
 tags: proposal, unit-model, modeling, documentation, bos
@@ -100,3 +100,34 @@ Outcomes: keep, refine (rename a field, add a section), or restructure (for exam
 
 Kit join manifests, presets, the consumer spec and `bootstrap-consumer` (bos level, later); any change to code under
 `platform/`; a README for `agent-framework` (the main session's); a boundary checker for record folders.
+
+## 9. U1 results and review (2026-09-26)
+
+U1 wrote 13 definition files (6 types and 1 schema in `modeling`; 2 types, 2 schemas and the template in `documentation`), changed
+`scope.yaml` to `uses: [std]`, and wrote 16 records for 8 Python units (`docs/plans/2026-09-26-unit-model-scope-U1.md`). Every render
+of a `readme` record equals the README in its package folder byte for byte (8 of 8), `conform` passes on the real READMEs staged
+into `output/`, the negative controls fail as intended, and the records agree with each package's `pyproject.toml` (8 of 8).
+
+The section 6 checklist, on real commands:
+
+| # | Item | What happened | Verdict |
+|---|---|---|---|
+| 1 | Find | `process-cli list records` prints paths only (0.4 s); `show record` prints one record (0.5 s). Learning what the 8 units are takes 8 `show` calls. A unit's `package` and `readme` records sit in two folders | **hurts**: no summary listing |
+| 2 | Edit | A `readme` record is 50 lines for a 51-line README; the markdown sits in 7 YAML block scalars, code nested up to 6 spaces deep. Changing one sentence: edit the record, render into `output/` (0.4 s), copy into the package folder. The render diff shows exactly the changed lines | **works, awkward**: the copy is manual |
+| 3 | Drift | A hand edit to a README is **not** caught by `conform` (it checks the required lines only) and **is** caught by a byte compare against the render | a verify step needs both |
+| 4 | Noise | 16 files in 16 folders for 8 units; 55 units would be about 110 | tolerable now, will not scale unaided |
+| 5 | Gate | 8 of 8, and every control fails as intended | **works** |
+| 6 | Vocabulary | `kind`, `stack`, `kit` read clearly. But one record mixes two naming forms: `name: schema` (the folder) and `uses: [process-kit-types]` (the installed name), while the record's own folder is `process-kit-schema` | **refine**: one identity per unit |
+| 7 | Staging | Worked: copy the README into `output/`, run `conform`, clean up. Three steps by hand | needs a wrapper |
+| 8 | Would a person rather edit the README? | Editing markdown wrapped in YAML is the least pleasant part; the byte gate protects the README, but the natural instinct is to edit it directly | keep only if sync is one command |
+
+**Recommendation: keep the structure, refine in three places.** Nothing in U1 argued for restructuring: the two homes and the stack
+as a field held up, and record-beside-code would need `process-cli` to read records from more than one root, which is unproven.
+The refinements:
+
+1. **One identity per unit**, decided in U2, where Go module paths and npm scopes force the question.
+2. **A generated catalog** (an index of name, stack, kit and description per unit) so navigation does not need one `show` per unit.
+3. **One command for sync and verify** (render, copy, byte compare, `conform`), built as the first process once the Go scope is the
+   second real instance, by the rule of three.
+
+Outcomes still open: keep as is, refine as above, or restructure. It is recorded as a decision either way.

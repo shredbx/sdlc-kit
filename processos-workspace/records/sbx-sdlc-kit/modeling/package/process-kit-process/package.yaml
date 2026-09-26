@@ -1,0 +1,7 @@
+stack: python
+kit: process-kit
+name: process
+version: 0.1.0
+description: "Processes: read a process, check its whole graph, then run it one node at a time so a run can resume."
+uses: [process-kit-types, process-kit-schema, process-kit-action]
+dependencies: []

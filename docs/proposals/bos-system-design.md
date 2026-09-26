@@ -601,3 +601,8 @@ and the client repo. Zero framework code, zero process-os definitions.
   (`unit-definitions-as-records`, `conform-reaches-output-only`, and a second `platform-position-in-namespace` that supersedes
   the deferred one). Decided for a trial, with a review of usability and UX after the Python scope (U1). Design:
   `docs/proposals/unit-model-design.md`.
+- 2026-09-26 — Scope U1 done (the unit model, Python): the `package` and `readme` definitions forked into `modeling` and
+  `documentation`, and 16 records for 8 Python units. The render of each `readme` record equals the README in its package
+  folder byte for byte (8 of 8); `conform` and the negative controls behave as intended. The usability review recommends keeping
+  the structure and refining three things (one identity per unit, a generated catalog, a one-command sync and verify). See
+  section 9 of `docs/proposals/unit-model-design.md`.

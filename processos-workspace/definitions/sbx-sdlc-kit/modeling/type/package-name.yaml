@@ -1,0 +1,5 @@
+# Lower-case words joined by hyphens: the name of a kit (process-kit), of a package (types, seo) or of what
+# its stack installs (process-kit-types). Forked from process-os.package-name.
+name: package-name
+type: string
+pattern: '[a-z][a-z0-9]*(-[a-z0-9]+)*'
