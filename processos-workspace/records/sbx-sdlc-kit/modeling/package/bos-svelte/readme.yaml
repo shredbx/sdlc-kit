@@ -1,0 +1,89 @@
+name: bos-svelte
+tagline: >-
+  The SvelteKit half of a bos app: a server hook with security headers and a same-origin pass-through to the API, and a placeholder home that reports the API's health, so an app's `hooks.server.ts` is a few lines.
+commands: []
+overview: |-
+  `bos-svelte` is the code every bos web app starts with, taken from a running SvelteKit app and configured rather than rewritten. `createHandle({ apiUrl })` returns the server hook. It stamps a fixed set of security headers on every page response (not on `/api`, whose responses carry the Go API's own headers), then passes every request under `/api/` to the API and returns the answer as it is. The pass-through forwards the method, path, query, body and cookies, drops the hop-by-hop and message-framing headers, and sets `X-Forwarded-For` from the real client address. It sets the header and never appends to it, so a client cannot spoof the chain. The API's `Set-Cookie` headers come back to the browser unchanged.
+
+  `loadApiHealth` and `PlaceholderHome` make up the small home page: the page's server `load` asks the API for `/health`, and the component says whether it answered.
+
+  Not here yet: the silent refresh on a 401 and the auth cookies (they arrive with the auth kit), pages, renderers, design tokens and the `bos-web` command.
+install: |-
+  `bos-svelte` is the npm package `@sbx/bos-svelte` and is not published. Its source is used directly, with no build step.
+
+  From a consumer, list the folder in your `pnpm-workspace.yaml` by relative path (the path is relative to that file, and a pattern outside the workspace root works):
+
+  ```yaml
+  packages:
+    - 'apps/web'
+    - '<path to platform/svelte/frameworks>/*'
+  ```
+
+  Then, in the web app's `package.json`:
+
+  ```json
+  "dependencies": { "@sbx/bos-svelte": "workspace:*" }
+  ```
+
+  The app must itself depend on `@sveltejs/kit` (^2) and `svelte` (^5): they are peer dependencies here, so the framework never brings its own copies. The Vite dev server must be allowed to serve the linked folder, because the components are served from there:
+
+  ```ts
+  server: { fs: { allow: ['<path to the sdlc-kit root>'] } }
+  ```
+usage: |-
+  Three files make the whole app. The hook:
+
+  ```ts
+  // src/hooks.server.ts
+  import { createHandle } from '@sbx/bos-svelte/server';
+
+  export const handle = createHandle({
+  	apiUrl: process.env.PUBLIC_API_URL || 'http://localhost:5000'
+  });
+  ```
+
+  The page's server `load`:
+
+  ```ts
+  // src/routes/+page.server.ts
+  import { loadApiHealth } from '@sbx/bos-svelte';
+  import type { PageServerLoad } from './$types';
+
+  export const load: PageServerLoad = async () => ({
+  	siteName: process.env.PUBLIC_SITE_NAME || 'Acme',
+  	api: await loadApiHealth(process.env.PUBLIC_API_URL || 'http://localhost:5000')
+  });
+  ```
+
+  The page:
+
+  ```svelte
+  <!-- src/routes/+page.svelte -->
+  <script lang="ts">
+  	import { PlaceholderHome } from '@sbx/bos-svelte';
+  	import type { PageData } from './$types';
+
+  	let { data }: { data: PageData } = $props();
+  </script>
+
+  <PlaceholderHome siteName={data.siteName} api={data.api} />
+  ```
+
+  With the API running, the page reads "Acme: it works." and "API: healthy", followed by the service name, version, environment and database the API reported. With the API down, it still renders and reads "API: unreachable".
+sections:
+  - heading: "## Options"
+    body: |-
+      | Name | Type | Default | Meaning |
+      |---|---|---|---|
+      | `createHandle({ apiUrl })` | `{ apiUrl: string }` | none, required | where the Go API listens, for example `http://localhost:5000`; returns a SvelteKit `Handle` |
+      | `loadApiHealth(apiUrl, fetchFn?, timeoutMs?)` | `Promise<ApiHealth>` | `fetch`, `3000` | asks `<apiUrl>/health`; `healthy` only for a 2xx answer whose `status` is `healthy`; every other case, including a timeout, is `unreachable`; it never throws |
+      | `PlaceholderHome` props | `siteName?`, `api` | `siteName` is `bos` | `api` is what `loadApiHealth` returned |
+
+      The pieces of the hook are exported on their own, from `@sbx/bos-svelte/server`, for an app that needs a different order: `securityHeadersHandle`, `apiPassThroughHandle(apiUrl)`, `applySecurityHeaders(headers, isHttps)` and `isHttpsRequest(event)`.
+  - heading: "## Behaviour"
+    body: |-
+      - The security headers are `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` and a minimal `Content-Security-Policy` (`frame-ancestors`, `base-uri`, `object-src` and `form-action` only). `Strict-Transport-Security` is added only when the browser-facing hop is HTTPS, which is read from `X-Forwarded-Proto`, so a plain-http development response never pins the host.
+      - The pass-through applies to paths that start with `/api/`. The path `/api` itself is an ordinary page route.
+      - The pass-through has no timeout of its own. An API that accepts a connection and never answers holds the request open. An API that is down makes the request fail with a server error.
+  - heading: "## Tests"
+    body: "None yet: tests are added once the core is validated. The checks are `svelte-check` and a build, run from an app that links the package."
