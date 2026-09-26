@@ -62,10 +62,32 @@ async def test_history_survives_a_new_store_instance(store: PostgresStore) -> No
     await fresh_store.close()
 
 
-async def test_link_user_persists(store: PostgresStore) -> None:
+async def test_link_user_persists_and_rotates_the_session_id(store: PostgresStore) -> None:
     session_id = f"test-{uuid.uuid4()}"
     await store.get_or_create(session_id)
-    await store.link_user(session_id, "user-123")
 
-    reloaded = await store.get_or_create(session_id)
+    linked = await store.link_user(session_id, "user-123")
+
+    assert linked.id != session_id  # OWASP: regenerate the id on a privilege-level change
+    assert linked.user_id == "user-123"
+
+    reloaded = await store.get_or_create(linked.id)
     assert reloaded.user_id == "user-123"
+
+    # The pre-link id must no longer resolve to the linked session - it's a brand new, anonymous
+    # session now, not a revival of the one that got linked.
+    orphan = await store.get_or_create(session_id)
+    assert orphan.user_id is None
+
+
+async def test_data_survives_a_new_store_instance(store: PostgresStore) -> None:
+    session_id = f"test-{uuid.uuid4()}"
+
+    session = await store.get_or_create(session_id)
+    session.data["contact_name"] = "Andrei"
+    await store.save(session)
+
+    fresh_store = PostgresStore(DSN)
+    reloaded = await fresh_store.get_or_create(session_id)
+    assert reloaded.data == {"contact_name": "Andrei"}
+    await fresh_store.close()

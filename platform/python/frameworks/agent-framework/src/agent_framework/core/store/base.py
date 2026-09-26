@@ -30,7 +30,12 @@ class SessionStore(ABC):
     async def save(self, session: Session) -> None: ...
 
     @abstractmethod
-    async def link_user(self, session_id: str, user_id: str) -> None:
+    async def link_user(self, session_id: str, user_id: str) -> Session:
         """Associates a session with an identified user — e.g. once a handoff or login resolves
-        who's actually on the other end of an until-then-anonymous session."""
+        who's actually on the other end of an until-then-anonymous session — and rotates the
+        session id in the process. OWASP Session Management Cheat Sheet: regenerate the session
+        identifier on any privilege-level change, so an id that was ever anonymous can't be reused
+        to ride into an identified session. Returns the session under its NEW id; `session_id` is
+        no longer valid afterwards — the caller must hand the client a freshly signed token for
+        the id on the returned `Session`."""
         ...

@@ -1,12 +1,17 @@
 """Postgres-backed SessionStore — real persistence behind the same interface as MemoryStore.
 Messages are stored as JSONB via PydanticAI's own ModelMessagesTypeAdapter, not a hand-rolled
-serialization — the same message shape the agent already produces, no translation layer.
+serialization — the same message shape the agent already produces, no translation layer. `data`
+(the free-form per-session fact bag) is plain JSONB via stdlib `json` — it's just a dict, no
+PydanticAI-specific shape to preserve.
 
 The connection pool is created lazily on first use, not in __init__: asyncpg pools are bound to
 the event loop they're created in, and there's no running loop yet at plain module-import time
 (where a consumer's main.py constructs this). Lazy creation means PostgresStore(dsn) stays a
 trivial, synchronous constructor — the pool is built the first time a real request needs it,
 inside whatever loop is actually running by then."""
+
+import json
+import uuid
 
 import asyncpg
 from pydantic_ai import ModelMessagesTypeAdapter
@@ -18,10 +23,13 @@ CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY,
     user_id TEXT,
     messages JSONB NOT NULL DEFAULT '[]'::jsonb,
+    data JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 )
 """
+# Guards a table created before `data` existed - ADD COLUMN IF NOT EXISTS is a no-op otherwise.
+_ADD_DATA_COLUMN = "ALTER TABLE sessions ADD COLUMN IF NOT EXISTS data JSONB NOT NULL DEFAULT '{}'::jsonb"
 
 
 class PostgresStore(SessionStore):
@@ -34,38 +42,46 @@ class PostgresStore(SessionStore):
             pool = await asyncpg.create_pool(self._dsn)
             async with pool.acquire() as conn:
                 await conn.execute(_CREATE_TABLE)
+                await conn.execute(_ADD_DATA_COLUMN)
             self._pool = pool
         return self._pool
 
     async def get_or_create(self, session_id: str) -> Session:
         pool = await self._get_pool()
         async with pool.acquire() as conn:
-            row = await conn.fetchrow("SELECT id, user_id, messages FROM sessions WHERE id = $1", session_id)
+            row = await conn.fetchrow("SELECT id, user_id, messages, data FROM sessions WHERE id = $1", session_id)
             if row is None:
                 await conn.execute("INSERT INTO sessions (id) VALUES ($1)", session_id)
                 return Session(id=session_id)
             messages = ModelMessagesTypeAdapter.validate_json(row["messages"] or "[]")
-            return Session(id=row["id"], user_id=row["user_id"], messages=messages)
+            data = json.loads(row["data"] or "{}")
+            return Session(id=row["id"], user_id=row["user_id"], messages=messages, data=data)
 
     async def save(self, session: Session) -> None:
         messages_json = ModelMessagesTypeAdapter.dump_json(session.messages).decode("utf-8")
+        data_json = json.dumps(session.data)
         pool = await self._get_pool()
         async with pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO sessions (id, user_id, messages, updated_at)
-                VALUES ($1, $2, $3::jsonb, now())
-                ON CONFLICT (id) DO UPDATE SET user_id = $2, messages = $3::jsonb, updated_at = now()
+                INSERT INTO sessions (id, user_id, messages, data, updated_at)
+                VALUES ($1, $2, $3::jsonb, $4::jsonb, now())
+                ON CONFLICT (id) DO UPDATE SET user_id = $2, messages = $3::jsonb, data = $4::jsonb, updated_at = now()
                 """,
                 session.id,
                 session.user_id,
                 messages_json,
+                data_json,
             )
 
-    async def link_user(self, session_id: str, user_id: str) -> None:
-        session = await self.get_or_create(session_id)
-        session.user_id = user_id
-        await self.save(session)
+    async def link_user(self, session_id: str, user_id: str) -> Session:
+        old = await self.get_or_create(session_id)
+        new = Session(id=str(uuid.uuid4()), user_id=user_id, messages=old.messages, data=old.data)
+        await self.save(new)
+        pool = await self._get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute("DELETE FROM sessions WHERE id = $1", session_id)
+        return new
 
     async def close(self) -> None:
         if self._pool is not None:
