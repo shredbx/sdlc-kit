@@ -1,6 +1,7 @@
 go 1.26
 
 use (
+	./frameworks/bos-go
 	./packages/analytics/visitoractivity
 	./packages/calendar
 	./packages/calendar/ical
