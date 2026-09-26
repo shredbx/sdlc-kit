@@ -16,10 +16,11 @@ def create_app(
     store: SessionStore | None = None,
     cors_origins: list[str] | None = None,
     tool_registry: dict[str, ToolEntry] | None = None,
+    debug_mode: bool = False,
 ) -> FastAPI:
     app = FastAPI()
     agents = {registered.name: registered for registered in discover(agents_package)}
-    app.include_router(build_router(agents, store or MemoryStore(), tool_registry))
+    app.include_router(build_router(agents, store or MemoryStore(), tool_registry, debug_mode))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins or ["http://localhost:3001"],
