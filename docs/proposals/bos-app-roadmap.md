@@ -89,7 +89,7 @@ The very first thing that exists. It has one page that says the app works and sh
 
 **Baseline and gate.** P-HTTP against the B0a golden files: `/health` (same five keys; the database reads "disconnected" when none is
 configured, as the old app reports with none), `HEAD /health`, the root info keys, the CORS preflight, the security headers (HSTS only in
-production), the CSRF refusal on a `POST` to `/api/...` without `X-Requested-With`, the unknown-route response. In addition: a clean
+production), the CSRF refusal on a `POST` to `/api/...` without `X-Requested-With`, the unknown-route response, **including the quirks the golden files record** (a CSRF refusal is JSON sent as `text/plain`; a preflight for PATCH or from another origin gets 200 and no CORS headers; a not-found is plain text; there is **no** request-id response header). In addition: a clean
 checkout builds and tests; `make bundle-up` passes `verify-link`; changing a port in `bos.yaml` moves both halves.
 
 **Demo.** `make bundle-up`, open the web page: "bos: it works. API: healthy."
