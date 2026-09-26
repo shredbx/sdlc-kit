@@ -1,6 +1,7 @@
 stack: python
 kit: process-kit
 name: types
+path: platform/python/packages/types
 version: 0.1.0
 description: "Types and errors: build a type in code and check a value with it."
 uses: []

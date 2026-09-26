@@ -1,6 +1,7 @@
 stack: python
 kit: process-kit
 name: filesystem
+path: platform/python/packages/filesystem
 version: 0.1.0
 description: "Filesystem: a root folder that refuses any path outside it, and writes files inside it."
 uses: []

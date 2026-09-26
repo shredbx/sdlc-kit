@@ -1,6 +1,7 @@
 stack: python
 kit: process-kit
 name: action
+path: platform/python/packages/action
 version: 0.1.0
 description: "Actions: read an action from its folder and run it, checking its inputs and outputs against their types."
 uses: [process-kit-types, process-kit-schema]

@@ -606,3 +606,7 @@ and the client repo. Zero framework code, zero process-os definitions.
   folder byte for byte (8 of 8); `conform` and the negative controls behave as intended. The usability review recommends keeping
   the structure and refining three things (one identity per unit, a generated catalog, a one-command sync and verify). See
   section 9 of `docs/proposals/unit-model-design.md`.
+- 2026-09-26 — Scope U1b done (the unit model, cleanup): a required `path` on the `package` schema, the `readme` records moved beside
+  their `package` records (one folder per unit), and the identity rule written. A second `unit-definitions-as-records` decision
+  supersedes the first. The `requirement` type, the catalog and sync-and-verify wait for the Go scope. See section 9 of
+  `docs/proposals/unit-model-design.md`.

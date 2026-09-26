@@ -1,6 +1,7 @@
 # The unit model — one structured definition for every package, framework and kit
 
-**Status:** trial, started 2026-09-26. U0 (decisions) and U1 (Python) are done; the review against section 6 is in section 9.
+**Status:** trial, started 2026-09-26. U0 (decisions), U1 (Python) and U1b (the cleanup the review asked for) are done; the review
+against section 6 is in section 9.
 The structure is decided *for the trial*, judged on usability and UX (section 6) and kept, refined or replaced. Every definition it introduces still needs its own approval.
 
 Last updated: 2026-09-26
@@ -27,7 +28,9 @@ caught, not discovered.
 | Workspace | schemas, types, templates, actions, processes (definitions) and the records that describe each unit | `processos-workspace/definitions/sbx-sdlc-kit/<capability>/…`, `processos-workspace/records/sbx-sdlc-kit/<capability>/…` |
 | Filesystem | the code, and the files rendered from a record (a README first) | the existing `platform/<lang>/{packages/<kit>/<package>, frameworks/<name>}` folders |
 
-Records never live inside `platform/`; what they render does. The code layout is untouched.
+Records never live inside `platform/`; what they render does. The code layout is untouched. A unit's `package` and `readme` records
+are siblings in one folder, `records/sbx-sdlc-kit/modeling/package/<unit>/`; the schemas and the template that render a readme stay
+in `documentation`.
 
 ## 3. The choices for the trial
 
@@ -49,6 +52,11 @@ Each is recorded as a decision (`records/sbx-sdlc-kit/architecture/decision/`) a
 5. **"How to configure" is a `readme` section**, not a field: not every package has configuration (mechanism 1 does not apply).
 6. **Python first**, because upstream's records are proven data. The processes (`verify`, `create`) come after three real
    instances (Python, Go, Svelte), by the rule of three.
+7. **Identity and location (U1b).** Both records of a unit are siblings in one folder, `modeling/package/<id>/{package,readme}.yaml`.
+   Every package record has a required `path`, its folder from the repository root. The record's folder name `<id>` is the unit's
+   installable name in lower-case hyphens (Python: the `pyproject` name; Go: the module path after `pkg/` with `/` as `-`; Svelte: the
+   npm name without its scope); `uses` lists ids; `name` is the last segment of `path`. A verify process will check these rules
+   against the manifests and that `path` exists. (`unit-definitions-as-records`, second record)
 
 ## 4. Evidence gathered 2026-09-26 (scratchpad probes, nothing written to the repo)
 
@@ -131,3 +139,18 @@ The refinements:
    second real instance, by the rule of three.
 
 Outcomes still open: keep as is, refine as above, or restructure. It is recorded as a decision either way.
+
+### U1b: the refinements that were schema and record changes (2026-09-26)
+
+Done: a required `path` on `package` (new type `unit-path`); the 8 `readme` records moved beside their `package` records; the identity
+rule written (section 3, item 7). Findings 1 (find) and 6 (vocabulary) of the table are closed: a unit is one folder, and the gate scripts
+read each unit's folder from its own record with no lookup table. Every record validates from its new place, the 8 renders still equal
+their READMEs byte for byte, and a negative control shows a record without `path` is rejected. A `path` that points nowhere passes the
+schema, by design: that is the verify process's check.
+
+Still open, on purpose:
+
+- **`requirement` stays Python-shaped** until the first Go record needs it (scope U2a). Modeling ahead of need is what the governance forbids.
+- **The catalog and sync-and-verify** wait for the second real instance (Go), by the rule of three.
+- **How to draft the 46 new Go and Svelte READMEs** (in YAML, or in markdown and converted to a record) is decided in the Go scope, after
+  writing the first three.
