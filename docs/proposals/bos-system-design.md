@@ -192,6 +192,7 @@ the second real instance earns a template/action); scoped test runs per package,
 | D14 | "capability" is reserved for the 13 SDLC capabilities; product areas are "domain areas" | Accepted with D13 |
 | D15 | Where a kit's bos wiring (handlers, repositories, migrations, routes, admin pages) lives. Wiring imports bos-go's `Module` contract, so it cannot sit under `packages/` if packages never import frameworks. Candidates: (a) a separate `platform/<lang>/kits/<kit>` layer; (b) inside the kit folder, with the contract extracted as a tiny leaf package | Open — the FAQ slice in M2 decides; nothing in Scopes 3c–7 depends on it |
 | D16 | Unit definitions (trial): every package and framework has a process-os record (`modeling`: the `package` record; `documentation`: the `readme` record) in the workspace, and its README is rendered from it into the unit's existing `platform/<lang>/` folder by render-then-copy; the stack is a field, not a folder; writing and validating reach `platform/` through staging because `render` and `conform` only accept folders inside `runtime.output`. Python first, the processes after three real instances. Complements D10, which covers kit join manifests and presets | Trial from 2026-09-26; the final structure is decided after the U1 review (`docs/proposals/unit-model-design.md`, section 6) |
+| D17 | Configuration layers (the bos convention, section 6.6): **spec** (YAML in the consumer, validated by `process-cli` against a schema composed from the enabled kits), **seed** (readable content keyed by slug, applied to fresh environments only; existing data is never re-seeded), **runtime** (the database, edited in the admin), **environment** (secrets, named through `connections.yaml`). A static page is content, not code. bos-svelte generates shim route files from the kit manifests because SvelteKit routes are files (the Svelte half of D15) | Proposed 2026-09-26; the four layers confirmed by the user 2026-09-26; details settle in M1 and M2 |
 
 ## 6. Final structure
 
@@ -315,6 +316,39 @@ Which of a consumer's own handlers, repositories, routes and admin pages belong 
 provisional until each kit lands. The first consumer's is in its repo's `docs/bos-consumer-plan.md`. Kit names there
 are the kit folders of section 3.1. Where a slice's wiring lives is D15.
 
+### 6.6 The bos convention: four configuration layers
+
+bos is meant to behave like Next.js or NestJS: a fixed structure, fixed configuration files the frameworks read, and commands to run and
+build. A consumer edits a few "hello-world" files. Everything it configures lives in exactly one of four layers, from most to least static:
+
+| Layer | Holds | Where | Changes when |
+|---|---|---|---|
+| **Spec** | preset, kits on or off (and each kit's own keys), offerings, roles, brand tokens, site defaults (title, navigation, footer, hero), the environment-name mapping, dictionaries | `spec/*.yaml` in the consumer's repo | a release |
+| **Seed** | pages, FAQ, guides, services, collections and synthetic development data, as readable markdown or YAML keyed by slug | `seed/` in the consumer's repo | when a fresh environment boots; existing data is never re-seeded |
+| **Runtime** | the site configuration and the pages that editors change | the database, through the admin | at any time |
+| **Environment** | secrets and connection strings | `.env`, named through `spec/connections.yaml` | per deployment |
+
+The rules:
+
+1. **The spec is validated before anything runs.** `process-cli` checks it against a schema composed from the enabled kits' manifests; each
+   kit's record lists the spec keys it reads and their types, so a typo or an unknown key fails early.
+2. **Brand is two layers on purpose.** Build-time tokens: `brand.yaml` generates the stylesheet's variables under a neutral prefix, so shared
+   code never carries a consumer's name. Runtime settings: the site configuration overrides the tokens where an editor has set a value.
+3. **A static page is content, not code.** `seed/pages/<slug>.md` (frontmatter plus body) seeds the cms kit. A page that truly needs its own
+   layout is an explicit route override, not a copy of the shell.
+4. **Routes.** SvelteKit routes are files, so bos-svelte generates thin shim route files from the enabled kits' manifests (one line each,
+   re-exporting the kit's page) and an override is a real file in its place. This is the Svelte half of D15, settled by the FAQ slice in M2.
+   On the Go side each kit provides a `Module` with `Register`; the consumer's `main.go` builds the application from the spec, and its
+   `product/` folder holds only the consumer's own decisions, as extension seams.
+5. **Commands and profiles.** The consumer's `Makefile` offers `make dev`, `make build`, `make test` and `make seed`. Development and
+   production differ by a profile in the spec (a development tool such as tracing is on in one and off in the other), which the earlier
+   consumer layout in section 6.2 did not have. `make build` produces the production bundle (M6).
+6. **The same pattern as the agent framework:** a registry (kits, or tools), a spec, generated shims and a bootstrap process, with a fake
+   adapter selectable by configuration so the application runs without external services.
+
+The unit records (`docs/proposals/unit-model-design.md`) are the raw material of the kit manifests: a kit's manifest says which packages it
+uses, and each package's record says where it lives and how to install, use and configure it.
+
 ## 7. Equivalence oracle — how "identical" is proven
 
 Built before any refactor, captured against the **original** running read-only from shredbx, so
@@ -425,6 +459,23 @@ Sizing honesty: the earlier inventory priced the library port alone at ≈195 ha
 template-row method. Real packages drop the row/template overhead, but the app-side extraction
 (≈16k generic Go adapter LOC, ≈70k generic Svelte LOC) is on top. This is a multi-month track; every
 rung leaves the first consumer runnable and oracle-green.
+
+### 8.2 What the frameworks give a consumer at each rung
+
+| Rung | Framework capability delivered | The consumer after it | Proof |
+|---|---|---|---|
+| M0 Baseline | libraries ported; the consumer imported verbatim; the oracle captured | the full application, no framework yet | tests green, oracle captured |
+| Track U (unit model) | a uniform record for every package and framework; then `verify-unit` and `create-package` | unchanged | records validate; READMEs equal their renders |
+| M1 `bos-svelte` | shell (public, admin, minimal), module registry, site-config loader, tokens generated from `brand.yaml`, one API client, spec v0 | `apps/web` shrinks to shims and a stylesheet importing the generated tokens; `spec/brand.yaml` and `spec/site.yaml` exist | pixel and DOM diff = 0 |
+| M2 `bos-go` | `Module` contract, `buildRouter`, configuration from spec plus environment mapping, one roles list, migration composer; the FAQ slice settles D15 | `main.go` starts using bos; `spec/consumer.yaml` enables `faq` | route-table diff = 0 |
+| M3 kits | identity, cms (static pages become seeds), seo, media, contacts, calendar, news, jobs, analytics, documents, one slice each | for each kit the consumer deletes its copy and adds a configuration key | oracle slice green per kit |
+| M4 real-estate | the property and transaction slices | only `product/` decisions remain | full oracle green |
+| M4b second consumer | the preset extracted; a `bootstrap-consumer` process | scaffolded from preset, brand, seed and configuration | needs configuration plus the new kit only |
+| M5 thin-out | footprint audit, final names | a measured, small footprint | full oracle green |
+| M6 deploy cutover | the bundle (database, admin tool, web, api, assistant); `make dev` and `make build` | a deployable bundle | separate approval |
+
+The unit-model track (about 10 scopes) runs beside the ladder; the bos-level records (kit manifests, framework, preset, consumer spec) arrive
+with M2 to M4b.
 
 ## 9. Scope 1 — workspaces and Wave 1 (done)
 
@@ -610,3 +661,6 @@ and the client repo. Zero framework code, zero process-os definitions.
   their `package` records (one folder per unit), and the identity rule written. A second `unit-definitions-as-records` decision
   supersedes the first. The `requirement` type, the catalog and sync-and-verify wait for the Go scope. See section 9 of
   `docs/proposals/unit-model-design.md`.
+- 2026-09-26 — Scope C0 (docs only): the bos convention (section 6.6, decision D17: four configuration layers, a static page is content,
+  generated shim routes for SvelteKit) and the rung-by-rung view of what a consumer uses (section 8.2). The four layers were confirmed by
+  the user. The consumer-specific mapping lives in the consumer's own repo.

@@ -77,7 +77,8 @@ Each is recorded as a decision (`records/sbx-sdlc-kit/architecture/decision/`) a
 | U4 processes | `verify-unit` (stage, conform, check the record against the manifest) and `create-package`, dispatching on `stack`; a generated navigation index | each process run over every unit |
 | bos level | kit join manifests, framework, preset and consumer-spec records, `bootstrap-consumer` | rides on ladder rungs M2 to M4b |
 
-About 10 scopes, plus or minus 30%. U0 and U1 do not depend on the baseline import.
+About 10 scopes, plus or minus 30%. U0 and U1 do not depend on the baseline import. The convention this feeds is in
+`docs/proposals/bos-system-design.md`, section 6.6; the rung-by-rung view is section 8.2.
 
 ## 6. Review after U1: usability and UX
 
