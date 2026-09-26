@@ -102,6 +102,35 @@ fast, no download, no real compute. Real model behavior (does 1.5B actually rout
 three real tools) gets validated the same way the debug-mode work was: a real server, real curl
 requests, real seeded data — not asserted from a pytest run.
 
+## Result (2026-09-26) — parked, not shipped
+
+Tested for real, via `make docker-test-model` (Docker sidesteps this dev machine's broken
+toolchain — see below), against the actual three tools and four realistic messages:
+
+| Model | Tool calls | Notes |
+|---|---|---|
+| Qwen2.5-1.5B-Instruct + `chat_format="chatml-function-calling"` | 0/4 | Hallucinated a pets policy instead of calling `search_faq` |
+| Qwen2.5-1.5B-Instruct + native embedded chat template | 2/4 attempted | Malformed JSON (`{{...}}`), not parsed into a real tool call by llama-cpp-python; still hallucinated once |
+| `functiongemma-270m-it` (Google, purpose-built for function-calling) + native template | 0/4 | Declined safely instead of hallucinating, but never called a tool - consistent with Google's own docs that it needs fine-tuning first, not zero-shot use |
+
+None of the three is usable as-is. This isn't a wrong-model problem - it's a real zero-shot
+tool-calling ceiling at the ≤1.5B size budget this product can afford (no 7B, no additional
+service like Ollama). Real next options, none attempted yet: fine-tune FunctionGemma on Bestie's
+actual 3 tools (what it's built for, per Google's docs - real ML work, not a config change);
+revisit the ceiling to ~3B (Qwen2.5-3B / Llama-3.2-3B, still well under 7B); or treat local as a
+later investment and use OpenRouter (already fully built, never yet live-tested) as the real
+default once the key is spent.
+
+**Decision: park local-model work here. Wait on OpenRouter too - not spending the key yet.**
+`tools/faq/search_faq.py` and every other tool stay directly exercisable via debug mode
+(`tool:name {json}`, see `debug_model.py`) for now, which is proven working end to end with the
+real FAQ/personality content added afterward in this same session.
+
+Docker infrastructure built along the way (`make docker-build`/`docker-run`/`docker-test-model` in
+`chat-api-python/`) stays real, reusable tooling regardless of this pause - it's what made testing
+three models possible without fighting a broken local toolchain, and it's what any future model
+test (fine-tuned FunctionGemma, a 3B model, or otherwise) would use again.
+
 ## Explicitly out of scope here (separate, already-identified threads)
 
 - Ollama as an alternative local provider.
