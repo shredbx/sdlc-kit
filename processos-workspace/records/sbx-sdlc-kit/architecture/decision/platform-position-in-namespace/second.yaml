@@ -1,0 +1,17 @@
+topic: platform-position-in-namespace
+question: Beyond capability-outermost and framework-not-platform dispatch, what is
+  the full position/depth of platform vs framework segments in the namespace?
+status: decided
+resolution: 'For the U1 trial, for unit definitions: the stack (python, go, svelte)
+  is a field of the record, not a folder segment. Records are flat per unit. Stack-specific
+  data, only if a check needs it, is a sibling extension file (mechanism 4 of docs/proposals/schema-evolution-principles.md).
+  No platform axis in the record or definition folders. Other kinds of definition
+  keep the framework-first rule of namespace-dispatch-within-capability. Review point
+  after U1; superseded if the trial shows a platform folder serves navigation better.'
+rationale: 'The condition that deferred this, real content to test depth against,
+  is met: 9 Python, 34 Go and 12 Svelte units exist. A platform folder axis is the
+  platform-by-anything grid that schema-evolution-principles.md forbids, and the platform
+  folders under platform/ already give per-platform navigation of the code and of
+  the files rendered into it.'
+date: '2026-09-26'
+supersedes: sbx-sdlc-kit/architecture/decision/platform-position-in-namespace/first.yaml

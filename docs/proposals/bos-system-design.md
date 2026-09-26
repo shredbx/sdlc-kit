@@ -151,6 +151,15 @@ platform/svelte/packages/
 Python (`platform/python`) is untouched — it is one family (`process-kit`: a dist-name prefix over a flat
 `packages/`) belonging to another track.
 
+### 3.2 Unit definitions (trial)
+
+bos is meant to behave like Next.js or NestJS: a fixed structure and fixed configuration files the frameworks read. That needs
+every package, framework and kit described the same way: an overview, how to install, use and configure it, what it depends
+on. Each unit gets a process-os **record** in the workspace (the `package` and `readme` records), and its README is rendered
+from it into the unit's existing folder under `platform/<lang>/`; the stack is a field, not a folder. This is a trial, judged
+on usability and UX after its Python scope. Design, evidence, the track (U0 to U4, about 10 scopes) and the review checklist:
+`docs/proposals/unit-model-design.md`. Decision D16.
+
 ## 4. Approach
 
 | Option | Verdict |
@@ -182,6 +191,7 @@ the second real instance earns a template/action); scoped test runs per package,
 | D13 | Package layout and placement rules (section 3.1): `platform/<lang>/{packages/<kit>/<package>, frameworks/}`; a kit is a functional family named by functionality (naming test); a package named like its kit is the kit folder; the same kit names on both stacks | Accepted 2026-09-25 after four review rounds; supersedes the Scope 2 taxonomy (`datatypes`, `foundation` + domain groups) and the Scope 3b renames |
 | D14 | "capability" is reserved for the 13 SDLC capabilities; product areas are "domain areas" | Accepted with D13 |
 | D15 | Where a kit's bos wiring (handlers, repositories, migrations, routes, admin pages) lives. Wiring imports bos-go's `Module` contract, so it cannot sit under `packages/` if packages never import frameworks. Candidates: (a) a separate `platform/<lang>/kits/<kit>` layer; (b) inside the kit folder, with the contract extracted as a tiny leaf package | Open — the FAQ slice in M2 decides; nothing in Scopes 3c–7 depends on it |
+| D16 | Unit definitions (trial): every package and framework has a process-os record (`modeling`: the `package` record; `documentation`: the `readme` record) in the workspace, and its README is rendered from it into the unit's existing `platform/<lang>/` folder by render-then-copy; the stack is a field, not a folder; writing and validating reach `platform/` through staging because `render` and `conform` only accept folders inside `runtime.output`. Python first, the processes after three real instances. Complements D10, which covers kit join manifests and presets | Trial from 2026-09-26; the final structure is decided after the U1 review (`docs/proposals/unit-model-design.md`, section 6) |
 
 ## 6. Final structure
 
@@ -586,3 +596,8 @@ and the client repo. Zero framework code, zero process-os definitions.
   `real-estate`→`seo`) and 1 known violation (`jobs`→`news`). Nine negative controls, run on a scratch copy of the
   manifests, each fail as intended. It also corrected this document's Svelte package count (17, not 18: two of the
   folders counted were hook logs). See the 6e log.
+- 2026-09-26 — Scope U0 (the unit model, docs and decisions only): after the conversation about giving bos a convention like
+  Next.js or NestJS, each package and framework gets a structured definition. Recorded as D16 and four decision records
+  (`unit-definitions-as-records`, `conform-reaches-output-only`, and a second `platform-position-in-namespace` that supersedes
+  the deferred one). Decided for a trial, with a review of usability and UX after the Python scope (U1). Design:
+  `docs/proposals/unit-model-design.md`.

@@ -1,0 +1,13 @@
+topic: conform-reaches-output-only
+question: How are files under platform/ written and validated with process-cli, when
+  render --into and conform only reach folders inside the runtime's output folder?
+status: decided
+resolution: 'Keep runtime.output at processos-workspace/output, scratch and git-ignored;
+  do not widen it to the repository root. Writing is render-then-copy, as render-bundle
+  already does. Validating is a staging copy of the unit''s folder into the output
+  folder, then conform. Trial through U1: revisit if staging proves clumsy in use.'
+rationale: process_framework's render (with into) and conform accept only a folder
+  inside runtime.output (read 2026-09-26). process-os's own workspace sets runtime.output
+  to its repository root, a choice this repo deliberately did not make so that output/
+  stays scratch (docs/proposals/infrastructure-services-design.md, rendering pipeline).
+date: '2026-09-26'

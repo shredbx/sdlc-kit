@@ -1,0 +1,18 @@
+topic: unit-definitions-as-records
+question: Where does the structured definition of a package, framework or kit (overview,
+  install, usage, configuration, dependencies) live, and where do the files rendered
+  from it land?
+status: decided
+resolution: 'For the U1 trial: a unit''s definition is a process-os record under processos-workspace/records/sbx-sdlc-kit/<capability>/,
+  modeling for what a package is and documentation for its README, never inside the
+  platform tree. The files rendered from a record (a README first) land in the unit''s
+  existing folder under platform/<lang>/ by render-then-copy. Review point: after
+  U1 the layout is judged on usability and UX against the checklist in docs/proposals/unit-model-design.md,
+  and this record is kept, refined or superseded.'
+rationale: 'Two homes, not conflated (docs/proposals/infrastructure-services-design.md):
+  the workspace side holds definitions and records, the filesystem side holds what
+  they render. Upstream process-os keeps package and readme records apart from the
+  packages, and its READMEs are exactly the render of those records (checked 2026-09-26
+  for 8 packages). The shape is proven in the port, so model and data can move together
+  (docs/proposals/porting-and-modeling-process.md).'
+date: '2026-09-26'
