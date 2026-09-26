@@ -4,11 +4,12 @@ serialization — the same message shape the agent already produces, no translat
 (the free-form per-session fact bag) is plain JSONB via stdlib `json` — it's just a dict, no
 PydanticAI-specific shape to preserve.
 
-The connection pool is created lazily on first use, not in __init__: asyncpg pools are bound to
-the event loop they're created in, and there's no running loop yet at plain module-import time
+Schema is owned by migrate.py's numbered `.sql` files, not inline DDL here — see that module for
+why. The connection pool is created lazily on first use, not in __init__: asyncpg pools are bound
+to the event loop they're created in, and there's no running loop yet at plain module-import time
 (where a consumer's main.py constructs this). Lazy creation means PostgresStore(dsn) stays a
-trivial, synchronous constructor — the pool is built the first time a real request needs it,
-inside whatever loop is actually running by then."""
+trivial, synchronous constructor — the pool is built, and migrations applied, the first time a
+real request needs it, inside whatever loop is actually running by then."""
 
 import json
 import uuid
@@ -17,19 +18,7 @@ import asyncpg
 from pydantic_ai import ModelMessagesTypeAdapter
 
 from agent_framework.core.store.base import Session, SessionStore
-
-_CREATE_TABLE = """
-CREATE TABLE IF NOT EXISTS sessions (
-    id TEXT PRIMARY KEY,
-    user_id TEXT,
-    messages JSONB NOT NULL DEFAULT '[]'::jsonb,
-    data JSONB NOT NULL DEFAULT '{}'::jsonb,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-)
-"""
-# Guards a table created before `data` existed - ADD COLUMN IF NOT EXISTS is a no-op otherwise.
-_ADD_DATA_COLUMN = "ALTER TABLE sessions ADD COLUMN IF NOT EXISTS data JSONB NOT NULL DEFAULT '{}'::jsonb"
+from agent_framework.core.store.migrate import run_migrations
 
 
 class PostgresStore(SessionStore):
@@ -39,12 +28,17 @@ class PostgresStore(SessionStore):
 
     async def _get_pool(self) -> asyncpg.Pool:
         if self._pool is None:
-            pool = await asyncpg.create_pool(self._dsn)
-            async with pool.acquire() as conn:
-                await conn.execute(_CREATE_TABLE)
-                await conn.execute(_ADD_DATA_COLUMN)
-            self._pool = pool
+            self._pool = await asyncpg.create_pool(self._dsn)
+            await run_migrations(self._pool)
         return self._pool
+
+    async def migrate(self) -> None:
+        """Explicitly ensures the schema is up to date. Idempotent, and this is exactly what
+        happens automatically the first time the store is used — this only matters if you want
+        migrations to run as their own explicit step (e.g. a deploy pipeline, or initializing a
+        brand new database before the app's first boot) rather than implicitly on first request.
+        See chat-api-python/scripts/migrate_db.py for that standalone use."""
+        await self._get_pool()
 
     async def get_or_create(self, session_id: str) -> Session:
         pool = await self._get_pool()
