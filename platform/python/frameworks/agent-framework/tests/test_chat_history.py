@@ -2,6 +2,8 @@
 message_history, so every request was a fresh, memoryless conversation despite Session/
 SessionStore existing. This proves history actually round-trips across two requests."""
 
+from unittest.mock import ANY
+
 from agent_framework.core.store.memory_store import MemoryStore
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.routes.chat import build_router
@@ -27,17 +29,22 @@ async def test_second_request_carries_first_requests_history_as_context() -> Non
     store = MemoryStore()
 
     app = FastAPI()
-    app.include_router(build_router({"chat": registered}, store))
+    app.include_router(build_router({"chat": registered}, store, secret_key="test-secret"))
     client = TestClient(app)
 
-    r1 = client.post("/agents/chat/chat", json={"message": "first"}, headers={"x-session-id": "s1"})
-    r2 = client.post("/agents/chat/chat", json={"message": "second"}, headers={"x-session-id": "s1"})
+    # No client-supplied session id — the server mints and signs one; the client's job is only to
+    # hand the returned token back on the next request, which is what actually carries history.
+    r1 = client.post("/agents/chat/chat", json={"message": "first"})
+    token = r1.json()["session_id"]
+    r2 = client.post("/agents/chat/chat", json={"message": "second"}, headers={"x-session-id": token})
 
-    assert r1.json() == {"reply": "got: first", "cards": None}
-    assert r2.json() == {"reply": "got: second", "cards": None}
+    assert r1.json() == {"reply": "got: first", "cards": None, "session_id": ANY}
+    assert r2.json() == {"reply": "got: second", "cards": None, "session_id": ANY}
     # The second call's model function must see more messages than the first — proof the prior
     # turn's history was actually passed in, not a fresh conversation each time.
     assert _seen_history_lengths[1] > _seen_history_lengths[0]
 
-    session = await store.get_or_create("s1")
-    assert len(session.messages) >= 4  # 2 requests + 2 responses, at minimum
+    # Both requests must have landed on the same, single session — not a fresh one each time.
+    sessions = list(store._sessions.values())  # noqa: SLF001 — white-box check, same test module
+    assert len(sessions) == 1
+    assert len(sessions[0].messages) >= 4  # 2 requests + 2 responses, at minimum

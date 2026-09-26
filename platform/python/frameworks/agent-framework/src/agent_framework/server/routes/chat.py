@@ -8,10 +8,10 @@ from pydantic import BaseModel
 
 from agent_framework.core.cards import AgentReply, Card
 from agent_framework.core.debug_model import build_debug_model
-from agent_framework.core.store.base import Session, SessionStore
+from agent_framework.core.store.base import SessionStore
 from agent_framework.core.tool_registry import ToolEntry
 from agent_framework.core.types import RegisteredAgent
-from agent_framework.server.middleware.session import session_dependency
+from agent_framework.server.middleware.session import ResolvedSession, session_dependency
 
 
 class ChatRequest(BaseModel):
@@ -22,6 +22,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
     cards: list[Card] | None = None
+    session_id: str
 
 
 def build_router(
@@ -29,16 +30,20 @@ def build_router(
     store: SessionStore,
     tool_registry: dict[str, ToolEntry] | None = None,
     debug_mode: bool = False,
+    *,
+    secret_key: str,
 ) -> APIRouter:
     router = APIRouter()
-    resolve_session = session_dependency(store)
+    resolve_session = session_dependency(store, secret_key)
     registry = tool_registry or {}
 
     @router.post("/agents/{name}/chat", response_model=ChatResponse)
-    async def chat(name: str, request: ChatRequest, session: Session = Depends(resolve_session)) -> ChatResponse:  # noqa: B008 — this is FastAPI's own DI idiom, not a mutable-default bug
+    async def chat(name: str, request: ChatRequest, resolved: ResolvedSession = Depends(resolve_session)) -> ChatResponse:  # noqa: B008 — this is FastAPI's own DI idiom, not a mutable-default bug
         registered = agents.get(name)
         if registered is None:
             raise HTTPException(status_code=404, detail=f"no agent named {name!r}")
+
+        session = resolved.session
 
         # Both the server (debug_mode) and the request (request.debug) must opt in - neither
         # alone parses a message as a command, so a real user's text is never misread as one.
@@ -51,7 +56,7 @@ def build_router(
         await store.save(session)
         output = result.output
         if isinstance(output, AgentReply):
-            return ChatResponse(reply=output.text, cards=output.cards or None)
-        return ChatResponse(reply=str(output))
+            return ChatResponse(reply=output.text, cards=output.cards or None, session_id=resolved.token)
+        return ChatResponse(reply=str(output), session_id=resolved.token)
 
     return router

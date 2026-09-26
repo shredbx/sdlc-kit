@@ -3,6 +3,8 @@ its plain-str fallback — no real model, no API key. This deterministic Functio
 also the reusable "send command + params, inspect the response" pattern for exercising the full
 request/response cycle before swapping in a real model."""
 
+from unittest.mock import ANY
+
 from agent_framework.core.cards import AgentReply, Card
 from agent_framework.core.store.memory_store import MemoryStore
 from agent_framework.core.types import RegisteredAgent
@@ -21,12 +23,12 @@ async def test_plain_str_output_leaves_cards_none() -> None:
     agent = Agent(FunctionModel(_plain_text_model), name="test_chat", output_type=str | AgentReply)
     registered = RegisteredAgent(name="chat", agent=agent, build_deps=lambda session: None)
     app = FastAPI()
-    app.include_router(build_router({"chat": registered}, MemoryStore()))
+    app.include_router(build_router({"chat": registered}, MemoryStore(), secret_key="test-secret"))
     client = TestClient(app)
 
     response = client.post("/agents/chat/chat", json={"message": "hello"}, headers={"x-session-id": "s1"})
 
-    assert response.json() == {"reply": "just chatting", "cards": None}
+    assert response.json() == {"reply": "just chatting", "cards": None, "session_id": ANY}
 
 
 def _structured_reply_model(messages: list, info: AgentInfo) -> ModelResponse:
@@ -42,7 +44,7 @@ async def test_structured_reply_serializes_text_and_cards() -> None:
     agent = Agent(FunctionModel(_structured_reply_model), name="test_chat", output_type=str | AgentReply)
     registered = RegisteredAgent(name="chat", agent=agent, build_deps=lambda session: None)
     app = FastAPI()
-    app.include_router(build_router({"chat": registered}, MemoryStore()))
+    app.include_router(build_router({"chat": registered}, MemoryStore(), secret_key="test-secret"))
     client = TestClient(app)
 
     response = client.post("/agents/chat/chat", json={"message": "find me a villa"}, headers={"x-session-id": "s1"})
@@ -59,4 +61,5 @@ async def test_structured_reply_serializes_text_and_cards() -> None:
                 "link": "/p/123",
             }
         ],
+        "session_id": ANY,
     }
