@@ -1,0 +1,8 @@
+stack: go
+kit: contacts
+name: personname
+path: platform/go/packages/contacts/personname
+version: 0.0.0
+description: "PersonName: a title, a given name, an optional middle name and a surname, with validation and two display forms."
+uses: []
+dependencies: []

@@ -181,3 +181,28 @@ What the Go slice taught:
   or keep generating records from a script.
 - **`requirement` is still Python-shaped.** It is loosened when the first module with third-party dependencies is recorded; `persistence/database`
   (pgx) is the first such level-0 module.
+
+### U2b: Go, six dependency-free modules (2026-09-26)
+
+`personname`, `phonenumber`, `socialnetwork`, `video`, `notify` and `repository` have a record pair and a rendered README each
+(`docs/plans/2026-09-26-unit-model-scope-U2b.md`). Every check on all 17 records (8 Python, 9 Go) holds: valid, `name` equals the last path
+segment, `path` holds a README, every `uses` id has a record, the render equals the README byte for byte, `conform` passes, and the README
+examples compile and print what the README says.
+
+What this slice taught:
+
+- **The authoring decision is settled: markdown, then convert.** Six READMEs were written as plain markdown, converted by a scratch script,
+  and each round-tripped (render equals the markdown, byte for byte) on the first pass. The prose is natural to write and to review; what
+  remains costly is reading the code, which is the real work. The converter stays scratch until the process scope (U4). The record is
+  still the source of truth: the README is rendered from it.
+- **Example harnesses must use the README's own install recipe.** A scratch `go.work` with no `replace` made the `go` tool look up
+  `github.com` (see the plan file). Wiring each example with `require` + `replace`, exactly as the Install section says, gave zero lookups
+  and also tests the recipe. `sandbox-exec` with the network denied works on this machine and is the strongest proof that an example needs
+  no network. The verify process should use both.
+- **A README written from the code is a review of the comments.** Reading the six modules found comments that the code does not support
+  (a "TLS" flag that only toggles authentication, dictionary files that do not exist, a column expansion nobody performs) and one real
+  hazard (header injection in the SMTP adapter). The READMEs say what the code does; the fixes belong to each kit's refinement slice.
+- **A module can contain a module.** `persistence/repository` holds `postgres/` with its own `go.mod`; `go test ./...` in the parent does
+  not enter it. The identity rule already covers it (id `repository-postgres`); nothing needed changing.
+- **`requirement` is still Python-shaped.** U2c records the first modules with third-party dependencies (`persistence/database` uses pgx),
+  so the type is loosened there.

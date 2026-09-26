@@ -1,0 +1,8 @@
+stack: go
+kit: persistence
+name: repository
+path: platform/go/packages/persistence/repository
+version: 0.0.0
+description: "A storage-agnostic Repository[M] interface, a typed query tree, list and search options, and backend errors."
+uses: []
+dependencies: []

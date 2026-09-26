@@ -668,3 +668,8 @@ and the client repo. Zero framework code, zero process-os definitions.
   `location/geocoordinate`; one rule in `platform/CLAUDE.md` (a unit's README is rendered from its record). All 11 records
   check; the READMEs' examples compile and print what they claim. The dependency levels of the 34 Go modules are 14, 7, 10
   and 3 (a first count was wrong), so the rest go in dependency order. See section 9 of `docs/proposals/unit-model-design.md`.
+- 2026-09-26 — Scope U2b done (the unit model, Go, six dependency-free modules): records and rendered READMEs for `personname`,
+  `phonenumber`, `socialnetwork`, `video`, `notify` and `repository`. All 17 records check; the READMEs are authored as markdown and
+  converted, each proven by a byte round trip. An example harness that used `go.work` without `replace` made the `go` tool look up
+  `github.com`; examples are now wired with `require` + `replace` and proven offline. See section 9 of
+  `docs/proposals/unit-model-design.md`.
