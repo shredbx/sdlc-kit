@@ -1,0 +1,28 @@
+# Docker build context = repo root (needed so chat-api-python's Dockerfile can pull in
+# platform/python/ and projects/products/process-os/, per its uv workspace - see
+# consumers/clients/bestie/bestays/projects/bestays_app/chat-api-python/Dockerfile).
+# Trims the context down from the full working tree; nothing here changes what git tracks.
+
+.git/
+.claude/worktrees/
+
+**/node_modules/
+**/.next/
+**/.turbo/
+**/dist/
+**/build/
+
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/*.egg-info/
+
+**/.env
+**/.env.local
+
+docs/
+review-receipts/
+receipts/
