@@ -3,7 +3,7 @@
 Last updated: 2026-09-26
 tags: bos, roadmap, milestones, parity, baseline, bundle, docker, makefile, proposal
 
-Status: **proposal, not yet approved.** Parent: `docs/proposals/bos-system-design.md` (decisions D5, D19 to D21). Companion:
+Status: **proposal, not yet approved.** Parent: `docs/proposals/bos-system-design.md` (decisions D5, D19 to D26). Companion:
 `docs/proposals/bos-constructor.md` (the model and the file structures). This document replaces the earlier sprint draft, which began by
 moving slices out of the old app; the direction is now the reverse: **build the new app from nothing and use the old app as the
 baseline**. Every scope inside a milestone still gets its own before/after tree and its own approval.
@@ -17,7 +17,7 @@ The first consumer's own evidence (its route map, page inventory, wiring facts, 
 
 The goal is the first consumer **reimplemented as a bos consumer**. The old app already works, so it is the **baseline**: each milestone
 ports one part of it and must produce an output **comparable to that part's output in the old app**. Nothing is built that the old app
-does not do, and nothing is imported that it does not use.
+does not do, and nothing is imported that it does not use. **Code that already runs is moved and configured, not rewritten** (section 2, D25).
 
 ### 1.1 Parity gates
 
@@ -37,19 +37,27 @@ levels it must pass.
 "Capture what you are about to port." The old app is run **in place, read-only**, from the original project (never edited, never
 deployed, no production access), on loopback only. A small harness in the consumer's `tests/oracle/` starts it, makes the requests,
 normalizes the results and stores **golden files** for the pages or endpoints the next milestone ports. A milestone's parity gate compares
-its output with those golden files. The old app is not imported into the consumer.
+its output with those golden files. The old app is not imported into the consumer; the parts of it that are framework code are extracted into
+the frameworks (section 2, D25).
 
 ## 2. How we work
 
 - **A milestone is one to four approved scopes** and ends with a demo of the new app and a green parity gate against the baseline.
 - **Definition of done**, for every milestone:
-  1. it runs and builds from a clean checkout: `make build`, `make test`, `make check`, and `make bundle-up` where it applies;
+  1. it runs and builds from a clean checkout: `make build`, `make check`, and `make bundle-up` where it applies (`make test` once tests exist, D26);
   2. its parity gate is green against the golden files;
-  3. `bos check` is clean, and the framework's own tests pass with fakes and no network;
+  3. `bos check` is clean and the offline gates pass (build and vet with `GOPROXY=off`); no test code is written until the core is validated (D26);
   4. new frameworks and components have unit records and rendered READMEs (the unit model), written as they are built;
   5. committed locally; nothing pushed; nothing touches the original project or production.
 - **Order is decided by dependency.** Static before dynamic. The model (pages, blocks, sources) is proven with files before anything needs a
   database.
+- **Reuse before writing (D25).** In this order: (1) a ported package is imported as it is; (2) code that runs in the old app is moved into
+  the framework and given configuration where it had constants, never rewritten from a description of it; (3) new code only where nothing runs
+  today (pages, presets, tokens, assets, the registry, the CLI). The golden files are the evidence for (2). A dependency such as a cache or a
+  database is a service record and a bundle through the existing infrastructure process, not code.
+- **Names are in this repository (D24).** Module and package paths are `github.com/shredbx/sdlc-kit/...` and `@sbx/*`; only clients have their
+  own repositories; a consumer links the frameworks by local directory (`go.work` and `replace`, the pnpm workspace) and nothing is fetched.
+- **Tests come after the core (D26): no test code is written while the core is being built; a milestone's gates are the offline build and vet, the golden-file comparison and `bos check`; tests are added, as scopes of their own, once the core is built and validated.**
 - **The unit-model track continues** for the ported libraries alongside, at lower priority; the ported libraries enter the new app only
   when a milestone needs one.
 
@@ -65,32 +73,42 @@ design's earlier estimate of about 39 ±30%.
 | **B0a** | run the old API read-only in development mode with no database and no cache (it starts, and reports the database as disconnected); capture the P-HTTP golden files M0 needs: the health check, `HEAD /health`, the root info, a CORS preflight, the security headers, a `POST` without the CSRF header, an unknown route | golden files reproducible; the original project untouched; only loopback used |
 | **B0b** | run the old web and API with a local Postgres built from the original's migrations and seeds; the capture tool (a headless browser on loopback; animations off) and the normalizers for P-TXT and P-PIX. **Fonts:** the old app loads its fonts from a font host, so the tool answers those requests from local font files (an intercept on the browser, nothing leaves the machine); the files are acquired once, as an explicit and approved setup step. It also captures every custom property on `:root` with its computed value, and the computed style of each element of the pages it captures | one page captured twice gives identical golden files |
 
-### M0 — The empty app: both frameworks attached, linked, built and run as a bundle (about 3 scopes)
+### M0 — The empty app: both frameworks attached, linked, built and run as a bundle (about 3 scopes, plus the path rename if approved)
 
 The very first thing that exists. It has one page that says the app works and shows the API's status, which proves the link.
 
 **Deliverables**
 
-1. **`bos-go`** (`platform/go/frameworks/bos-go`): `core/config` (reads `bos.yaml`), `server/app.go` with the **fixed middleware chain in
-   the old app's order** (request id, logger, JSON recoverer, security headers, CORS from configuration, CSRF on the `/api` group),
-   `GET` and `HEAD /health` with the old response keys, the root info route, graceful shutdown, and `cmd/bos` with `version`, `env`, `dev`,
-   `build`, `check`. Tests use `httptest` in process.
+1. **`bos-go`** (`platform/go/frameworks/bos-go`, module `github.com/shredbx/sdlc-kit/platform/go/frameworks/bos-go`), **extracted from the
+   running API, not rewritten** (D25): the configuration loader, the **fixed middleware chain in the old app's order** (request id, logger,
+   JSON recoverer, security headers, CORS from configuration, CSRF on the `/api` group), `GET` and `HEAD /health` with the old response keys,
+   the root info route and graceful shutdown are the old code moved into the framework, with what was hard-coded (names, ports, origins,
+   environment, timeouts) read from configuration and the product-prefixed environment names left to the consumer. Security headers, CSRF and
+   authentication are the **ported `identity/auth`, imported not copied**, and the recoverer's error body is the ported `httputil`. The only
+   new code is the `bos.yaml` reader and `cmd/bos` (`version`, `env`, `dev`, `build`, `check`). The old code has no tests of its own for these
+   pieces (measured), so the golden files are the evidence, and no test is written now (D26).
 2. **`bos-svelte`** (`platform/svelte/frameworks/bos-svelte`): the package, the server hooks (the same-origin `/api` pass-through with the
    forwarded client address, security headers), a root layout, and the catch-all page route rendering the placeholder home, whose server
    `load` asks the API for its health and shows "API: healthy". The workspace file gains `frameworks/*`.
 3. **The app skeleton** (in the consumer repo), by hand this time and by `bos new` from M4: `bos.yaml`, `apps/api/main.go` (about 15 lines),
    `apps/web`, `site/site.yaml`, and the `Makefile`.
-4. **Attachment.** Go: the consumer's `go.work` `use`s the framework module; the dependency path depends on the mount depth (four levels
-   below the sdlc-kit root). Svelte: the consumer's `pnpm-workspace.yaml` includes the framework package.
+4. **Attachment, by local directory (D24).** Go: the consumer's `go.work` `use`s the framework module, and its `go.mod` `replace`s the framework
+   **and its whole in-repo closure** (the ported `identity/auth`, `httputil` and what they require) to relative paths; the paths depend on the
+   mount depth (four levels below the sdlc-kit root). Svelte: the consumer's `pnpm-workspace.yaml` includes `@sbx/bos-svelte`. Nothing is
+   fetched; the gates run offline.
 5. **The link, from one file.** `bos.yaml` holds the API port and allowed origins and the web port and the API address; `bos env` writes
    both halves' environment from it, so the two cannot disagree.
+
+**Scopes.** M0.0 the module-path rename, only if approved (the ported modules move from `github.com/shredbx/sbx-core/pkg/*` to their sdlc-kit
+paths, mechanically, before `bos-go` records them). M0.1 `bos-go` (the extraction, unit records and README; no tests, D26). M0.2 the
+app skeleton in the consumer and the parity run against the golden files. M0.3 `bos-svelte`, the link, the bundle, the action and the Makefile.
 
 **The bundle, the action and the Makefile** (section 4) are part of M0.
 
 **Baseline and gate.** P-HTTP against the B0a golden files: `/health` (same five keys; the database reads "disconnected" when none is
 configured, as the old app reports with none), `HEAD /health`, the root info keys, the CORS preflight, the security headers (HSTS only in
 production), the CSRF refusal on a `POST` to `/api/...` without `X-Requested-With`, the unknown-route response, **including the quirks the golden files record** (a CSRF refusal is JSON sent as `text/plain`; a preflight for PATCH or from another origin gets 200 and no CORS headers; a not-found is plain text; there is **no** request-id response header). In addition: a clean
-checkout builds and tests; `make bundle-up` passes `verify-link`; changing a port in `bos.yaml` moves both halves.
+checkout builds; `make bundle-up` passes `verify-link`; changing a port in `bos.yaml` moves both halves.
 
 **Demo.** `make bundle-up`, open the web page: "bos: it works. API: healthy."
 
@@ -186,7 +204,7 @@ follow, and the brand page shows the result.
 
 | Milestone | What | Parity | Scopes |
 |---|---|---|---|
-| **M5** Database and runtime site configuration | a Postgres service (by the kits' needs), the `db` source, site configuration stored and seeded from `site.yaml`, `bos migrate` and `bos seed`, health with the database | P-HTTP and P-API for the site-configuration endpoint's shape | 3 |
+| **M5** Database and runtime site configuration | a Postgres service (already a record and a bundle; a `redis` record and bundle when the first kit needs the cache), the `db` source, site configuration stored and seeded from `site.yaml`, `bos migrate` and `bos seed`, health with the database | P-HTTP and P-API for the site-configuration endpoint's shape | 3 |
 | **M6** Identity and the admin shell | authentication, roles, the admin shell and its navigation, the page editor (pages become `db` entries; files become seed); **the authentication defect is fixed in the original first** | P-HTTP on the auth endpoints and the cookie attributes; the admin's routes and permissions | 4 |
 | **M7** SEO and media | generated SEO surfaces from data, storage driver, uploads, canvas, watermarks | P-API, P-TXT | 3 |
 | **M8** The other kits | contacts and inquiries with the notifier, calendar, news with the job runner, analytics, documents, reference data | P-API, P-TXT per kit | 7 |
@@ -207,7 +225,8 @@ template, the `render-bundle` and `run-bundle` actions, the `bootstrap-bundle` p
 |---|---|---|---|
 | `bos-api` | application | the framework's Go Dockerfile template and the app's `apps/api` | health check on `/health`; the port and origins from `bos.yaml` |
 | `bos-web` | application | the framework's Node Dockerfile template and the app's `apps/web` | depends on `bos-api` being healthy; `PUBLIC_API_URL` from `bos.yaml` |
-| database, cache, admin tool | datastore, tool | existing records | **added only by the milestone whose kits need them (M5)**, never in the empty app |
+| database, admin tool | datastore, tool | existing records (postgres, pgAdmin) | **added only by the milestone whose kits need them (M5)**, never in the empty app |
+| cache | datastore | a **new `redis` service record** and its own bundle, by the same process that made postgres and pgAdmin (no code) | added when the first kit needs it (the old app requires a cache in production only, so not before M6) |
 
 Two profiles with the same images: **dev** (the app halves run natively with hot reload through `make dev`, or all in containers with
 `make bundle-up`) and **prod** (M10). Secrets never appear in tracked files: compose holds `${VAR}` references, `.env.example` holds names.
@@ -239,6 +258,13 @@ Each is proposed with its own tree and approved individually, as the workspace r
 | `make bundle-up` / `bundle-down` / `bundle-logs` | run the `bootstrap-app-bundle` process, and `docker compose down` and `logs` |
 | `make clean` | removes build output |
 
+**Two levels, with examples in the consumer repo** (marked *EXAMPLE, not formalized*: `Makefile`, `apps/api/Makefile`, `apps/web/Makefile`). The
+product Makefile is the one entry point: `make api-<target>` and `make web-<target>` run that app's own Makefile, `make dev` runs both at once,
+`make build`, `test`, `check` and `clean` loop over the apps, `make links` checks that the local framework directories exist, `make env` writes
+both apps' settings from one place into `.bos/env/`, and `make bundle-up`, `bundle-down`, `bundle-logs`, `bundle-status` and `bundle-config`
+drive the docker bundle once it exists. Each app's Makefile also works alone (`make -C apps/api dev`). In the examples the settings are variables
+in the product Makefile; formalized, `bos env` writes them from `bos.yaml`.
+
 The Makefile is thin: each target calls `bos` or `process-cli`, so the logic lives in one tested place and the Makefile stays the same
 size as the app grows.
 
@@ -255,6 +281,7 @@ size as the app grows.
 | Docker is slow or stalls here | base images cached once; gates never pull; dev mode runs natively |
 | Two sources for one setting (token lifetimes) | one `bos.yaml` key read by both halves, checked by the auth milestone's parity gate |
 | Scope creep into dynamic features early | static first; no database before M5 |
+| The empty API compiles in the ported auth package's dependencies (a JWT library, a Postgres driver, a Redis client) because the middleware is imported as it is | accepted: nothing is rewritten (D25); the cost is compile size only, since the services are not contacted; revisit when kits may become the Go modules (design D6) |
 
 ## 6. Decisions proposed
 
@@ -262,9 +289,16 @@ size as the app grows.
   read-only, is the oracle; each milestone ports one part and must match its baseline. This replaces "strangler in place" (importing the old
   app and moving slices out). The earlier risk of a greenfield build is answered by scheduling the hard parts as named milestones.
 - **D19 (revised).** The bundle is composed by the existing infrastructure machinery, extended; **the first bundle is the empty app's, in M0**.
+  A new datastore such as `redis` is a service record and a bundle by the same process, not code.
 - **D20 (proposed).** The **baseline and parity levels** of section 1: the old app run in place is the oracle; five parity levels; the
   baseline is captured incrementally, only for what the next milestone ports.
 - **D21 (proposed).** The constructor model and the rule "code declares, data selects" (`docs/proposals/bos-constructor.md`).
 - **D22 (proposed).** Brand and tokens: one folder, `site/brand/`, with the config, W3C-structured YAML token sources in three tiers plus modes,
   presets, assets and plugins; generated output never committed; every kind of the constructor follows the same one-folder convention.
 - **D23 (proposed).** Assets and static delivery (`docs/proposals/bos-constructor.md`, section 4.7).
+- **D24 (proposed).** Every module and package path is inside the sdlc-kit repository (`github.com/shredbx/sdlc-kit/platform/<lang>/...`, `@sbx/*`);
+  only clients have repositories of their own; consumers link by local directory and nothing is fetched.
+- **D25 (proposed).** Reuse before writing: ported packages are imported as they are; running code is moved into the frameworks and configured,
+  never rewritten; new code only where nothing runs today; the golden files are the evidence for a move.
+- **D26 (proposed).** Tests come after the core: none are written while the core is built; the gates are the offline build and vet, the
+  golden-file comparison and `bos check`; tests are added, as scopes of their own, once the core is built and validated.

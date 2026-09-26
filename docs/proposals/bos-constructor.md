@@ -3,7 +3,7 @@
 Last updated: 2026-09-26
 tags: bos, constructor, pages, blocks, presets, branding, atomic, file-structure, proposal
 
-Status: **proposal, not yet approved.** Parent: `docs/proposals/bos-system-design.md` (decisions D18 to D21). Companion:
+Status: **proposal, not yet approved.** Parent: `docs/proposals/bos-system-design.md` (decisions D18 to D26). Companion:
 `docs/proposals/bos-app-roadmap.md` (the milestones). This document replaces the earlier entry-points draft; the dynamic-feature part of that
 draft is section 8 here. Nothing here is modeled or built. Each definition still needs its own approval when the milestone that proves it
 lands.
@@ -444,9 +444,9 @@ header and a footer driven by the site configuration), so the library starts as 
 ### 6.1 The frameworks (mirroring agent-framework)
 
 ```
-platform/go/frameworks/bos-go/                     module github.com/shredbx/bos-go   (provisional name)
+platform/go/frameworks/bos-go/                     module github.com/shredbx/sdlc-kit/platform/go/frameworks/bos-go
 ├── core/                     pure logic and interfaces; no net/http, no database; fakes included
-│   ├── config/               bos.yaml and environment loading, validation
+│   ├── config/               bos.yaml and environment loading, validation (the running API's loader, its constants made configurable)
 │   ├── site/  brand/         the site and the brand, typed
 │   ├── content/              content types, entries, the Source interface (the "base")
 │   ├── page/                 page resolution over a Source
@@ -456,12 +456,12 @@ platform/go/frameworks/bos-go/                     module github.com/shredbx/bos
 │   ├── filesource/  memsource/           (later) pgsource/
 ├── server/                   the HTTP app; depends on core, never the reverse
 │   ├── app.go                NewApp(cfg, deps) http.Handler: the fixed middleware chain, then routes
-│   ├── middleware/           request id, logger, recoverer, security headers, CORS, CSRF, auth (later)
+│   ├── middleware/           request id, logger, recoverer (moved from the running API); security headers, CSRF, auth: the ported identity/auth, imported, not copied
 │   └── routes/               health, site, pages, content
 ├── cmd/bos/                  the CLI: new · g · dev · build · check (the Go half) · test · bundle; web-side commands are delegated to bos-web
-└── tests/                    flat, with fakes; no network
+└── tests/                    added after the core is validated (D26); flat, with fakes; no network
 
-platform/svelte/frameworks/bos-svelte/             package @bos/svelte                (provisional name)
+platform/svelte/frameworks/bos-svelte/             package @sbx/bos-svelte
 ├── src/lib/
 │   ├── atoms/  molecules/  organisms/  layouts/   one folder per component (section 5)
 │   ├── renderers/            the registry: folder discovery, compatibility checks
@@ -472,7 +472,7 @@ platform/svelte/frameworks/bos-svelte/             package @bos/svelte          
 │   ├── routes/               the catch-all page route and the sitemap, robots and llms.txt endpoints
 │   └── server/               hooks: the /api pass-through, silent refresh, security headers
 ├── bin/bos-web               the web-side CLI: check · tokens build · g renderer (the bos CLI delegates to it)
-└── tests/
+└── tests/                    added after the core is validated (D26)
 ```
 
 The token pipeline inside the framework (the counterpart of `site/brand/`):
@@ -491,6 +491,21 @@ bos-svelte/src/lib/theme/
 
 `core` never imports `server`. Every adapter has a `base` interface in `core` and an implementation beside it. Both frameworks are units with
 records and rendered READMEs from the start (the unit model), so they are documented like every other package.
+
+**Names and links (D24).** Every module and package path is inside this repository: `bos-go` is the Go module
+`github.com/shredbx/sdlc-kit/platform/go/frameworks/bos-go` (the repository path plus the directory), and `bos-svelte` is `@sbx/bos-svelte`
+(the workspace's own scope, like the other `@sbx/*` packages). Only client projects have repositories of their own. Inside our environment
+nothing is fetched: a consumer links the frameworks and packages **by local directory**. Go: `use` lines in the consumer's `go.work` and, in
+each of its `go.mod` files, a `require` with a `replace` to a relative path for the framework's **whole in-repo closure** (a dependency's own
+`replace` lines do not propagate, and a `require` without one makes the go tool look the module up on the network). Web: the consumer's pnpm
+workspace file lists the framework package. The gates run with `GOFLAGS=-mod=readonly` and `GOPROXY=off`, so a missing link fails at once.
+
+**Extracted, not rewritten (D25).** Code that already runs is not written again. The first content of `bos-go` is the running API's own code,
+moved into the framework and given configuration where it had constants: the configuration loader, the fixed middleware chain, the JSON
+recoverer, the health and root routes, graceful shutdown. Security headers, CSRF and authentication are the ported `identity/auth` package,
+imported as it is. New code is written only where nothing runs today (pages, presets, tokens, assets, the registry, the CLI). The extraction
+is proven by the baseline's golden files; tests are added after the core is validated (D26); and moved code carries no consumer names: what was named after the
+product becomes a configured value.
 
 ### 6.2 An app: what `bos new` creates
 
@@ -563,6 +578,13 @@ family of packages plus its app-facing surface. That surface, derived from the o
 - **D23 (proposed).** Assets and static delivery (section 4.7): sources in `site/`, delivery generated into `.bos/build/static/`, an asset map, two URL
   classes (stable and hashed), conventional names win and the rest is derived from the logo mark, fonts self-hosted with a license file each, no
   external host ever contacted, the head generated from the map.
+- **D24 (proposed).** Names and links (section 6.1): every module and package path is inside the sdlc-kit repository
+  (`github.com/shredbx/sdlc-kit/platform/<lang>/...`, `@sbx/*`); only clients have repositories of their own; consumers link by local directory,
+  and nothing is fetched.
+- **D25 (proposed).** Reuse before writing (section 6.1): a ported package is imported as it is; running code is moved into the framework and
+  configured, never rewritten; new code only where nothing runs today; a dependency such as a cache is a service record and a bundle.
+- **D26 (proposed).** Tests come after the core: none are written while the core is built; the gates are the offline build and vet, the
+  golden-file comparison and `bos check`; tests are added, as scopes of their own, once the core is built and validated.
 
 | Open | Closed by |
 |---|---|
@@ -572,4 +594,4 @@ family of packages plus its app-facing surface. That surface, derived from the o
 | The neutral token prefix | M1 |
 | The pipeline engine: Style Dictionary or a small pipeline of our own with the same formats and plugin interface | the M1 spike |
 | The image and icon processing engine (a Node library or the Go side); the exact setting that points the web build's static folder at the generated output | the M1b spike |
-| The provisional module and package names | the naming pass (M5 of the ladder) |
+| Whether the ported packages' module paths (still `github.com/shredbx/sbx-core/pkg/*`, D7) move into the sdlc-kit paths now | the decision before M0.1 |
