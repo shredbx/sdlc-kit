@@ -2,13 +2,12 @@
 404s for a tool with no knowledge_store (or no registry entry at all), and doesn't exist unless
 the app was built with debug_mode=True."""
 
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-
 from agent_framework.core.knowledge.base import KnowledgeEntry, KnowledgeStore, KnowledgeVariant
 from agent_framework.core.tool_registry import ToolEntry
 from agent_framework.server.app import create_app
 from agent_framework.server.routes.knowledge import build_knowledge_router
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 
 class _FakeStore(KnowledgeStore):

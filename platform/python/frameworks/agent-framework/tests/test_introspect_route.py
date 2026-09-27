@@ -4,18 +4,17 @@ tools:list already reads, structured, plus the individual personality/prompt_fie
 optionally provides and each tool's registry-declared kind/card-mapping flag - and that neither
 route exists when the app wasn't built with debug_mode=True."""
 
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-from pydantic import BaseModel
-from pydantic_ai import Agent, ModelResponse, TextPart, Tool
-from pydantic_ai.models.function import FunctionModel
-
 from agent_framework.core.cards import AgentReply
 from agent_framework.core.personality.base import ConversionTechnique, Personality, PersonalityTrait
 from agent_framework.core.tool_registry import ToolEntry
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.app import create_app
 from agent_framework.server.routes.introspect import build_introspection_router
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+from pydantic import BaseModel
+from pydantic_ai import Agent, ModelResponse, TextPart, Tool
+from pydantic_ai.models.function import FunctionModel
 
 
 class SearchOutput(BaseModel):
@@ -41,6 +40,7 @@ def _real_model_response(messages: list, info: object) -> ModelResponse:
 
 _PERSONALITY = Personality(
     role="You are a helpful test assistant.",
+    scope="testing things",
     traits=(PersonalityTrait(name="Concise", description="Keep it short."),),
     techniques=(ConversionTechnique(name="One CTA", when_to_use="Always.", examples=("Want to proceed?",)),),
 )
@@ -156,8 +156,13 @@ async def test_get_agent_returns_personality_fields_and_prompt_fields_when_provi
     body = response.json()
     assert body["personality"] == {
         "role": "You are a helpful test assistant.",
+        "scope": "testing things",
         "traits": [{"name": "Concise", "description": "Keep it short."}],
         "techniques": [{"name": "One CTA", "when_to_use": "Always.", "examples": ["Want to proceed?"]}],
+        "phrases": {"use": [], "avoid": []},
+        "rules": {"do": [], "dont": []},
+        "hesitation_replies": [],
+        "max_techniques_per_message": 2,
     }
     assert body["prompt_fields"] == {"operational_instructions": "Call search first."}
 

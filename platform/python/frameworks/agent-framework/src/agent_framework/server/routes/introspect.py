@@ -41,10 +41,30 @@ class ConversionTechniqueOut(BaseModel):
     examples: list[str]
 
 
+class PhrasesOut(BaseModel):
+    use: list[str]
+    avoid: list[str]
+
+
+class RulesOut(BaseModel):
+    do: list[str]
+    dont: list[str]
+
+
+class HesitationReplyOut(BaseModel):
+    customer_says: str
+    reply: str
+
+
 class PersonalityOut(BaseModel):
     role: str
+    scope: str
     traits: list[PersonalityTraitOut]
     techniques: list[ConversionTechniqueOut]
+    phrases: PhrasesOut
+    rules: RulesOut
+    hesitation_replies: list[HesitationReplyOut]
+    max_techniques_per_message: int
 
 
 class AgentDetail(BaseModel):
@@ -91,8 +111,13 @@ def _to_personality_out(personality: RegisteredAgent) -> PersonalityOut | None:
         return None
     return PersonalityOut(
         role=p.role,
+        scope=p.scope,
         traits=[PersonalityTraitOut(name=t.name, description=t.description) for t in p.traits],
         techniques=[ConversionTechniqueOut(name=t.name, when_to_use=t.when_to_use, examples=list(t.examples)) for t in p.techniques],
+        phrases=PhrasesOut(use=list(p.phrases.use), avoid=list(p.phrases.avoid)),
+        rules=RulesOut(do=list(p.rules.do), dont=list(p.rules.dont)),
+        hesitation_replies=[HesitationReplyOut(customer_says=h.customer_says, reply=h.reply) for h in p.hesitation_replies],
+        max_techniques_per_message=p.max_techniques_per_message,
     )
 
 

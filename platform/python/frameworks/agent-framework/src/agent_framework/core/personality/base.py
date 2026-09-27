@@ -27,7 +27,39 @@ class ConversionTechnique:
 
 
 @dataclass(frozen=True)
+class Phrases:
+    """Concrete phrasing guidance, not a rule about tone in the abstract - the same "use this,
+    not that" shape a staff guide gives a new hire."""
+
+    use: tuple[str, ...] = ()
+    avoid: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Rules:
+    """Short, direct behavioral rules - the DO/DON'T list shape, distinct from `techniques` (named,
+    situational, applied by judgement) and from `Phrases` (wording, not behavior)."""
+
+    do: tuple[str, ...] = ()
+    dont: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class HesitationReply:
+    """One worked example: a real thing a customer says when hesitating, and how to reply to it -
+    concrete enough to use as-is, unlike a technique's more general when_to_use."""
+
+    customer_says: str
+    reply: str
+
+
+@dataclass(frozen=True)
 class Personality:
     role: str
+    scope: str
     traits: tuple[PersonalityTrait, ...]
     techniques: tuple[ConversionTechnique, ...]
+    phrases: Phrases = Phrases()
+    rules: Rules = Rules()
+    hesitation_replies: tuple[HesitationReply, ...] = ()
+    max_techniques_per_message: int = 2
