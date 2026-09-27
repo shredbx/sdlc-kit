@@ -1,11 +1,13 @@
 // Command bos is the command line of a bos app. Today it has two commands:
 //
 //	bos version
-//	bos env [-f bos.yaml] [-o .bos/env]
+//	bos env [-f bos.yaml] [-o .bos/env] [-p dev|bundle]
 //
-// env writes the two halves' environment files from bos.yaml, api.env and web.env, so the API and
-// the web read their settings from one place and cannot disagree. The API's JWT secret is
-// generated the first time and kept on every later run.
+// env writes the settings of the app's two halves from bos.yaml, so the API and the web read
+// them from one place and cannot disagree. Profile dev (the default) writes the environment
+// files of a native run, api.env and web.env. Profile bundle writes the one .env that docker
+// compose reads for the app's bundle. The API's JWT secret is generated the first time and kept
+// on every later run.
 package main
 
 import (
@@ -26,7 +28,7 @@ const version = "0.0.0"
 
 const usage = `usage:
   bos version
-  bos env [-f bos.yaml] [-o .bos/env]
+  bos env [-f bos.yaml] [-o .bos/env] [-p dev|bundle]
 `
 
 func main() {
@@ -55,7 +57,12 @@ func runEnv(args []string, out, errw io.Writer) int {
 	fs.SetOutput(errw)
 	file := fs.String("f", "bos.yaml", "the app's bos.yaml")
 	dir := fs.String("o", filepath.Join(".bos", "env"), "the folder the env files are written to")
+	profile := fs.String("p", "dev", "dev: api.env and web.env for a native run; bundle: the one .env docker compose reads")
 	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+	if *profile != "dev" && *profile != "bundle" {
+		fmt.Fprintf(errw, "bos env: unknown profile %q (dev or bundle)\n%s", *profile, usage)
 		return 2
 	}
 
@@ -65,10 +72,12 @@ func runEnv(args []string, out, errw io.Writer) int {
 		return 1
 	}
 
-	apiPath := filepath.Join(*dir, "api.env")
-	webPath := filepath.Join(*dir, "web.env")
-
-	secret := existingSecret(apiPath)
+	// The secret lives in the file that holds it: api.env for a native run, .env for the bundle.
+	secretFile := "api.env"
+	if *profile == "bundle" {
+		secretFile = ".env"
+	}
+	secret := existingSecret(filepath.Join(*dir, secretFile))
 	if secret == "" {
 		if secret, err = newSecret(); err != nil {
 			fmt.Fprintf(errw, "bos env: %v\n", err)
@@ -76,24 +85,44 @@ func runEnv(args []string, out, errw io.Writer) int {
 		}
 	}
 
+	// Every file's content is made before any is written, so a refused value leaves nothing behind.
+	// A file with the secret in it is readable by its owner only.
+	type envFile struct {
+		path, content string
+		mode          os.FileMode
+	}
+	var files []envFile
+	if *profile == "bundle" {
+		content, err := bosyaml.ComposeLines(f.BundleEnv(secret))
+		if err != nil {
+			fmt.Fprintf(errw, "bos env: %s: %v\n", *file, err)
+			return 1
+		}
+		files = []envFile{{filepath.Join(*dir, ".env"), content, 0o600}}
+	} else {
+		files = []envFile{
+			{filepath.Join(*dir, "api.env"), bosyaml.Lines(f.APIEnv(secret)), 0o600},
+			{filepath.Join(*dir, "web.env"), bosyaml.Lines(f.WebEnv()), 0o644},
+		}
+	}
+
 	if err := os.MkdirAll(*dir, 0o755); err != nil {
 		fmt.Fprintf(errw, "bos env: %v\n", err)
 		return 1
 	}
-	// api.env holds the secret, so only its owner may read it.
-	if err := writeFile(apiPath, bosyaml.Lines(f.APIEnv(secret)), 0o600); err != nil {
-		fmt.Fprintf(errw, "bos env: %v\n", err)
-		return 1
+	paths := make([]string, len(files))
+	for i, ef := range files {
+		if err := writeFile(ef.path, ef.content, ef.mode); err != nil {
+			fmt.Fprintf(errw, "bos env: %v\n", err)
+			return 1
+		}
+		paths[i] = ef.path
 	}
-	if err := writeFile(webPath, bosyaml.Lines(f.WebEnv()), 0o644); err != nil {
-		fmt.Fprintf(errw, "bos env: %v\n", err)
-		return 1
-	}
-	fmt.Fprintf(out, "wrote %s and %s\n", apiPath, webPath)
+	fmt.Fprintf(out, "wrote %s\n", strings.Join(paths, " and "))
 	return 0
 }
 
-// existingSecret returns the JWT_SECRET already in an api.env, or "" when there is none.
+// existingSecret returns the JWT_SECRET already in an env file, or "" when there is none.
 func existingSecret(path string) string {
 	fh, err := os.Open(path)
 	if err != nil {

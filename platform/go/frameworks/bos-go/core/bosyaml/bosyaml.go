@@ -118,6 +118,44 @@ func (f File) WebEnv() []Var {
 	}
 }
 
+// BundleEnv is the .env of the docker compose bundle, in a fixed order: the two ports the
+// services publish on the host, and the values the two services read. The ports the services
+// listen on inside their containers are fixed by their images, so only the published ones come
+// from the file.
+func (f File) BundleEnv(jwtSecret string) []Var {
+	return []Var{
+		{Name: "API_PORT", Value: fmt.Sprint(f.API.Port)},
+		{Name: "WEB_PORT", Value: fmt.Sprint(f.Web.Port)},
+		{Name: "ENVIRONMENT", Value: f.Environment},
+		{Name: "DATABASE_URL", Value: f.API.DatabaseURL},
+		{Name: "JWT_SECRET", Value: jwtSecret},
+		{Name: f.Prefix + "_CORS_ORIGINS", Value: fmt.Sprintf("http://localhost:%d", f.Web.Port)},
+		{Name: "PUBLIC_SITE_NAME", Value: f.SiteName, Quoted: true},
+	}
+}
+
+// ComposeLines renders variables as the NAME=value lines of a .env file that docker compose
+// reads. Compose expands $ inside double quotes, so a value that needs quoting is written in
+// single quotes, which it keeps literal. A single quote or a line break in such a value cannot
+// be written that way, and is an error rather than a silently different value.
+func ComposeLines(vars []Var) (string, error) {
+	var b strings.Builder
+	for _, v := range vars {
+		b.WriteString(v.Name)
+		b.WriteByte('=')
+		if v.Quoted || needsQuote(v.Value) {
+			if strings.ContainsAny(v.Value, "'\r\n") {
+				return "", fmt.Errorf("%s: a value with a single quote or a line break cannot be written to a compose .env file", v.Name)
+			}
+			b.WriteString("'" + v.Value + "'")
+		} else {
+			b.WriteString(v.Value)
+		}
+		b.WriteByte('\n')
+	}
+	return b.String(), nil
+}
+
 // Lines renders variables as the NAME=value lines of an env file that a POSIX shell can source.
 // A value is quoted when it was asked to be, and also when it holds a character the shell would
 // read as syntax.

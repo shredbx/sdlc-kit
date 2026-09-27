@@ -5,14 +5,15 @@ The Go half of a bos app: settings, a fixed middleware chain, the health and roo
 ```bash
 go build ./...    # build and type-check this module
 go vet ./...      # vet this module; it has no tests yet
-go run ./cmd/bos env -f bos.yaml -o .bos/env    # write both halves' environment files
+go run ./cmd/bos env -f bos.yaml -o .bos/env    # write both halves' environment files, for a native run
+go run ./cmd/bos env -p bundle -f bos.yaml -o deploy    # write the one .env a docker compose bundle reads
 ```
 
 ## Overview
 
 `bos-go` is the code every bos API starts with, taken from a running API and configured rather than rewritten. `config.Load` reads the settings from the environment. `server.NewApp` builds a chi router with a fixed chain, in this order: request id, request logger, JSON panic recovery, security headers, CORS and, when an auth service is given, authentication extraction. It serves `GET` and `HEAD /health`, `GET /` (service, version, environment and the endpoints you list) and an `/api` group behind the CSRF check, where you mount your own routes. `server.Run` serves a handler and, on SIGINT or SIGTERM, drains in-flight requests for up to 30 seconds.
 
-`cmd/bos` is the command line. `bos env` writes the API's and the web's environment files from the app's `bos.yaml` (package `core/bosyaml`), so the two halves read their settings from one file and cannot disagree.
+`cmd/bos` is the command line. `bos env` writes the app's settings from `bos.yaml` (package `core/bosyaml`), so every way of running the app reads them from one file and cannot disagree. Profile `dev` (the default) writes the two files a native run reads, `api.env` and `web.env`. Profile `bundle` writes the one `.env` a docker compose bundle reads.
 
 Security headers, the CSRF check and authentication are the `auth` package, imported as it is; the error body of a recovered panic is `httputil`'s. Not here yet: `bos dev`, `build` and `check`, pages, content sources and presets.
 
@@ -122,23 +123,23 @@ With no `API` function, the `/api` group answers unknown paths with not-found af
 
 ## bos.yaml and the bos command
 
-`bos version` prints `bos 0.0.0`. `bos env [-f bos.yaml] [-o .bos/env]` reads the file and writes `api.env` and `web.env` into the folder. The keys:
+`bos version` prints `bos 0.0.0`. `bos env [-f bos.yaml] [-o .bos/env] [-p dev|bundle]` reads the file and writes into the folder: profile `dev` writes `api.env` and `web.env`, profile `bundle` writes the one `.env`. The keys of `bos.yaml`:
 
 | Key | Default | Meaning |
 |---|---|---|
 | `prefix` | required | upper case letters, digits and underscores, starting with a letter; scopes the API's product-named variable (`<PREFIX>_CORS_ORIGINS`) |
 | `site_name` | required | one line; the web's `PUBLIC_SITE_NAME` |
 | `environment` | `dev` | the API's `ENVIRONMENT` |
-| `api.port` | required, 1 to 65535 | the API's `PORT`, and the port in the web's `PUBLIC_API_URL` |
+| `api.port` | required, 1 to 65535 | the API's `PORT`, and the port in the web's `PUBLIC_API_URL`; in the bundle profile, the host port the API's container publishes on |
 | `api.database_url` | empty | the API's `DATABASE_URL`; empty means no database |
-| `web.port` | required, 1 to 65535 | the web's `PORT`, and the port in the API's allowed origin |
+| `web.port` | required, 1 to 65535 | the web's `PORT`, and the port in the API's allowed origin; in the bundle profile, the host port the web's container publishes on |
 
 - The two ports must differ.
 - An unknown key is refused, so a misspelt setting is not silently ignored.
 - The API's allowed origin and the web's API address are derived from the two ports, and both assume `localhost`.
-- `bos env` generates the JWT secret once (32 random bytes as 64 hex characters) and keeps it on later runs. `api.env` is readable by its owner only.
-- Values with shell syntax are double-quoted, so the files can be sourced by a shell.
-- Exit codes: 0 done; 1 the file or a setting was refused, and nothing is written; 2 a usage error.
+- `bos env` generates the JWT secret once (32 random bytes as 64 hex characters) and keeps it on later runs, reading it back from whichever file holds it in that profile. A file holding the secret is readable by its owner only.
+- The `dev` profile's files are shell-sourceable (values with shell syntax are double-quoted). The `bundle` profile's `.env` is read by docker compose, which expands `$` inside double quotes but not inside single quotes, so such a value is single-quoted instead; a value that itself holds a single quote or a line break cannot be written this way, and is refused, naming the variable.
+- Exit codes: 0 done; 1 the file or a setting was refused, and nothing is written; 2 a usage error, including an unknown profile.
 
 ## Tests
 
