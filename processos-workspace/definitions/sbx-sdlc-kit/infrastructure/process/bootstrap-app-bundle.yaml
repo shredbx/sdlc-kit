@@ -1,0 +1,9 @@
+# Bootstrap an app's service-bundle (an API and a web that must reach each other) from nothing
+# running: render its compose files, build and start it, then prove the two halves are linked.
+name: bootstrap-app-bundle
+input:
+  bundle: service-bundle
+steps:
+  - render-bundle
+  - run-bundle
+  - verify-link
