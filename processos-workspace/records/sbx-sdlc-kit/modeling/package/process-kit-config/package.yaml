@@ -1,0 +1,8 @@
+stack: python
+kit: process-kit
+name: config
+path: platform/python/packages/config
+version: 0.1.0
+description: "Config: read the config file, check it, and give every path in it resolved."
+uses: [process-kit-types, process-kit-schema]
+dependencies: []

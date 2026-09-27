@@ -1,0 +1,18 @@
+# Valid feed-sources registry fixture for registry_test.go.
+# Two sources across both parser tiers / both languages / two categories,
+# one enabled and one disabled, to exercise the full typed mapping.
+sources:
+  - id: bangkokpost-property
+    name: "Bangkok Post — Property"
+    url: https://www.bangkokpost.com/rss/data/property.xml
+    language: en
+    category: property
+    parser: rss2
+    enabled: true
+  - id: prachachat-business
+    name: "Prachachat — Business"
+    url: https://www.prachachat.net/feed
+    language: th
+    category: business
+    parser: wordpress
+    enabled: false

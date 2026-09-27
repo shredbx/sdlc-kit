@@ -1,0 +1,8 @@
+stack: go
+kit: seo
+name: seo
+path: platform/go/packages/seo
+version: 0.0.0
+description: "SeoMeta: per-entity search-engine and Open Graph metadata, stored as one nullable JSON column."
+uses: []
+dependencies: []

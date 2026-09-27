@@ -1,0 +1,24 @@
+topic: unit-definitions-as-records
+question: Where does the structured definition of a package, framework or kit (overview,
+  install, usage, configuration, dependencies) live, and where do the files rendered
+  from it land?
+status: decided
+resolution: 'For the trial, refined after U1: a unit''s records are siblings in one
+  folder, processos-workspace/records/sbx-sdlc-kit/modeling/package/<id>/{package,readme}.yaml,
+  so one unit is one folder. The schemas and the template that render a readme stay
+  in the documentation capability. Every package record has a required path, its folder
+  from the repository root, so no tool needs a lookup table. Identity rule: <id>,
+  the record''s folder, is the unit''s installable name in lower-case hyphens (Python:
+  the pyproject name; Go: the module path after pkg/ with / as -; Svelte: the npm
+  name without its scope); uses lists ids; name is the last segment of path. A verify
+  process checks these rules once it exists. Rendered files still land in the unit''s
+  existing folder by render-then-copy. Review point: after the Go scope, the second
+  instance.'
+rationale: 'The U1 review (docs/proposals/unit-model-design.md, section 9): a unit''s
+  two records sat in two folders, and the gate scripts needed a hidden table from
+  unit to folder. Upstream process-os keeps a unit''s package and readme records together,
+  and mechanism 4 of docs/proposals/schema-evolution-principles.md keeps a unit''s
+  further data beside its base record. path is needed by every unit, so it is a field
+  of the schema (mechanism 1).'
+date: '2026-09-26'
+supersedes: sbx-sdlc-kit/architecture/decision/unit-definitions-as-records/first.yaml

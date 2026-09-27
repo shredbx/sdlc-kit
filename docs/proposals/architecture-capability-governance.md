@@ -143,9 +143,8 @@ in namespace (deferred), and the type/schema separation principle itself.
 
 ## 6. Draft capability descriptions (for your review — not yet written as records)
 
-The 13 names are shredbx's own taxonomy (confirmed in
-`docs/research/shredbx-bestierealestate-and-capabilities.md` Part 2), adopted as a reference list, not
-inherited wholesale. The descriptions below are written fresh, in our own words, for our own context —
+The 13 names are shredbx's own taxonomy (confirmed via research into shredbx's largest client
+product, now kept in that client's own repo), adopted as a reference list, not inherited wholesale. The descriptions below are written fresh, in our own words, for our own context —
 edit freely.
 
 | Capability | Description |

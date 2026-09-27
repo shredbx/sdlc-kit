@@ -1,7 +1,7 @@
 topic: platform-position-in-namespace
 question: Beyond capability-outermost and framework-not-platform dispatch, what is
   the full position/depth of platform vs framework segments in the namespace?
-status: deferred
+status: superseded
 resolution: Deferred until the types port (process-os's types package into platform/python/)
   gives real content to test namespace depth against.
 rationale: "Per docs/proposals/porting-and-modeling-process.md's build-to-prove-then-model\

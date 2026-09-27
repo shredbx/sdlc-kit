@@ -1,0 +1,8 @@
+kind: framework
+stack: go
+name: bos-go
+path: platform/go/frameworks/bos-go
+version: 0.0.0
+description: "The Go half of a bos app: the settings loader, the fixed middleware chain, the health and root routes and graceful shutdown around a chi router, and the `bos` command that writes both halves' settings from `bos.yaml`."
+uses: [auth, httputil]
+dependencies: [github.com/go-chi/chi/v5@v5.1.0, github.com/go-chi/cors@v1.2.1, gopkg.in/yaml.v3@v3.0.1]

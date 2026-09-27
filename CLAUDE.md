@@ -132,6 +132,11 @@ before writing anything. This is how the user verifies the plan is understood co
 drift before it happens, not after. Deliverables (proposals, write-ups, diagrams) are written as real
 files in this repo, never published via the Artifact tool.
 
+**Every completion report has the same shape:** (1) the before/after file tree of what was actually
+done, showing new/modified paths only, taken from the real tree, with the evidence for each gate;
+(2) the next scope's exact before/after tree; (3) stop and wait for confirmation. A table or prose
+summary is not a substitute, and the next tree is shown, never offered.
+
 **We do not build a fully automated, step-catalogue SDLC pipeline** — not shredbx's FDD1–FDD5 step
 engine, nor an equivalent of it. shredbx's own year of real use is the reason: a rigid, imposed step
 sequence invites finding workarounds to skip steps that were mandated rather than actually required
@@ -206,13 +211,26 @@ deliverable, a postgres + pgAdmin dev bundle, is built, tested end to end (`proc
 sbx-sdlc-kit.infrastructure.bootstrap-bundle`), and running at `projects/services/postgres-dev/`
 (own `README.md`/`Makefile` for start/stop). Design: `docs/proposals/infrastructure-services-design.md`.
 
-Next step: **model a real product on this foundation** — the user wants to introduce the actual
-workflow, schemas and code a specific product needs, discussed and modeled the normal way (per
-"Workflow with the user" above: discuss intent → plan the shape → per-definition approval → before/
-after file tree → implement → `process-cli check`). Nothing about that product is decided yet as of
-this note — pick it up fresh with the user rather than assuming scope from here. Two proposal docs
-already do reconnaissance for that discussion without deciding it:
-`docs/proposals/product-example-scaffold.md` (process-os reuse vs. adapt, stdio-vs-HTTP MCP, no
-domain picked) and this session's own brainstorm start on postgres vector-search support
-(pgvector), adding redis to the infrastructure capability, and researching DBOS for durable
-Pydantic-AI workflows — none of those three are modeled yet either.
+**As of 2026-09-27**: the "model a real product" step below was picked up — the product is `bos`, a constructor
+platform for websites/apps, decomposed rung by rung from a running production app (the first consumer, mounted
+at `consumers/clients/bestie/bestierealestate`; sdlc-kit itself holds none of that consumer's own information —
+see `feedback_no-client-info-in-sdlc-kit` in project memory). Design: `docs/proposals/{bos-system-design,
+bos-constructor,bos-app-roadmap}.md`; decisions D1 to D26 are recorded as prose inside those three
+documents (not in `architecture/decision/`, which is this workspace's own governance log, a separate
+namespace). **Milestone M0 is done**: the platform's Go
+and Svelte packages are ported (Scopes 1 to 6e), the unit/package record model exists (Scopes U0 to U2c, one
+record + rendered README per package), and the `bos` frameworks themselves are extracted from the running
+original — `bos-go` (settings, fixed middleware chain, health/root routes, graceful shutdown, the `bos` CLI) and
+`bos-svelte` (security headers, the same-origin `/api` pass-through, a placeholder home) — with the first
+consumer's example app running both natively (`make dev`) and as a docker bundle (`make bundle-up`), each gated
+offline and against the original's own golden files. Milestone plans: `docs/plans/2026-09-2[4-7]-*.md`,
+especially the M0.x series for the frameworks and the app bundle. A resumption note for whoever picks this up in
+a fresh worktree: `docs/plans/2026-09-27-handoff-next-worktree.md`.
+
+Next step: **M1 — branding and tokens** (colors, logo, assets, fonts), per the roadmap's M1 section. Nothing about
+M1 is modeled yet as of this note — pick it up fresh with the user rather than assuming scope from here.
+
+Separately, `docs/proposals/product-example-scaffold.md` (process-os reuse vs. adapt, stdio-vs-HTTP MCP, no
+domain picked) and a brainstorm start on postgres vector-search support (pgvector), adding redis to the
+infrastructure capability, and researching DBOS for durable Pydantic-AI workflows remain unmodeled reconnaissance,
+unrelated to the `bos` track.

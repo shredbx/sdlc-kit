@@ -1,5 +1,10 @@
 # One infrastructure thing — postgres, pgAdmin, redis, mongo, or (later) a service we build
 # ourselves. kind determines what management_tool means: only meaningful on a datastore.
+#
+# An application service is built from source: give it a build (image then names the image that
+# build produces). depends_on lists other services, by id, that this one waits for; the
+# bundle-compose template, not this schema, chooses the wait condition — healthy when the other
+# service has a healthcheck, started when it does not.
 name: service
 type: mapping
 fields:
@@ -10,3 +15,6 @@ fields:
   ports:           {type: port-list, required: false}
   env:             {type: env-var-list, required: false}
   management_tool: {type: string, required: false}
+  build:           {type: service-build, required: false}
+  depends_on:      {type: service-ref-list, required: false}
+  healthcheck:     {type: service-healthcheck, required: false}

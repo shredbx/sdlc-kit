@@ -1,0 +1,8 @@
+kind: framework
+stack: svelte
+name: bos-svelte
+path: platform/svelte/frameworks/bos-svelte
+version: 0.0.0
+description: "The SvelteKit half of a bos app: the server hook (security headers and the same-origin /api pass-through to the Go API) and a placeholder home that reports the API's health."
+uses: []
+dependencies: []

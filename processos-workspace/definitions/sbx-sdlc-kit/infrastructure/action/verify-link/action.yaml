@@ -1,0 +1,9 @@
+# Proves the two halves of an app bundle are linked, not just running: it waits for the bundle's
+# bos-api service to report healthy on its published port, then requests the page the bundle's
+# bos-web service publishes and checks that the page says the API is healthy (the placeholder
+# home does; the check is that page's contract). Needs run-bundle to have started the bundle.
+name: verify-link
+type: shell
+timeout: 180
+input:
+  bundle: service-bundle

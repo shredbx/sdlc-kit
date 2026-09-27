@@ -1,0 +1,5 @@
+# The language stack a unit is built with; its code sits under platform/<stack>/. A field of the record, never a
+# folder segment of the records or the definitions (decision platform-position-in-namespace, second record).
+name: stack
+type: string
+enum: [python, go, svelte]

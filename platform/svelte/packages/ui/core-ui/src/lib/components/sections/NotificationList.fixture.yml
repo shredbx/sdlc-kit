@@ -1,0 +1,201 @@
+type: fixture
+name: notification-list
+entity: notification
+purpose: Demo notifications for NotificationList component previews and variants
+
+# ==============================================================================
+# NOTIFICATION LIST FIXTURES
+# ==============================================================================
+# Following fixture.yml schema and active-object pattern.
+# This file contains all demo data for NotificationList component.
+# ==============================================================================
+
+tags:
+  - preview
+  - demo
+  - notification
+  - section
+
+# ==============================================================================
+# BASE DATA - Default notification items
+# ==============================================================================
+data:
+  notifications:
+    type: array
+    value:
+      - id: "1"
+        title: New commit merged
+        message: PR #42 was merged to main
+        time: 2m ago
+        unread: true
+        variant: success
+
+      - id: "2"
+        title: Build failed
+        message: CI pipeline failed with 3 errors
+        time: 10m ago
+        unread: true
+        variant: error
+
+      - id: "3"
+        title: Comment on PR
+        message: John left a comment on your pull request
+        time: 1h ago
+        unread: false
+        avatarInitials: JD
+
+      - id: "4"
+        title: Storage warning
+        message: You are running low on storage space
+        time: 2h ago
+        unread: false
+        variant: warning
+
+      - id: "5"
+        title: System update
+        message: New features are available
+        time: 3h ago
+        unread: false
+        variant: info
+
+# ==============================================================================
+# VARIANTS - Different states for testing/preview
+# ==============================================================================
+variants:
+  empty:
+    description: Empty notification list
+    overrides:
+      notifications: []
+
+  all-unread:
+    description: All notifications marked as unread
+    overrides:
+      notifications:
+        - id: "1"
+          title: New commit merged
+          message: PR #42 was merged to main
+          time: 2m ago
+          unread: true
+          variant: success
+        - id: "2"
+          title: Build failed
+          message: CI pipeline failed with 3 errors
+          time: 10m ago
+          unread: true
+          variant: error
+        - id: "3"
+          title: Comment on PR
+          message: John left a comment on your pull request
+          time: 1h ago
+          unread: true
+          avatarInitials: JD
+        - id: "4"
+          title: Storage warning
+          message: You are running low on storage space
+          time: 2h ago
+          unread: true
+          variant: warning
+        - id: "5"
+          title: System update
+          message: New features are available
+          time: 3h ago
+          unread: true
+          variant: info
+
+  compact:
+    description: Fewer notifications for compact/sidebar view
+    overrides:
+      notifications:
+        - id: "1"
+          title: New commit merged
+          message: PR #42 was merged to main
+          time: 2m ago
+          unread: true
+          variant: success
+        - id: "2"
+          title: Build failed
+          message: CI pipeline failed with 3 errors
+          time: 10m ago
+          unread: true
+          variant: error
+        - id: "3"
+          title: Comment on PR
+          message: John left a comment on your pull request
+          time: 1h ago
+          unread: false
+          avatarInitials: JD
+
+  alerts-only:
+    description: Only error and warning notifications
+    overrides:
+      notifications:
+        - id: "2"
+          title: Build failed
+          message: CI pipeline failed with 3 errors
+          time: 10m ago
+          unread: true
+          variant: error
+        - id: "4"
+          title: Storage warning
+          message: You are running low on storage space
+          time: 2h ago
+          unread: false
+          variant: warning
+
+  single:
+    description: Single notification for minimal testing
+    overrides:
+      notifications:
+        - id: "1"
+          title: New commit merged
+          message: PR #42 was merged to main
+          time: 2m ago
+          unread: true
+          variant: success
+
+# ==============================================================================
+# USAGE - Where this fixture is used
+# ==============================================================================
+usage:
+  preview:
+    components:
+      - NotificationList
+      - RightSidebar
+    transform: null
+  e2e:
+    tests:
+      - notification-list
+      - sidebar-notifications
+    seed: false
+
+# ==============================================================================
+# PRESENTER PRESETS - Component-specific configurations
+# ==============================================================================
+presets:
+  sidebar-notifications:
+    description: Compact list for right sidebar
+    props:
+      maxItems: 4
+      compact: true
+      showViewAll: true
+
+  full-page-list:
+    description: Expanded list for dedicated page
+    props:
+      maxItems: 10
+      collapsible: false
+      showViewAll: false
+
+  alert-center:
+    description: Error and warning focused
+    fixtureVariant: alerts-only
+    props:
+      icon: alert-triangle
+      title: Alerts
+
+  activity-feed:
+    description: User activity notifications
+    props:
+      icon: activity
+      title: Recent Activity
+      dismissible: false

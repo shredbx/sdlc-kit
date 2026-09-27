@@ -12,7 +12,6 @@ scratch="render-bundle-$INPUT_BUNDLE_NAME"
 rm -rf "$scratch"
 process-cli render sbx-sdlc-kit.infrastructure.bundle-compose "$spec" --into "$scratch"
 
-root="$(git -C "$ACTION_HOME" rev-parse --show-toplevel)"
-target="$root/projects/services/$INPUT_BUNDLE_NAME"
+target="$(bundle_dir)"
 mkdir -p "$target"
 cp -R "$scratch"/. "$target"/

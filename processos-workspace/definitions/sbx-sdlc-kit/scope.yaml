@@ -2,4 +2,4 @@
 # definitions, one folder for each kind: type/, schema/, template/, action/ and process/.
 name: sbx-sdlc-kit
 version: 0.1.0
-uses: []
+uses: [std]                    # std.version, for the package record's version

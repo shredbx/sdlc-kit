@@ -1,0 +1,8 @@
+kind: framework
+stack: python
+name: process-framework
+path: platform/python/frameworks/process-framework
+version: 0.1.0
+description: "The framework: the config, the definitions and the runtime joined, entered through initialize."
+uses: [process-kit-types, process-kit-schema, process-kit-config, process-kit-action, process-kit-filesystem, process-kit-template, process-kit-process]
+dependencies: [pyyaml>=6]

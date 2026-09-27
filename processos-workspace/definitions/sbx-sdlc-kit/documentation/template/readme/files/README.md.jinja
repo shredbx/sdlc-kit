@@ -1,0 +1,25 @@
+# {{ name }}
+
+{{ tagline }}
+{% if commands %}
+```bash
+{{ commands | join("\n") }}
+```
+{% endif -%}
+{% if overview %}
+## Overview
+
+{{ overview }}
+{% endif %}
+## Install
+
+{{ install }}
+
+## Usage
+
+{{ usage }}
+{% for section in sections %}
+{{ section.heading }}
+
+{{ section.body }}
+{% endfor -%}

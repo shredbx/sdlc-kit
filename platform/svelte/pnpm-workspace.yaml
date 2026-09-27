@@ -1,0 +1,9 @@
+packages:
+  - 'packages/*/*'
+
+# pnpm 11 fails the install when a dependency has an unreviewed build script. These two are reviewed and
+# denied on purpose: core-js only prints a banner, and esbuild's native binary ships as a platform package,
+# so its postinstall is not needed. Add an entry here only after reading the script.
+allowBuilds:
+  core-js: false
+  esbuild: false

@@ -12,9 +12,10 @@ process-cli = "process_cli:main"
 dev = ["pytest>=8", "pyyaml>=6"]
 
 [tool.uv.sources]
-# sbx-sdlc-kit: upstream has `{ workspace = true }`. A member outside the uv workspace root (platform/python) cannot see
-# that workspace from its own folder, so `workspace = true` fails; a path source works. See docs/plans/2026-09-25-process-os-apps-import-milestones-11-12.md.
-process-framework = { path = "../../../../platform/python/frameworks/process-framework", editable = true }
+# sbx-sdlc-kit: matches upstream (`{ workspace = true }`). uv <0.12 couldn't resolve a workspace member reached
+# only via a glob outside the workspace root, so this used a `path` source as a workaround; uv >=0.12 fixed that
+# resolution and now requires `workspace = true` for any actual workspace member. See docs/plans/2026-09-26-uv-workspace-source-ci-fix.md.
+process-framework = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

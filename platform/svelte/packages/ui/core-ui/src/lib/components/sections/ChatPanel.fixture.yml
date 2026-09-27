@@ -1,0 +1,201 @@
+type: fixture
+name: chat-panel
+entity: chat-message
+purpose: Demo conversation for ChatPanel component previews and variants
+
+# ==============================================================================
+# CHAT PANEL FIXTURES
+# ==============================================================================
+# Following fixture.yml schema and active-object pattern.
+# This file contains all demo data for ChatPanel component.
+# ==============================================================================
+
+tags:
+  - preview
+  - demo
+  - chat
+  - conversation
+  - section
+
+# ==============================================================================
+# BASE DATA - Default conversation
+# ==============================================================================
+data:
+  messages:
+    type: array
+    value:
+      - id: "1"
+        role: assistant
+        content: "Hi! I'm your AI assistant. How can I help you today?"
+        timestamp: "10:30 AM"
+
+      - id: "2"
+        role: user
+        content: Can you help me understand the component architecture?
+        timestamp: "10:31 AM"
+        status: read
+
+      - id: "3"
+        role: assistant
+        content: "Of course! The component architecture follows a layered approach: primitives, blocks, sections, layouts, and screens. Each layer builds upon the previous one for maximum reusability."
+        timestamp: "10:31 AM"
+
+      - id: "4"
+        role: user
+        content: That makes sense. What about the presenter pattern?
+        timestamp: "10:32 AM"
+        status: delivered
+
+# ==============================================================================
+# VARIANTS - Different states for testing/preview
+# ==============================================================================
+variants:
+  empty:
+    description: Empty chat, welcome state
+    overrides:
+      messages: []
+
+  short:
+    description: Minimal conversation (2 messages)
+    overrides:
+      messages:
+        - id: "1"
+          role: assistant
+          content: "Hi! I'm your AI assistant. How can I help you today?"
+          timestamp: "10:30 AM"
+        - id: "2"
+          role: user
+          content: Can you help me understand the component architecture?
+          timestamp: "10:31 AM"
+          status: read
+
+  typing:
+    description: Conversation with typing indicator state
+    overrides:
+      messages:
+        - id: "1"
+          role: assistant
+          content: "Hi! I'm your AI assistant. How can I help you today?"
+          timestamp: "10:30 AM"
+        - id: "2"
+          role: user
+          content: Can you help me understand the component architecture?
+          timestamp: "10:31 AM"
+          status: read
+
+  error:
+    description: Conversation with failed message
+    overrides:
+      messages:
+        - id: "1"
+          role: assistant
+          content: "Hi! I'm your AI assistant. How can I help you today?"
+          timestamp: "10:30 AM"
+        - id: "2"
+          role: user
+          content: Can you help me understand the component architecture?
+          timestamp: "10:31 AM"
+          status: read
+        - id: "3"
+          role: user
+          content: Send this message
+          status: error
+          error: Failed to send
+
+  long:
+    description: Extended conversation for scroll testing
+    overrides:
+      messages:
+        - id: "1"
+          role: assistant
+          content: "Hi! I'm your AI assistant. How can I help you today?"
+          timestamp: "10:30 AM"
+        - id: "2"
+          role: user
+          content: Can you help me understand the component architecture?
+          timestamp: "10:31 AM"
+          status: read
+        - id: "3"
+          role: assistant
+          content: "Of course! The component architecture follows a layered approach: primitives, blocks, sections, layouts, and screens. Each layer builds upon the previous one for maximum reusability."
+          timestamp: "10:31 AM"
+        - id: "4"
+          role: user
+          content: That makes sense. What about the presenter pattern?
+          timestamp: "10:32 AM"
+          status: delivered
+        - id: "5"
+          role: assistant
+          content: "The presenter pattern allows components to be self-documenting. Each component has a .presenter.ts file that defines its variants, presets, and documentation."
+          timestamp: "10:33 AM"
+        - id: "6"
+          role: user
+          content: How do fixtures fit into this?
+          timestamp: "10:34 AM"
+          status: delivered
+        - id: "7"
+          role: assistant
+          content: "Great question! Fixtures are colocated YAML files that define demo data. They follow the active-object pattern and can be loaded at runtime for previews and tests."
+          timestamp: "10:34 AM"
+
+  code-assistant:
+    description: Developer-focused conversation
+    overrides:
+      messages:
+        - id: "1"
+          role: assistant
+          content: "I'm your code assistant. I can help with debugging, refactoring, and explaining code patterns."
+
+# ==============================================================================
+# USAGE - Where this fixture is used
+# ==============================================================================
+usage:
+  preview:
+    components:
+      - ChatPanel
+      - RightSidebar
+    transform: null
+  e2e:
+    tests:
+      - chat-panel
+      - chat-widget
+    seed: false
+
+# ==============================================================================
+# PRESENTER PRESETS - Component-specific configurations
+# ==============================================================================
+presets:
+  sidebar-chat-widget:
+    description: Floating chat for right sidebar
+    fixtureVariant: empty
+    props:
+      variant: floating
+      title: AI Assistant
+      subtitle: Ask me anything
+      placeholder: Type your question...
+      maxHeight: 350px
+
+  support-chat:
+    description: Customer support chat with attachments
+    fixtureVariant: empty
+    props:
+      title: Support
+      subtitle: We typically reply within minutes
+      showAttachment: true
+      placeholder: Describe your issue...
+
+  code-assistant:
+    description: Developer-focused AI chat
+    fixtureVariant: code-assistant
+    props:
+      title: Code Assistant
+      placeholder: Ask about code...
+      maxHeight: 500px
+
+  inline-documentation:
+    description: Embedded chat in documentation
+    fixtureVariant: empty
+    props:
+      showHeader: false
+      compact: true
+      placeholder: Ask about this page...

@@ -1,0 +1,8 @@
+stack: go
+kit: location
+name: geocoordinate
+path: platform/go/packages/location/geocoordinate
+version: 0.0.0
+description: "GeoCoordinate: a WGS84 latitude and longitude value object with bounds validation and great-circle distance."
+uses: []
+dependencies: []

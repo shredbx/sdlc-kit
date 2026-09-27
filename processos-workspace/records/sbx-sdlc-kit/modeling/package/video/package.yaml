@@ -1,0 +1,8 @@
+stack: go
+kit: media
+name: video
+path: platform/go/packages/media/video
+version: 0.0.0
+description: "A read-only, keyless video-link engine: recognize, parse and resolve pasted YouTube, TikTok and Instagram URLs."
+uses: []
+dependencies: []

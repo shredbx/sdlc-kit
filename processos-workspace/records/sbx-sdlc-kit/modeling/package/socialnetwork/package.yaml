@@ -1,0 +1,8 @@
+stack: go
+kit: contacts
+name: socialnetwork
+path: platform/go/packages/contacts/socialnetwork
+version: 0.0.0
+description: "SocialNetwork and List: a social-media profile reference, and a list of them stored as one nullable JSON column."
+uses: []
+dependencies: []

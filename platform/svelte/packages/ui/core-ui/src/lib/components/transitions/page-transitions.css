@@ -1,0 +1,90 @@
+/*
+ * page-transitions.css — variant keyframes for PageTransition.svelte
+ *
+ * Imported by PageTransition.svelte. NOT scoped (Svelte cannot scope
+ * ::view-transition-* pseudo-elements that target <html>). Variants are
+ * selected by the [data-page-transition='...'] attribute set on <html>
+ * by PageTransition.svelte's onNavigate callback.
+ *
+ * Reduced motion: custom animations are wrapped in
+ * @media (prefers-reduced-motion: no-preference). Reduced-motion users get
+ * the browser's default crossfade (which is near-instant and respects the
+ * user preference automatically — built into the View Transitions API).
+ *
+ * Decision references: #0212 (Page family), #0216 (research gate dogfood).
+ */
+
+:root {
+	--sbx-page-duration: var(--duration-normal, 250ms);
+	--sbx-page-easing: var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	/* fade — default. Browser's built-in crossfade is what we want here, but
+	   we apply duration + easing tokens explicitly so the brand system stays
+	   consistent across variants. */
+	html[data-page-transition='fade']::view-transition-old(root),
+	html[data-page-transition='fade']::view-transition-new(root) {
+		animation-duration: var(--sbx-page-duration);
+		animation-timing-function: var(--sbx-page-easing);
+	}
+
+	/* slide — old slides left, new slides in from right */
+	html[data-page-transition='slide']::view-transition-old(root) {
+		animation: sbx-page-slide-out var(--sbx-page-duration) var(--sbx-page-easing) both;
+	}
+	html[data-page-transition='slide']::view-transition-new(root) {
+		animation: sbx-page-slide-in var(--sbx-page-duration) var(--sbx-page-easing) both;
+	}
+
+	/* blur — old blurs out, new blurs in */
+	html[data-page-transition='blur']::view-transition-old(root) {
+		animation: sbx-page-blur-out var(--sbx-page-duration) var(--sbx-page-easing) both;
+	}
+	html[data-page-transition='blur']::view-transition-new(root) {
+		animation: sbx-page-blur-in var(--sbx-page-duration) var(--sbx-page-easing) both;
+	}
+
+	/* mask-wipe — old wipes left to right, new reveals from right */
+	html[data-page-transition='mask-wipe']::view-transition-old(root) {
+		animation: sbx-page-wipe-out var(--sbx-page-duration) var(--sbx-page-easing) both;
+	}
+	html[data-page-transition='mask-wipe']::view-transition-new(root) {
+		animation: sbx-page-wipe-in var(--sbx-page-duration) var(--sbx-page-easing) both;
+	}
+
+	@keyframes sbx-page-slide-out {
+		to {
+			transform: translateX(-24px);
+			opacity: 0;
+		}
+	}
+	@keyframes sbx-page-slide-in {
+		from {
+			transform: translateX(24px);
+			opacity: 0;
+		}
+	}
+	@keyframes sbx-page-blur-out {
+		to {
+			filter: blur(8px);
+			opacity: 0;
+		}
+	}
+	@keyframes sbx-page-blur-in {
+		from {
+			filter: blur(8px);
+			opacity: 0;
+		}
+	}
+	@keyframes sbx-page-wipe-out {
+		to {
+			clip-path: inset(0 100% 0 0);
+		}
+	}
+	@keyframes sbx-page-wipe-in {
+		from {
+			clip-path: inset(0 0 0 100%);
+		}
+	}
+}

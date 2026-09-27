@@ -1,0 +1,8 @@
+stack: go
+kit: money
+name: money
+path: platform/go/packages/money
+version: 0.0.0
+description: "Money: a signed integer amount in the smallest currency unit, with ISO 4217 currencies, overflow-checked addition and subtraction, and rate-based conversion."
+uses: []
+dependencies: []

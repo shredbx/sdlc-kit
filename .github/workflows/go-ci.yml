@@ -1,0 +1,25 @@
+name: go-ci
+
+on:
+  push:
+    paths: ["platform/go/**", ".github/workflows/go-ci.yml"]
+  pull_request:
+    paths: ["platform/go/**", ".github/workflows/go-ci.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform/go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: platform/go/go.work
+          cache-dependency-path: platform/go/**/go.sum
+      # Each package is its own module, so `./...` at the go.work root matches nothing: `go list -m` names
+      # every workspace module and `/...` turns each into a package pattern.
+      - run: test -z "$(gofmt -l .)"
+      - run: go vet $(go list -m | sed 's|$|/...|')
+      - run: go test -count=1 $(go list -m | sed 's|$|/...|')
