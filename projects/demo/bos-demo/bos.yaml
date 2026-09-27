@@ -1,0 +1,18 @@
+# The one file both halves of the app take their settings from. `make env` (that is, `bos env`) turns it into
+# .bos/env/api.env and .bos/env/web.env, so the API and the web cannot disagree: the API's allowed origin is derived
+# from web.port, and the web's API address from api.port.
+
+# scopes the product-named environment variables of the API (BOSDEMO_CORS_ORIGINS)
+prefix: BOSDEMO
+# the name the web shows
+site_name: bos-demo
+# the API's ENVIRONMENT; "production" adds the HSTS header
+environment: dev
+
+api:
+  port: 5010
+  # bos-postgres (projects/demo/bos-demo's own datastore bundle, not shared with any client)
+  database_url: "postgres://bos:bos-demo-dev-only@localhost:54325/bos_demo?sslmode=disable"
+
+web:
+  port: 4010

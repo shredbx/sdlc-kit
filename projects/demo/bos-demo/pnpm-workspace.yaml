@@ -1,0 +1,20 @@
+packages:
+  - 'apps/web'
+  # The web framework is linked by local directory, never fetched (D24): bos-demo is mounted three levels below the sdlc-kit root.
+  - '../../../platform/svelte/frameworks/*'
+  # The admin shell reuses already-ported core-ui components (S7, docs/proposals/bos-demo-mvp.md).
+  # Named explicitly, not a package/*/* wildcard: that pulls in every ported Svelte package (calendar,
+  # media, ...), several of which need packages this machine has never fetched. Only core-ui's own
+  # in-repo closure is listed, the same discipline go.mod's replace block uses for Go's closure.
+  - '../../../platform/svelte/packages/ui/core-ui'
+  - '../../../platform/svelte/packages/ui/animations'
+  - '../../../platform/svelte/packages/formatting/units'
+  # The cms and settings kits' own admin-surface packages (docs/proposals/bos-admin-modules.md
+  # §6) — named explicitly, same discipline as the entries above.
+  - '../../../platform/svelte/packages/cms/ui-cms'
+  - '../../../platform/svelte/packages/settings/ui-settings'
+
+# pnpm 11 fails the install when a dependency has an unreviewed build script. esbuild's native binary ships as a platform package,
+# so its postinstall is not needed; it is denied on purpose. Add an entry here only after reading the script.
+allowBuilds:
+  esbuild: false

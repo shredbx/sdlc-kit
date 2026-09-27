@@ -27,8 +27,10 @@ import (
 	"errors"
 	"fmt"
 	"hash/fnv"
+	"io/fs"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -271,6 +273,120 @@ func Migrate(ctx context.Context, db *DB, migrationsPath string) ([]Migration, e
 	}
 
 	return appliedMigrations, nil
+}
+
+// MigrateFS runs all pending migrations from an fs.FS rooted at subdir — for a kit
+// that ships its own migrations embedded in its binary (embed.FS), so applying them
+// never depends on the source tree being present at runtime (a consumer's Docker
+// bundle image copies only the built binary, not the kit's source folder; a plain
+// OS path would silently find nothing there). platform/CLAUDE.md D15: a kit "later
+// also carries its bos wiring (handlers, migrations, routes, admin pages)" — this is
+// the migrations half of that. Same locking/tracking as Migrate, against the SAME
+// schema_migrations table: a kit's own migrations and the consumer's own coexist
+// there, so a kit's versions must never collide with a consumer's (or another
+// kit's) — this is why loadMigrationsFS expects long timestamp versions
+// (YYYYMMDDHHmmss, matching the real source's own convention) rather than a
+// consumer's short sequential ones. Added as a new function rather than
+// generalizing Migrate itself, to carry zero risk to the already-proven path-based
+// flow every existing caller (and its tests) depends on.
+func MigrateFS(ctx context.Context, db *DB, fsys fs.FS, subdir string) ([]Migration, error) {
+	lockID := advisoryLockID(db.schema)
+	if _, err := db.Exec(ctx, `SELECT pg_advisory_lock($1)`, lockID); err != nil {
+		return nil, fmt.Errorf("%w: acquire advisory lock: %v", ErrMigrationFailed, err)
+	}
+	defer db.Exec(ctx, `SELECT pg_advisory_unlock($1)`, lockID)
+
+	if err := db.EnsureSchema(ctx); err != nil {
+		return nil, fmt.Errorf("%w: ensure schema %s: %v", ErrMigrationFailed, db.schema, err)
+	}
+	if err := ensureMigrationsTable(ctx, db); err != nil {
+		return nil, err
+	}
+
+	applied, err := getAppliedMigrations(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+
+	migrations, err := loadMigrationsFS(fsys, subdir)
+	if err != nil {
+		return nil, err
+	}
+
+	var appliedMigrations []Migration
+	for _, m := range migrations {
+		if applied[m.Version] {
+			continue
+		}
+		if err := applyMigration(ctx, db, m); err != nil {
+			return appliedMigrations, fmt.Errorf("%w: version %s: %v", ErrMigrationFailed, m.Version, err)
+		}
+		appliedMigrations = append(appliedMigrations, m)
+	}
+	return appliedMigrations, nil
+}
+
+// loadMigrationsFS reads migration files from an fs.FS, rooted at subdir. Supports
+// exactly one naming pattern (NNN_description.up.sql, optionally paired with a
+// .down.sql) — a kit's migrations are authored fresh, not inherited from a legacy
+// tool, so the two backward-compat patterns loadMigrations also accepts do not
+// apply here. checksum is left empty for an FS-sourced migration (applyMigration's
+// os.ReadFile(m.FilePath) call cannot resolve an fs.FS-relative path to a real OS
+// file, and fails silently into an empty checksum by design — see applyMigration);
+// this only weakens dirty-migration detection for kit-shipped files, it does not
+// affect whether they apply correctly.
+func loadMigrationsFS(fsys fs.FS, subdir string) ([]Migration, error) {
+	entries, err := fs.ReadDir(fsys, subdir)
+	if err != nil {
+		return nil, fmt.Errorf("%w: read fs dir: %v", ErrMigrationFailed, err)
+	}
+
+	var migrations []Migration
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		fname := entry.Name()
+		if !strings.HasSuffix(fname, ".up.sql") {
+			continue
+		}
+		base := strings.TrimSuffix(fname, ".up.sql")
+		parts := strings.SplitN(base, "_", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		version, description := parts[0], parts[1]
+		upPath := path.Join(subdir, fname)
+
+		upSQL, err := fs.ReadFile(fsys, upPath)
+		if err != nil {
+			return nil, fmt.Errorf("%w: read %s: %v", ErrMigrationFailed, fname, err)
+		}
+		downPath := path.Join(subdir, strings.Replace(fname, ".up.sql", ".down.sql", 1))
+		downSQL, _ := fs.ReadFile(fsys, downPath) // optional
+
+		migrations = append(migrations, Migration{
+			Version:  version,
+			Name:     description,
+			Up:       string(upSQL),
+			Down:     string(downSQL),
+			FilePath: upPath,
+		})
+	}
+
+	seenVersions := make(map[string]string, len(migrations))
+	for _, m := range migrations {
+		if prev, dup := seenVersions[m.Version]; dup {
+			return nil, fmt.Errorf("%w: duplicate migration version %s: %q and %q — rename one to a unique version",
+				ErrMigrationFailed, m.Version, prev, m.FilePath)
+		}
+		seenVersions[m.Version] = m.FilePath
+	}
+
+	sort.Slice(migrations, func(i, j int) bool {
+		return migrations[i].Version < migrations[j].Version
+	})
+	return migrations, nil
 }
 
 // MigrateDown rolls back the last migration.

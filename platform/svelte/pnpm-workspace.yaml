@@ -1,5 +1,10 @@
 packages:
   - 'packages/*/*'
+  # bos-svelte (a framework, not a kit package) is a real workspace dependency now that a kit
+  # package (ui-cms, ui-settings) exports an admin manifest typed against its AdminModule
+  # contract (docs/proposals/bos-admin-modules.md §6) and, for ui-cms, uses its renderer
+  # registry at runtime.
+  - 'frameworks/*'
 
 # pnpm 11 fails the install when a dependency has an unreviewed build script. These two are reviewed and
 # denied on purpose: core-js only prints a banner, and esbuild's native binary ships as a platform package,
