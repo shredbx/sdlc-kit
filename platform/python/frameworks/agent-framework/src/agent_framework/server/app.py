@@ -9,6 +9,8 @@ from agent_framework.core.store.base import SessionStore
 from agent_framework.core.store.memory_store import MemoryStore
 from agent_framework.core.tool_registry import ToolEntry
 from agent_framework.server.routes.chat import build_router
+from agent_framework.server.routes.introspect import build_introspection_router
+from agent_framework.server.routes.knowledge import build_knowledge_router
 
 
 def create_app(
@@ -23,10 +25,13 @@ def create_app(
     app = FastAPI()
     agents = {registered.name: registered for registered in discover(agents_package)}
     app.include_router(build_router(agents, store or MemoryStore(), tool_registry, debug_mode, secret_key=secret_key))
+    if debug_mode:
+        app.include_router(build_introspection_router(agents, tool_registry))
+        app.include_router(build_knowledge_router(tool_registry))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins or ["http://localhost:3100"],
-        allow_methods=["POST"],
+        allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
     return app

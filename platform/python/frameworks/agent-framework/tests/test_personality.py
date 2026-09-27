@@ -15,7 +15,11 @@ _YAML = {
         {"name": "Concise & direct", "description": "Short messages."},
     ],
     "techniques": [
-        {"name": "Scarcity Signal", "when_to_use": "When others are genuinely interested too.", "example": "A few people have asked about this one."},
+        {
+            "name": "Scarcity Signal",
+            "when_to_use": "When others are genuinely interested too.",
+            "examples": ["A few people have asked about this one.", "This one tends to move quickly."],
+        },
     ],
 }
 
@@ -32,7 +36,11 @@ def test_load_personality_reads_real_yaml(tmp_path: Path) -> None:
         PersonalityTrait(name="Concise & direct", description="Short messages."),
     )
     assert personality.techniques == (
-        ConversionTechnique(name="Scarcity Signal", when_to_use="When others are genuinely interested too.", example="A few people have asked about this one."),
+        ConversionTechnique(
+            name="Scarcity Signal",
+            when_to_use="When others are genuinely interested too.",
+            examples=("A few people have asked about this one.", "This one tends to move quickly."),
+        ),
     )
 
 
@@ -61,10 +69,11 @@ def test_render_includes_techniques_when_present() -> None:
     personality = Personality(
         role="You are Bestie's assistant.",
         traits=(),
-        techniques=(ConversionTechnique(name="Scarcity Signal", when_to_use="When true.", example="A few people asked."),),
+        techniques=(ConversionTechnique(name="Scarcity Signal", when_to_use="When true.", examples=("A few people asked.", "It moves quickly.")),),
     )
 
     prompt = render_personality_prompt(personality)
 
     assert "Scarcity Signal" in prompt
     assert "A few people asked." in prompt
+    assert "It moves quickly." in prompt

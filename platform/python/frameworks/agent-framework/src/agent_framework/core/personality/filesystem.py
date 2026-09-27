@@ -14,5 +14,8 @@ def load_personality(path: Path) -> Personality:
     return Personality(
         role=data["role"],
         traits=tuple(PersonalityTrait(name=t["name"], description=t["description"]) for t in data["traits"]),
-        techniques=tuple(ConversionTechnique(name=t["name"], when_to_use=t["when_to_use"], example=t["example"]) for t in data.get("techniques", [])),
+        techniques=tuple(
+            ConversionTechnique(name=t["name"], when_to_use=t["when_to_use"], examples=tuple(t["examples"]))
+            for t in data.get("techniques", [])
+        ),
     )

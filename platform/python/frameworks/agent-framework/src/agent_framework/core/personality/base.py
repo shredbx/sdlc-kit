@@ -15,13 +15,15 @@ class PersonalityTrait:
 
 @dataclass(frozen=True)
 class ConversionTechnique:
-    """A named way to help a hesitant customer decide, with a concrete example line - not a
-    trigger/response rule, since real conversations don't reduce to fixed pattern matches. The
-    model picks which (if any) technique fits, the same way it already judges tone."""
+    """A named way to help a hesitant customer decide, with one or more concrete example lines -
+    not a trigger/response rule, since real conversations don't reduce to fixed pattern matches.
+    The model picks which (if any) technique fits, the same way it already judges tone. Multiple
+    examples (not just one) let several worked scenarios for the same technique live together,
+    e.g. different ways to phrase a soft deadline depending on how the customer hesitated."""
 
     name: str
     when_to_use: str
-    example: str
+    examples: tuple[str, ...]
 
 
 @dataclass(frozen=True)

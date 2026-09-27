@@ -11,6 +11,8 @@ def render_personality_prompt(personality: Personality) -> str:
 
     if personality.techniques:
         lines += ["", "Helping a hesitant customer decide (use at most one or two per message, only once there's real interest):"]
-        lines += [f'- {t.name} — {t.when_to_use} Example: "{t.example}"' for t in personality.techniques]
+        for t in personality.techniques:
+            examples = "; ".join(f'"{e}"' for e in t.examples)
+            lines.append(f"- {t.name} — {t.when_to_use} Examples: {examples}")
 
     return "\n".join(lines)
