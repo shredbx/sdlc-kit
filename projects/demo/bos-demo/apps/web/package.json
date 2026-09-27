@@ -13,7 +13,8 @@
     "@sbx/bos-svelte": "workspace:*",
     "@sbx/core-ui": "workspace:*",
     "@sbx/ui-cms": "workspace:*",
-    "@sbx/ui-settings": "workspace:*"
+    "@sbx/ui-settings": "workspace:*",
+    "@sbx/ui-seo": "workspace:*"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "5.5.2",

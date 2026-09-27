@@ -13,6 +13,9 @@ packages:
   # §6) — named explicitly, same discipline as the entries above.
   - '../../../platform/svelte/packages/cms/ui-cms'
   - '../../../platform/svelte/packages/settings/ui-settings'
+  # The already-ported SEO surface (docs/proposals/bos-layout-presets.md's sibling SEO scope) —
+  # ui-cms depends on it for SeoHead/SeoEditor.
+  - '../../../platform/svelte/packages/seo/ui-seo'
 
 # pnpm 11 fails the install when a dependency has an unreviewed build script. esbuild's native binary ships as a platform package,
 # so its postinstall is not needed; it is denied on purpose. Add an entry here only after reading the script.

@@ -1,4 +1,5 @@
 import type { SectionData } from '@sbx/bos-svelte/renderers';
+import type { SeoMeta } from '@sbx/ui-seo/types';
 
 /** One row of the admin Pages list — matches the cms kit's Go-side pageListItem
  * projection (GET /admin/cms). */
@@ -9,10 +10,11 @@ export interface PageListItem {
 	updated_at: string;
 }
 
-export interface SeoMeta {
-	meta_title?: string;
-	meta_description?: string;
-}
+// SeoMeta is re-exported from @sbx/ui-seo rather than redeclared here — it was
+// previously a narrower local duplicate (meta_title/meta_description only), which
+// undersold what the cms kit's Go side already stores (the full shared seo.SeoMeta:
+// og_*/canonical_url/noindex too). Re-exporting keeps this the single TS declaration.
+export type { SeoMeta };
 
 /** The full admin shape of a CMS page — matches the cms kit's Go-side CmsPage as
  * exposed by GET/PUT /admin/cms/{slug}. Only the fields this UI reads/writes. */

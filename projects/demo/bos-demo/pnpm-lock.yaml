@@ -30,6 +30,9 @@ importers:
       '@sbx/core-ui':
         specifier: workspace:*
         version: link:../../ui/core-ui
+      '@sbx/ui-seo':
+        specifier: workspace:*
+        version: link:../../seo/ui-seo
       '@sveltejs/kit':
         specifier: ^2.0.0
         version: 2.50.2(@sveltejs/vite-plugin-svelte@4.0.4(svelte@5.57.1)(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.33.0)))(svelte@5.57.1)(typescript@5.9.3)(vite@5.4.21(@types/node@22.20.4)(lightningcss@1.33.0))
@@ -43,6 +46,25 @@ importers:
 
   ../../../platform/svelte/packages/formatting/units:
     devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.0
+        version: 4.1.11(@types/node@22.20.4)(jsdom@25.0.1)(vite@8.3.1(@types/node@22.20.4))
+
+  ../../../platform/svelte/packages/seo/ui-seo:
+    dependencies:
+      '@sbx/core-ui':
+        specifier: workspace:*
+        version: link:../../ui/core-ui
+    devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^4.0.0
+        version: 4.0.4(svelte@5.57.1)
+      svelte:
+        specifier: ^5.0.0
+        version: 5.57.1
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -123,6 +145,9 @@ importers:
       '@sbx/ui-cms':
         specifier: workspace:*
         version: link:../../../../../platform/svelte/packages/cms/ui-cms
+      '@sbx/ui-seo':
+        specifier: workspace:*
+        version: link:../../../../../platform/svelte/packages/seo/ui-seo
       '@sbx/ui-settings':
         specifier: workspace:*
         version: link:../../../../../platform/svelte/packages/settings/ui-settings

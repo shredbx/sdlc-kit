@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getLayout } from '@sbx/bos-svelte/layouts';
+	import { SeoHead } from '@sbx/ui-seo';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -10,8 +11,12 @@
 	const layout = $derived(getLayout(data.page.layout));
 </script>
 
-<svelte:head>
-	<title>{data.page.title}</title>
-</svelte:head>
+<SeoHead
+	title={data.page.title ?? data.page.slug}
+	description={data.page.body_markdown ?? ''}
+	seoMeta={data.page.seo_meta}
+	siteName={data.settings.site_title}
+	defaultImage=""
+/>
 
 <layout.component sections={data.page.published_content ?? []} />

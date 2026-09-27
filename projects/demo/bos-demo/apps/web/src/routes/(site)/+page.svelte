@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getLayout } from '@sbx/bos-svelte/layouts';
+	import { SeoHead } from '@sbx/ui-seo';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -7,9 +8,13 @@
 	const layout = $derived(data.found ? getLayout(data.page.layout) : undefined);
 </script>
 
-<svelte:head>
-	<title>{data.found ? data.page.title : data.siteName}</title>
-</svelte:head>
+<SeoHead
+	title={data.found ? (data.page.title ?? 'Home') : data.siteName}
+	description={data.found ? (data.page.body_markdown ?? '') : ''}
+	seoMeta={data.found ? data.page.seo_meta : undefined}
+	siteName={data.settings.site_title}
+	defaultImage=""
+/>
 
 {#if data.found && layout}
 	<layout.component sections={data.page.published_content ?? []} />

@@ -18,7 +18,8 @@
 	"files": ["src"],
 	"dependencies": {
 		"@sbx/core-ui": "workspace:*",
-		"@sbx/bos-svelte": "workspace:*"
+		"@sbx/bos-svelte": "workspace:*",
+		"@sbx/ui-seo": "workspace:*"
 	},
 	"peerDependencies": {
 		"@sveltejs/kit": "^2.0.0",

@@ -1,21 +1,37 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { invalidateAll } from '$app/navigation';
+	import { SeoEditor, toSeoDraft, fromSeoDraft } from '@sbx/ui-seo';
+	import type { SeoDefaults, SeoContext } from '@sbx/ui-seo/types';
 	import type { CmsPage } from './types';
 
-	let { slug, page, apiBase = '/api/admin/cms' }: {
+	let {
+		slug,
+		page: cmsPage,
+		apiBase = '/api/admin/cms',
+		siteName = 'this site'
+	}: {
 		slug: string;
 		page: CmsPage | null;
 		apiBase?: string;
+		siteName?: string;
 	} = $props();
 
 	const jsonHeaders = { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
 
-	// Only the two length-validated overrides (seo.SeoMeta.Validate: meta_title <=60,
-	// meta_description <=160) — og_*/canonical_url/noindex/keywords are real fields on the same
-	// shared type but not exposed by this minimal pass (platform/CLAUDE.md "port only what the
-	// app uses"; add them here when this demo actually needs them, same file, same shape).
-	let metaTitle = $state(page?.seo_meta?.meta_title ?? '');
-	let metaDescription = $state(page?.seo_meta?.meta_description ?? '');
+	// The full shared seo.SeoMeta shape (og_*/canonical_url/noindex), not just the two
+	// length-validated primaries the earlier hand-rolled form exposed — @sbx/ui-seo's
+	// SeoEditor + resolveSeo are the same code the public SeoHead renders from, so this
+	// editor's live previews can never drift from the real <head>.
+	let draft = $state(toSeoDraft(cmsPage?.seo_meta));
+
+	const defaults: SeoDefaults = $derived({
+		title: cmsPage?.title ?? slug,
+		description: '',
+		siteName,
+		defaultImage: ''
+	});
+	const context: SeoContext = $derived({ pathname: page.url.pathname, origin: page.url.origin });
 
 	let saved = $state(false);
 	let saveError = $state('');
@@ -26,9 +42,7 @@
 		const res = await fetch(`${apiBase}/${slug}`, {
 			method: 'PUT',
 			headers: jsonHeaders,
-			body: JSON.stringify({
-				seo_meta: { meta_title: metaTitle, meta_description: metaDescription }
-			})
+			body: JSON.stringify({ seo_meta: fromSeoDraft(draft) ?? {} })
 		});
 		if (!res.ok) {
 			saveError = (await res.json())?.error ?? 'could not save';
@@ -39,18 +53,11 @@
 	}
 </script>
 
-{#if !page}
+{#if !cmsPage}
 	<p>Save the Content tab first — a page must exist before it can carry SEO overrides.</p>
 {:else}
 	<form onsubmit={(e) => (e.preventDefault(), save())}>
-		<label>
-			Meta title <span class="hint">(≤60 characters)</span>
-			<input bind:value={metaTitle} maxlength="60" />
-		</label>
-		<label>
-			Meta description <span class="hint">(≤160 characters)</span>
-			<textarea rows="3" bind:value={metaDescription} maxlength="160"></textarea>
-		</label>
+		<SeoEditor bind:draft {defaults} {context} />
 		<button type="submit">Save</button>
 		{#if saved}<span class="saved">Saved.</span>{/if}
 		{#if saveError}<p class="error">{saveError}</p>{/if}
@@ -58,20 +65,10 @@
 {/if}
 
 <style>
-	form label {
-		display: block;
-		margin-bottom: 0.75rem;
-	}
-	form input,
-	form textarea {
-		display: block;
-		width: 100%;
-		margin-top: 0.25rem;
-	}
-	.hint {
-		font-weight: normal;
-		color: var(--color-text-muted, #888);
-		font-size: 0.85rem;
+	form {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 	.saved {
 		margin-left: 0.5rem;
