@@ -1,0 +1,9 @@
+# When a service counts as healthy. test is a shell command run inside the container that exits 0
+# when the service is healthy. interval is how often it runs, as a compose duration such as "5s";
+# when it is left out the bundle-compose template supplies the default, as it does for every
+# other health-check setting.
+name: service-healthcheck
+type: mapping
+fields:
+  test:     {type: string, required: true}
+  interval: {type: string, required: false}

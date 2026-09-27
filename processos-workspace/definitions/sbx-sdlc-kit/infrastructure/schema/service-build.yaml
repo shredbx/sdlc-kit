@@ -1,0 +1,8 @@
+# How an application service's image is built from source instead of pulled: a docker build
+# context and, when it is not the default `Dockerfile` in that context, the Dockerfile to use.
+# Both are paths relative to the folder the bundle's docker-compose.yml is rendered into.
+name: service-build
+type: mapping
+fields:
+  context:    {type: string, required: true}
+  dockerfile: {type: string, required: false}
