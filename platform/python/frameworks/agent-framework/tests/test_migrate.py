@@ -89,6 +89,21 @@ async def test_resumes_from_a_partially_migrated_database(isolated_pool: asyncpg
     assert has_data_column == 1
 
 
+async def test_grant_roles_gives_the_named_role_real_privileges(isolated_pool: asyncpg.Pool) -> None:
+    """Proves this actually grants SQL privileges, not just runs without error - the exact gap
+    that produced a real 403 from PostgREST against Supabase's service_role before this existed
+    (being in Supabase's exposed-schemas config only makes PostgREST route to a schema; it doesn't
+    grant a role any privileges there). Granting to `chat_api` (the test DSN's own role) here since
+    this bundle has no Supabase-specific roles - the SQL mechanism is what's under test."""
+    schema = await isolated_pool.fetchval("SELECT current_schema()")
+
+    await run_migrations(isolated_pool, schema=schema, grant_roles=["chat_api"])
+
+    async with isolated_pool.acquire() as conn:
+        can_select = await conn.fetchval("SELECT has_table_privilege('chat_api', $1, 'SELECT')", f"{schema}.sessions")
+    assert can_select
+
+
 async def test_creates_the_target_schema_itself_when_it_does_not_exist_yet() -> None:
     """The isolated_pool fixture pre-creates its schema via an admin connection - this test proves
     run_migrations doesn't actually depend on that, since a consumer pointing at a schema for the
