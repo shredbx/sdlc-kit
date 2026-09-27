@@ -1,13 +1,25 @@
 # bos-demo — site chrome: header/footer, app-level config, page content untouched
 
-Last updated: 2026-09-27
+Last updated: 2026-09-28
 tags: bos, bos-demo, chrome, header, footer, settings, admin, proposal
 
-Status: **proposal, not yet approved.** Extends `docs/proposals/bos-page-designer.md` (the admin shell,
-`Modal`-based editors, and the renderer-registry mechanism — nothing here contradicts it) with the one
-piece it explicitly deferred to later (§6: "Whether `AdminShell` also needs ... chrome — out of scope").
-Checked against the real code (`bos-demo`'s current `settings` package and routes, `bos-svelte`'s renderer
-registry, the roadmap and consumer-plan docs) before writing anything below.
+Status: **Scope C1–C3 built and verified**, and now has real content behind it (7 published pages —
+home/about/features/contacts + terms/privacy/cookies — with a real header nav and two-column footer
+wired through `PATCH /api/admin/settings/header` and `/footer`). Extends `docs/proposals/bos-page-
+designer.md` (the admin shell, `Modal`-based editors, and the renderer-registry mechanism — nothing
+here contradicts it) with the one piece it explicitly deferred to later (§6: "Whether `AdminShell`
+also needs ... chrome — out of scope").
+
+**Gotcha found while wiring real content (self-caught, not user-reported):** `PATCH /api/admin/settings`
+(§7's general endpoint) decodes ONLY `{site_title, tagline}` and does a full overwrite of both — it
+silently ignores a `header`/`footer` key in the same body rather than rejecting it, and since those
+two fields weren't in that request either, it wiped both to empty strings. Header and footer each
+have their OWN dedicated endpoint (`PATCH /settings/header`, `PATCH /settings/footer`) precisely so
+one concern's edit can't touch another's (§7's own intent) — `/settings` itself is general-only, not
+a merge-everything endpoint, and always needs both `site_title` and `tagline` in the body since it
+has no field-presence/COALESCE semantics (unlike the cms kit's `PUT`). Caught immediately via a GET
+right after the PATCH, fixed by re-sending the correct values to the correct endpoints — no lasting
+damage, but worth this note so the next person hitting `/settings` doesn't repeat it.
 
 ## 1. Why this document exists
 
