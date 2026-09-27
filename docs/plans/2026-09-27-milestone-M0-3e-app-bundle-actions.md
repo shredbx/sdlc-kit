@@ -29,6 +29,9 @@ processos-workspace/definitions/sbx-sdlc-kit/infrastructure/
   `/health` with `"status": "healthy"`, then up to 60 seconds for the web page to say `API: healthy`. It reports the API's own service, version and database.
   A page that says anything else fails with what it said and "the two halves are not linked". The page text is the placeholder home's contract; it changes with the pages.
 - **`bootstrap-app-bundle`** is `bootstrap-bundle` plus the link check; `process-cli check` proves its inputs and handoffs.
+- **`.env.example`** (template file `.env.example.jinja`, a small follow-up): it now also names the variables written inside a service's `ports`
+  (`${API_PORT}:8080` gives `API_PORT=`), ahead of that service's `env` names. Before, the example listed only `env` names, so a bundle whose ports come from its
+  `.env` would have had an example that leaves the ports out. Records with literal ports render exactly as before.
 
 ## Gates and evidence
 
@@ -41,6 +44,7 @@ processos-workspace/definitions/sbx-sdlc-kit/infrastructure/
 | `render-bundle` with `into` in a scratch folder, and with `into: ../escape` | files land only there; the escape is refused and nothing is written |
 | `verify-link` against fake servers standing in for the two halves: both good; API healthy but the page says `API: unreachable`; an API that never reports healthy; a bundle with no `bos-web` | done and reports the API's details; failed naming the page's text; failed after the poll; refused at once |
 | The 32 checks above, in one throwaway script | 32 of 32 |
+| `.env.example`: `postgres-dev` byte-identical to the committed file; `${VAR}` ports named ahead of the service's `env` names, a literal port adding nothing, two variables in one port both named | both pass |
 | A scan of the definitions and this plan for the product's names and ports | no match |
 
 No container was started by these gates. The real run is in the next scope (M0.3f), once the images can be built.
