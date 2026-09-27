@@ -91,3 +91,29 @@ async def test_data_survives_a_new_store_instance(store: PostgresStore) -> None:
     reloaded = await fresh_store.get_or_create(session_id)
     assert reloaded.data == {"contact_name": "Andrei"}
     await fresh_store.close()
+
+
+async def test_uses_a_dedicated_schema_when_configured() -> None:
+    """Proves rows land in the configured schema, not `public` - the mechanism a consumer sharing
+    one Postgres/Supabase database across multiple products relies on for isolation."""
+    if not await _postgres_reachable():
+        pytest.skip(f"no postgres reachable at {DSN} — start the chat-api-postgres bundle to run this")
+
+    schema = f"pgstore_test_{uuid.uuid4().hex[:8]}"
+    store = PostgresStore(DSN, schema=schema)
+    try:
+        session = await store.get_or_create(f"test-{uuid.uuid4()}")
+        session.data["x"] = 1
+        await store.save(session)
+
+        admin = await asyncpg.connect(DSN)
+        try:
+            count = await admin.fetchval(f'SELECT count(*) FROM "{schema}".sessions')
+        finally:
+            await admin.close()
+        assert count == 1
+    finally:
+        await store.close()
+        admin = await asyncpg.connect(DSN)
+        await admin.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE')
+        await admin.close()

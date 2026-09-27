@@ -22,14 +22,15 @@ from agent_framework.core.store.migrate import run_migrations
 
 
 class PostgresStore(SessionStore):
-    def __init__(self, dsn: str) -> None:
+    def __init__(self, dsn: str, schema: str = "public") -> None:
         self._dsn = dsn
+        self._schema = schema
         self._pool: asyncpg.Pool | None = None
 
     async def _get_pool(self) -> asyncpg.Pool:
         if self._pool is None:
-            self._pool = await asyncpg.create_pool(self._dsn)
-            await run_migrations(self._pool)
+            self._pool = await asyncpg.create_pool(self._dsn, server_settings={"search_path": self._schema})
+            await run_migrations(self._pool, self._schema)
         return self._pool
 
     async def migrate(self) -> None:

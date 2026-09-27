@@ -87,3 +87,26 @@ async def test_resumes_from_a_partially_migrated_database(isolated_pool: asyncpg
 
     assert applied == {"0001_create_sessions_table", "0002_add_session_data_column"}
     assert has_data_column == 1
+
+
+async def test_creates_the_target_schema_itself_when_it_does_not_exist_yet() -> None:
+    """The isolated_pool fixture pre-creates its schema via an admin connection - this test proves
+    run_migrations doesn't actually depend on that, since a consumer pointing at a schema for the
+    first time (e.g. a new product on a shared database) won't have pre-created it either."""
+    if not await _postgres_reachable():
+        pytest.skip(f"no postgres reachable at {DSN} — start the chat-api-postgres bundle to run this")
+
+    schema = f"migrate_test_{uuid.uuid4().hex[:8]}"
+    pool = await asyncpg.create_pool(DSN, server_settings={"search_path": schema})
+    try:
+        await run_migrations(pool, schema=schema)
+
+        async with pool.acquire() as conn:
+            applied = {row["id"] for row in await conn.fetch("SELECT id FROM schema_migrations")}
+    finally:
+        await pool.close()
+        admin = await asyncpg.connect(DSN)
+        await admin.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE')
+        await admin.close()
+
+    assert applied == {"0001_create_sessions_table", "0002_add_session_data_column"}
