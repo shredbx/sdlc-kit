@@ -24,14 +24,29 @@ async def _search(q: str) -> SearchOutput:
     return SearchOutput(count=len(q))
 
 
+async def _search_with_options(q: str, limit: int | None = None) -> SearchOutput:
+    """Search for things matching a query.
+
+    Args:
+        q: the search query text.
+        limit: maximum number of results to return.
+    """
+    return SearchOutput(count=len(q))
+
+
 def _real_model_response(messages: list, info: object) -> ModelResponse:
     return ModelResponse(parts=[TextPart(content="from the real model")])
 
 
-def _build_app(*, debug_mode: bool, registry: dict[str, ToolEntry] | None = None) -> TestClient:
+def _build_app(*, debug_mode: bool, registry: dict[str, ToolEntry] | None = None, extra_tools: list[Tool] | None = None) -> TestClient:
     from pydantic_ai.models.function import FunctionModel
 
-    agent = Agent(FunctionModel(_real_model_response), name="test_chat", output_type=str | AgentReply, tools=[Tool(_search, name="search")])
+    agent = Agent(
+        FunctionModel(_real_model_response),
+        name="test_chat",
+        output_type=str | AgentReply,
+        tools=[Tool(_search, name="search"), *(extra_tools or [])],
+    )
     registered = RegisteredAgent(name="chat", agent=agent, build_deps=lambda session: None)
     app = FastAPI()
     app.include_router(build_router({"chat": registered}, MemoryStore(), registry, debug_mode, secret_key="test-secret"))
@@ -96,3 +111,16 @@ async def test_request_not_opted_in_uses_the_real_model_even_if_server_debug_mod
     response = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "x"}'})
 
     assert response.json() == {"reply": "from the real model", "cards": None, "session_id": ANY}
+
+
+async def test_tools_list_describes_every_registered_tool_with_its_real_schema() -> None:
+    client = _build_app(debug_mode=True, registry={}, extra_tools=[Tool(_search_with_options, name="search_with_options")])
+
+    response = client.post("/agents/chat/chat", json={"message": "tools:list", "debug": True})
+
+    reply = response.json()["reply"]
+    assert "tool:search {...}" in reply
+    assert "tool:search_with_options {...}" in reply
+    assert "Search for things matching a query." in reply
+    assert "q (string, required): the search query text." in reply
+    assert "limit (integer, optional): maximum number of results to return." in reply
