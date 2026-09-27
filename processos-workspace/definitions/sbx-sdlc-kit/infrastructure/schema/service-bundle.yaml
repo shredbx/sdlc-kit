@@ -1,8 +1,13 @@
 # A named group of services that run together as one docker-compose stack — e.g. postgres +
 # its own pgAdmin. Only holds service ids; the full join happens at render time.
+#
+# into is where the compose files are rendered and run from: a folder, relative to the root of
+# the repository the run works in (the one that holds its output folder). Left out, they go to
+# projects/services/<name> in the repository the actions themselves live in, as they always have.
 name: service-bundle
 type: mapping
 fields:
   name:        {type: string, required: true}
   description: {type: string, required: true}
   services:    {type: service-ref-list, required: true}
+  into:        {type: string, required: false}

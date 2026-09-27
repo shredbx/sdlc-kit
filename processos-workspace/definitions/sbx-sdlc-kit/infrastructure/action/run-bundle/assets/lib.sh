@@ -1,17 +1,4 @@
-# Shared by action.sh. Sourced, not run.
-
-# sbx-sdlc-kit.infrastructure.bundle-compose's own input, service-bundle-spec: the bundle as it
-# came in, plus every member service's full record, resolved by id.
-bundle_spec() {
-  echo "bundle:"
-  sed 's/^/  /' "$ACTION_INPUTS/bundle.yaml"
-  echo "services:"
-  local id
-  for id in $(yq '.services[]' "$ACTION_INPUTS/bundle.yaml"); do
-    process-cli show record "sbx-sdlc-kit/infrastructure/service/$id.yaml" \
-      | awk 'NR==1 {print "  - " $0; next} {print "    " $0}'
-  done
-}
+# Shared by action.sh, check.sh and post.sh. Sourced, not run.
 
 # The folder the bundle's compose files live in. A bundle that says `into` puts them there,
 # relative to the repository the run works in (the one holding PROCESS_OUTPUT); otherwise they
@@ -32,4 +19,13 @@ bundle_dir() {
     root="$(git -C "$ACTION_HOME" rev-parse --show-toplevel)"
     echo "$root/projects/services/$INPUT_BUNDLE_NAME"
   fi
+}
+
+# Every host port the bundle publishes, one per line, as docker compose resolves them (so a
+# port written as ${VAR}:8080 is read through the bundle's .env). Reads the file only; the
+# docker daemon is not needed.
+published_ports() {
+  local dir="$1"
+  docker compose -p "$INPUT_BUNDLE_NAME" -f "$dir/docker-compose.yml" --project-directory "$dir" config --format json \
+    | jq -r '.services[].ports[]? | .published // empty'
 }

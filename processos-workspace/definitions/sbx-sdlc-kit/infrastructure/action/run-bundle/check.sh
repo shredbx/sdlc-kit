@@ -2,9 +2,9 @@
 # stop (other)  render-bundle hasn't run yet, or the real secrets file isn't set up.
 # continue (0)  otherwise.
 set -euo pipefail
+source "$ACTION_HOME/assets/lib.sh"
 
-root="$(git -C "$ACTION_HOME" rev-parse --show-toplevel)"
-target="$root/projects/services/$INPUT_BUNDLE_NAME"
+target="$(bundle_dir)"
 
 if [[ ! -f "$target/docker-compose.yml" ]]; then
   echo "$target/docker-compose.yml is missing — run render-bundle first" >&2
