@@ -7,6 +7,7 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/shredbx/sbx-core/pkg/auth v0.0.0
 	github.com/shredbx/sbx-core/pkg/httputil v0.0.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

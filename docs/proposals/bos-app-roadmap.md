@@ -268,6 +268,11 @@ in the product Makefile; formalized, `bos env` writes them from `bos.yaml`.
 The Makefile is thin: each target calls `bos` or `process-cli`, so the logic lives in one tested place and the Makefile stays the same
 size as the app grows.
 
+**Ports (noted for later, not designed).** Today an app's ports are literal values in its `bos.yaml`. Later they are to come from an open-port
+registry kept in the sdlc workspace, which manages the available ports per project: the development targets of the Makefile ask the registry for
+the ports and pass them on, so that two projects never start on the same port. `bos env` will then need to take the two ports as arguments that
+override the file's, and the file's values become the defaults. The registry is introduced in its own scope, with its own approved definitions.
+
 ## 5. Risks
 
 | Risk | Mitigation |
