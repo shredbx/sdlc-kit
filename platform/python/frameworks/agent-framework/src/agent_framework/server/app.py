@@ -4,6 +4,7 @@ Next.js dev."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from agent_framework.core.auth import UserVerifier
 from agent_framework.core.limits import Limits
 from agent_framework.core.registry import discover
 from agent_framework.core.store.base import SessionStore
@@ -21,12 +22,13 @@ def create_app(
     tool_registry: dict[str, ToolEntry] | None = None,
     debug_mode: bool = False,
     limits: Limits | None = None,
+    user_verifier: UserVerifier | None = None,
     *,
     secret_key: str,
 ) -> FastAPI:
     app = FastAPI()
     agents = {registered.name: registered for registered in discover(agents_package)}
-    app.include_router(build_router(agents, store or MemoryStore(), tool_registry, debug_mode, limits, secret_key=secret_key))
+    app.include_router(build_router(agents, store or MemoryStore(), tool_registry, debug_mode, limits, user_verifier, secret_key=secret_key))
     if debug_mode:
         app.include_router(build_introspection_router(agents, tool_registry))
         app.include_router(build_knowledge_router(tool_registry))

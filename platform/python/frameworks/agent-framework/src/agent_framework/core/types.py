@@ -21,6 +21,13 @@ Channel = Literal["website", "facebook_personal", "whatsapp_personal", "facebook
 # channel, not a per-request choice.
 OutputProtocol = Literal["rich_cards", "plain_text"]
 
+# public: no verification (today's unchanged default - e.g. the website widget, open to anonymous
+# visitors). required: routes/chat.py demands a valid Authorization: Bearer <token> header,
+# verified via the UserVerifier (core/auth.py) supplied to create_app/build_router, before the
+# agent runs - e.g. facebook_personal, where a real Bestays manager (not an anonymous visitor) is
+# the one using the Chrome extension, and per-user attribution (Session.user_id) actually matters.
+AuthMode = Literal["public", "required"]
+
 
 @dataclass(frozen=True)
 class RegisteredAgent:
@@ -47,7 +54,7 @@ class RegisteredAgent:
     name: str
     agent: Agent[Any, Any]
     build_deps: Callable[[Any], Any]
-    auth: str = "public"
+    auth: AuthMode = "public"
     personality: Personality | None = None
     prompt_fields: dict[str, str] | None = None
     channel: Channel = "website"
