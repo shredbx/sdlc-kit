@@ -64,3 +64,17 @@ async def test_structured_reply_serializes_text_and_cards() -> None:
         "session_id": ANY,
         "limits": None,
     }
+
+
+async def test_plain_text_channel_folds_cards_into_the_reply_text_instead_of_dropping_them() -> None:
+    agent = Agent(FunctionModel(_structured_reply_model), name="test_chat", output_type=str | AgentReply)
+    registered = RegisteredAgent(name="chat", agent=agent, build_deps=lambda session: None, output_protocol="plain_text")
+    app = FastAPI()
+    app.include_router(build_router({"chat": registered}, MemoryStore(), secret_key="test-secret"))
+    client = TestClient(app)
+
+    response = client.post("/agents/chat/chat", json={"message": "find me a villa"}, headers={"x-session-id": "s1"})
+
+    body = response.json()
+    assert body["cards"] is None  # not handed back raw - the consumer can't render them anyway
+    assert body["reply"] == "Here's what I found:\n\nSea View Villa (villa · Srithanu) — ฿45,000 — /p/123"

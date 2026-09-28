@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from agent_framework.core.cards import AgentReply, Card
+from agent_framework.core.cards import AgentReply, Card, flatten_cards_to_text
 from agent_framework.core.debug_model import build_debug_model
 from agent_framework.core.limits import Limits, LimitStatus, evaluate_and_consume
 from agent_framework.core.store.base import SessionStore
@@ -73,7 +73,15 @@ def build_router(
         await store.save(session)
         output = result.output
         if isinstance(output, AgentReply):
-            return ChatResponse(reply=output.text, cards=output.cards or None, session_id=resolved.token, limits=limit_status)
+            text = output.text
+            cards = output.cards or None
+            # A plain_text channel (core/types.py's OutputProtocol) can't render Card objects at
+            # all - fold them into the text instead of silently dropping them, and don't also hand
+            # back raw cards a consumer explicitly can't use.
+            if registered.output_protocol == "plain_text" and cards:
+                text = f"{text}\n\n{flatten_cards_to_text(cards)}"
+                cards = None
+            return ChatResponse(reply=text, cards=cards, session_id=resolved.token, limits=limit_status)
         return ChatResponse(reply=str(output), session_id=resolved.token, limits=limit_status)
 
     return router

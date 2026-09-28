@@ -89,6 +89,32 @@ async def test_invalid_json_args_reports_the_error() -> None:
     assert "Invalid JSON args for 'search'" in response.json()["reply"]
 
 
+async def test_valid_tool_name_with_a_bad_kwarg_reports_the_validation_error_instead_of_crashing() -> None:
+    client = _build_app(debug_mode=True, registry={})
+
+    response = client.post("/agents/chat/chat", json={"message": 'tool:search {"nope": "x"}', "debug": True})
+
+    assert response.status_code == 200
+    reply = response.json()["reply"]
+    assert reply.startswith("[debug mode] ")
+    assert "nope" in reply
+
+
+async def test_second_debug_command_in_the_same_session_is_not_shadowed_by_the_first_turns_leftover_bookkeeping() -> None:
+    # Reproduces a real bug found live: a completed debug turn leaves PydanticAI's own internal
+    # "Final result processed." bookkeeping ToolReturnPart in session history; on the next turn
+    # that stale part lands in the same merged request as the new UserPromptPart. The second
+    # command here must run search-for-real again, not echo back the first turn's leftover
+    # bookkeeping text.
+    client = _build_app(debug_mode=True, registry={})
+
+    r1 = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "first"}', "debug": True})
+    token = r1.json()["session_id"]
+    r2 = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "second!"}', "debug": True}, headers={"x-session-id": token})
+
+    assert r2.json() == {"reply": '{\n  "count": 7\n}', "cards": None, "session_id": ANY, "limits": None}
+
+
 async def test_non_command_text_in_debug_mode_echoes_instead_of_reaching_the_real_model() -> None:
     client = _build_app(debug_mode=True, registry={})
 

@@ -69,6 +69,8 @@ class PersonalityOut(BaseModel):
 
 class AgentDetail(BaseModel):
     name: str
+    channel: str
+    output_protocol: str
     instructions: str | None
     personality: PersonalityOut | None
     prompt_fields: dict[str, str] | None
@@ -139,6 +141,8 @@ def build_introspection_router(agents: dict[str, RegisteredAgent], tool_registry
 
         return AgentDetail(
             name=registered.name,
+            channel=registered.channel,
+            output_protocol=registered.output_protocol,
             instructions=instructions,
             personality=_to_personality_out(registered),
             prompt_fields=registered.prompt_fields,

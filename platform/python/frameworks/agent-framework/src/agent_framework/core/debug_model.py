@@ -5,9 +5,24 @@ must both be true (see routes/chat.py): the server started with debug_mode=True,
 request's own `debug: true`. Neither alone is enough, so a real user's message is never parsed as
 a command even if it happens to match the shape.
 
+A real tool name called with args it doesn't accept (e.g. a stray/misspelled kwarg) fails
+PydanticAI's own validation before the tool runs, producing a RetryPromptPart - normally that's
+how a real model gets told to self-correct. Debug mode has no model to retry, so it surfaces that
+validation error as the reply directly instead of crashing (there is no fallback model to hand it
+to).
+
 Two calls per debug turn, mirroring PydanticAI's own tool-calling loop: the first sees the raw
 `tool:name {json}` command and emits a real ToolCallPart (PydanticAI then actually runs that
 tool); the second sees the ToolReturnPart with the real result and formats the final reply.
+
+A finished debug turn leaves PydanticAI's own internal bookkeeping ToolReturnPart (content:
+"Final result processed.") in session history - on the NEXT turn, that stale part lands in the
+same merged ModelRequest as the new turn's genuine UserPromptPart (confirmed live: a session with
+one completed debug turn behind it, not a fresh one). UserPromptPart is checked FIRST for exactly
+this reason - a fresh user message always means "start a new turn," even if stale leftover parts
+from a prior turn are sitting in the same request. Checking ToolReturnPart first (the original
+order) meant a second turn in the same session always found that stale bookkeeping part instead of
+the real command, and reported "Final result processed." back as if it were live tool output.
 
 A `tools:list` command answers "what can I even call, and with what args?" by reading
 `info.function_tools` — the exact `ToolDefinition` list (name, description, JSON schema)
@@ -19,7 +34,7 @@ import re
 from collections.abc import Iterable
 from typing import Any
 
-from pydantic_ai import ModelRequest, ModelResponse, ToolCallPart, ToolReturnPart, UserPromptPart
+from pydantic_ai import ModelRequest, ModelResponse, RetryPromptPart, ToolCallPart, ToolReturnPart, UserPromptPart
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 from pydantic_ai.tools import ToolDefinition
 
@@ -34,13 +49,29 @@ def build_debug_model(registry: dict[str, ToolEntry]) -> FunctionModel:
     def _model(messages: list[ModelRequest | ModelResponse], info: AgentInfo) -> ModelResponse:
         last_request = next(m for m in reversed(messages) if isinstance(m, ModelRequest))
 
-        tool_return = next((p for p in last_request.parts if isinstance(p, ToolReturnPart)), None)
-        if tool_return is not None:
-            entry = registry.get(tool_return.tool_name)
-            to_reply = (entry.to_reply if entry else None) or default_to_reply
-            return _final_result(to_reply(tool_return.content), info)
+        # Checked first, deliberately: a UserPromptPart unambiguously means "this is a new turn,"
+        # even when a stale ToolReturnPart/RetryPromptPart from an already-completed prior turn is
+        # sitting in the same merged request (see this module's docstring) - a fresh command must
+        # never be shadowed by leftover bookkeeping from history.
+        user_prompt = next((p for p in last_request.parts if isinstance(p, UserPromptPart)), None)
+        if user_prompt is None:
+            tool_return = next((p for p in last_request.parts if isinstance(p, ToolReturnPart)), None)
+            if tool_return is not None:
+                entry = registry.get(tool_return.tool_name)
+                to_reply = (entry.to_reply if entry else None) or default_to_reply
+                return _final_result(to_reply(tool_return.content), info)
 
-        text = next(p.content for p in last_request.parts if isinstance(p, UserPromptPart))
+            # A real tool name but bad/unknown args (e.g. a param the tool doesn't accept) fails
+            # PydanticAI's own arg validation before the tool ever runs - normally that comes back
+            # as a RetryPromptPart for a real model to self-correct from. Debug mode has no model
+            # to retry, so this surfaces the validation error as the reply instead of crashing.
+            retry = next((p for p in last_request.parts if isinstance(p, RetryPromptPart)), None)
+            if retry is not None:
+                return _final_result(AgentReply(text=f"[debug mode] {retry.model_response()}"), info)
+
+            raise ValueError(f"debug model: request has none of UserPromptPart/ToolReturnPart/RetryPromptPart: {last_request.parts!r}")
+
+        text = user_prompt.content
         stripped = text.strip() if isinstance(text, str) else ""
 
         if _LIST_COMMAND.match(stripped):
