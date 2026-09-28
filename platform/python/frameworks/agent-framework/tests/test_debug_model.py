@@ -62,7 +62,7 @@ async def test_debug_command_runs_the_real_tool_with_a_custom_reply() -> None:
     response = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "villa"}', "debug": True})
 
     expected_card = {"id": "1", "title": "n=5", "subtitle": None, "price_display": None, "image_url": None, "link": None}
-    assert response.json() == {"reply": "found", "cards": [expected_card], "session_id": ANY}
+    assert response.json() == {"reply": "found", "cards": [expected_card], "session_id": ANY, "limits": None}
 
 
 async def test_debug_command_with_no_registry_entry_falls_back_to_json_dump() -> None:
@@ -70,7 +70,7 @@ async def test_debug_command_with_no_registry_entry_falls_back_to_json_dump() ->
 
     response = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "abc"}', "debug": True})
 
-    assert response.json() == {"reply": '{\n  "count": 3\n}', "cards": None, "session_id": ANY}
+    assert response.json() == {"reply": '{\n  "count": 3\n}', "cards": None, "session_id": ANY, "limits": None}
 
 
 async def test_unknown_tool_name_lists_whats_actually_registered_on_the_agent() -> None:
@@ -78,7 +78,7 @@ async def test_unknown_tool_name_lists_whats_actually_registered_on_the_agent() 
 
     response = client.post("/agents/chat/chat", json={"message": "tool:nope {}", "debug": True})
 
-    assert response.json() == {"reply": "No tool named 'nope'. Available: search", "cards": None, "session_id": ANY}
+    assert response.json() == {"reply": "No tool named 'nope'. Available: search", "cards": None, "session_id": ANY, "limits": None}
 
 
 async def test_invalid_json_args_reports_the_error() -> None:
@@ -94,7 +94,7 @@ async def test_non_command_text_in_debug_mode_echoes_instead_of_reaching_the_rea
 
     response = client.post("/agents/chat/chat", json={"message": "are pets allowed?", "debug": True})
 
-    assert response.json() == {"reply": "[debug mode] are pets allowed?", "cards": None, "session_id": ANY}
+    assert response.json() == {"reply": "[debug mode] are pets allowed?", "cards": None, "session_id": ANY, "limits": None}
 
 
 async def test_server_debug_mode_off_ignores_a_debug_request_and_uses_the_real_model() -> None:
@@ -102,7 +102,7 @@ async def test_server_debug_mode_off_ignores_a_debug_request_and_uses_the_real_m
 
     response = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "x"}', "debug": True})
 
-    assert response.json() == {"reply": "from the real model", "cards": None, "session_id": ANY}
+    assert response.json() == {"reply": "from the real model", "cards": None, "session_id": ANY, "limits": None}
 
 
 async def test_request_not_opted_in_uses_the_real_model_even_if_server_debug_mode_is_on() -> None:
@@ -110,7 +110,7 @@ async def test_request_not_opted_in_uses_the_real_model_even_if_server_debug_mod
 
     response = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "x"}'})
 
-    assert response.json() == {"reply": "from the real model", "cards": None, "session_id": ANY}
+    assert response.json() == {"reply": "from the real model", "cards": None, "session_id": ANY, "limits": None}
 
 
 async def test_tools_list_describes_every_registered_tool_with_its_real_schema() -> None:

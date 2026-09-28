@@ -28,7 +28,7 @@ async def test_plain_str_output_leaves_cards_none() -> None:
 
     response = client.post("/agents/chat/chat", json={"message": "hello"}, headers={"x-session-id": "s1"})
 
-    assert response.json() == {"reply": "just chatting", "cards": None, "session_id": ANY}
+    assert response.json() == {"reply": "just chatting", "cards": None, "session_id": ANY, "limits": None}
 
 
 def _structured_reply_model(messages: list, info: AgentInfo) -> ModelResponse:
@@ -62,4 +62,5 @@ async def test_structured_reply_serializes_text_and_cards() -> None:
             }
         ],
         "session_id": ANY,
+        "limits": None,
     }
