@@ -61,7 +61,7 @@ async def test_debug_command_runs_the_real_tool_with_a_custom_reply() -> None:
 
     response = client.post("/agents/chat/chat", json={"message": 'tool:search {"q": "villa"}', "debug": True})
 
-    expected_card = {"id": "1", "title": "n=5", "subtitle": None, "price_display": None, "image_url": None, "link": None}
+    expected_card = {"id": "1", "title": "n=5", "subtitle": None, "price_display": None, "image_url": None, "link": None, "actions": []}
     assert response.json() == {"reply": "found", "cards": [expected_card], "session_id": ANY, "limits": None}
 
 
