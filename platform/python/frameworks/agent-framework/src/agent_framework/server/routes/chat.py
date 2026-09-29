@@ -3,11 +3,13 @@ discovered. No per-agent route code needed; a new agent folder is automatically 
 
 from contextlib import nullcontext
 from datetime import UTC, datetime
+from typing import Any
 
 import logfire
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from pydantic_ai.exceptions import ModelHTTPError
 
 from agent_framework.core.auth import UserVerifier
 from agent_framework.core.cards import AgentReply, Card, flatten_cards_to_text
@@ -22,6 +24,13 @@ from agent_framework.server.middleware.session import ResolvedSession, session_d
 class ChatRequest(BaseModel):
     message: str
     debug: bool = False
+    # Opaque client-supplied state (e.g. "which page is the visitor currently on") - the framework
+    # never interprets this, just stashes it at session.data["client_context"] (below) for the
+    # consumer's own dynamic-instructions hook (agent.instructions(...)) to read and give meaning
+    # to. Sent fresh on every request, not merged/accumulated - a consumer that wants a field to
+    # persist once seen should copy it into its OWN typed context (e.g. session.data["context"]),
+    # not rely on this surviving past the request that sent it.
+    client_context: dict[str, Any] | None = None
 
 
 class ChatResponse(BaseModel):
@@ -58,6 +67,12 @@ def build_router(
 
         session = resolved.session
         session_token = resolved.token
+
+        # Raw passthrough, overwritten (not merged) every request - see ChatRequest.client_context's
+        # own comment for why staleness across turns is the consumer's problem to solve, not this
+        # route's.
+        if request.client_context is not None:
+            session.data["client_context"] = request.client_context
 
         if registered.auth == "required":
             if user_verifier is None:
@@ -99,7 +114,22 @@ def build_router(
         # nothing meaningful to tag an anonymous visitor with.
         with logfire.span("chat", user_id=session.user_id) if session.user_id else nullcontext():
             with override:
-                result = await registered.agent.run(request.message, deps=deps, message_history=session.messages)
+                try:
+                    result = await registered.agent.run(request.message, deps=deps, message_history=session.messages)
+                except ModelHTTPError as exc:
+                    # The provider's own HTTP call failed (rate limit, 503 "high demand", auth,
+                    # etc.) - pydantic-ai/the provider client already retried internally (tenacity)
+                    # before raising this, so a second attempt here wouldn't help. Logfire still
+                    # records the exception (it's raised inside the span above) for anyone watching
+                    # traces; the caller gets a clean, generic reply instead of a raw 500 + stack
+                    # trace, and message_history/session are left untouched so a later retry (a new
+                    # request) starts from the same point, not a half-updated one.
+                    logfire.error("model call failed", status_code=exc.status_code, model_name=exc.model_name)
+                    return ChatResponse(
+                        reply="Sorry, I'm having trouble reaching the assistant right now — please try again in a moment.",
+                        session_id=session_token,
+                        limits=limit_status,
+                    )
         session.messages = result.all_messages()
         await store.save(session)
         output = result.output

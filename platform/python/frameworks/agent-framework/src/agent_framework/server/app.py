@@ -1,7 +1,7 @@
 """Builds the FastAPI app: discovers agents, wires the generic chat route, enables CORS for local
 Next.js dev."""
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from agent_framework.core.auth import UserVerifier
@@ -23,12 +23,27 @@ def create_app(
     debug_mode: bool = False,
     limits: Limits | None = None,
     user_verifier: UserVerifier | None = None,
+    # Already-built by the consumer (e.g. routes.auth.build_auth_router(supabase_url, anon_key)) -
+    # create_app stays provider-agnostic, the same way it never hardcodes Supabase for user_verifier
+    # either. None -> no /auth/* routes at all, not a route that 404s or misconfigures.
+    auth_router: APIRouter | None = None,
     *,
     secret_key: str,
 ) -> FastAPI:
     app = FastAPI()
+
+    # No dependency checks (store/model reachability) - a health check is polled frequently by the
+    # deploy platform to decide whether to keep routing traffic to this container/restart it, and a
+    # transient blip in a dependency shouldn't flap that decision. This only confirms the process
+    # itself is up and serving.
+    @app.get("/health")
+    def health() -> dict[str, str]:
+        return {"status": "ok"}
+
     agents = {registered.name: registered for registered in discover(agents_package)}
     app.include_router(build_router(agents, store or MemoryStore(), tool_registry, debug_mode, limits, user_verifier, secret_key=secret_key))
+    if auth_router is not None:
+        app.include_router(auth_router)
     if debug_mode:
         app.include_router(build_introspection_router(agents, tool_registry))
         app.include_router(build_knowledge_router(tool_registry))

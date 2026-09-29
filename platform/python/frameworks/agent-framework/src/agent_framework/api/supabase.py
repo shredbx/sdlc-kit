@@ -7,7 +7,15 @@ the Authorization header, not the service role key, and no PostgREST base path).
 to Supabase on every call, by design: the same thing Supabase's own @supabase/ssr middleware does
 server-side (confirmed against bestays-web's own middleware.ts, 2026-09-29) - not local JWT
 decoding, so an already-revoked or expired token is rejected correctly with no JWT secret/JWKS
-handling needed here."""
+handling needed here.
+
+supabase_password_grant/supabase_refresh_grant back server/routes/auth.py's sign-in proxy — a
+distributed client (a Chrome extension, a mobile app) talks ONLY to this app's own base URL, never
+learns the Supabase project URL or anon key at all. Both are a pure, verbatim passthrough (same
+request/response shape Supabase's own /auth/v1/token returns, same status code) - the caller's own
+error-parsing logic never needs to know a proxy is even involved."""
+
+from typing import Any
 
 import httpx
 
@@ -36,3 +44,30 @@ def build_supabase_user_verifier(url: str, anon_key: str, timeout: float = 10.0,
         return user_id if isinstance(user_id, str) else None
 
     return verify
+
+
+async def _token_grant(
+    url: str, anon_key: str, grant_type: str, body: dict[str, str], timeout: float, transport: httpx.AsyncBaseTransport | None
+) -> tuple[int, Any]:
+    async with httpx.AsyncClient(timeout=timeout, transport=transport) as client:
+        response = await client.post(
+            f"{url.rstrip('/')}/auth/v1/token?grant_type={grant_type}",
+            headers={"apikey": anon_key, "Content-Type": "application/json"},
+            json=body,
+        )
+    try:
+        return response.status_code, response.json()
+    except ValueError:
+        return response.status_code, {"msg": response.text or f"Supabase returned {response.status_code} with a non-JSON body."}
+
+
+async def supabase_password_grant(
+    url: str, anon_key: str, email: str, password: str, timeout: float = 10.0, transport: httpx.AsyncBaseTransport | None = None
+) -> tuple[int, Any]:
+    return await _token_grant(url, anon_key, "password", {"email": email, "password": password}, timeout, transport)
+
+
+async def supabase_refresh_grant(
+    url: str, anon_key: str, refresh_token: str, timeout: float = 10.0, transport: httpx.AsyncBaseTransport | None = None
+) -> tuple[int, Any]:
+    return await _token_grant(url, anon_key, "refresh_token", {"refresh_token": refresh_token}, timeout, transport)
