@@ -1,0 +1,8 @@
+go 1.26
+
+// Workspace mode for day-to-day work; apps/api's go.mod also builds on its own with GOWORK=off (both are gated).
+// Three levels up from here is the sdlc-kit root.
+use (
+	./apps/api
+	../../../platform/go/frameworks/bos-go
+)

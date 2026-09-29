@@ -1,0 +1,31 @@
+{
+	"name": "@sbx/ui-cms",
+	"version": "0.0.1",
+	"type": "module",
+	"svelte": "./src/lib/index.ts",
+	"types": "./src/lib/index.ts",
+	"exports": {
+		".": {
+			"types": "./src/lib/index.ts",
+			"svelte": "./src/lib/index.ts",
+			"default": "./src/lib/index.ts"
+		},
+		"./types": {
+			"types": "./src/lib/types.ts",
+			"default": "./src/lib/types.ts"
+		}
+	},
+	"files": ["src"],
+	"dependencies": {
+		"@sbx/core-ui": "workspace:*",
+		"@sbx/bos-svelte": "workspace:*",
+		"@sbx/ui-seo": "workspace:*"
+	},
+	"peerDependencies": {
+		"@sveltejs/kit": "^2.0.0",
+		"svelte": "^5.0.0"
+	},
+	"devDependencies": {
+		"typescript": "^5.0.0"
+	}
+}

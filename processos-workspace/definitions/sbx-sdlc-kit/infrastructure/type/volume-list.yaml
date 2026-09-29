@@ -1,0 +1,6 @@
+# Docker-style "host:container" bind mounts for a service, e.g. ["./data/postgres:/var/lib/postgresql/data"].
+# The host side is a path relative to the bundle's own deploy folder, gitignored, so data survives a
+# `docker compose down` + `up` without being committed.
+name: volume-list
+type: sequence
+items: string

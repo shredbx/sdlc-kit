@@ -1,0 +1,1 @@
+ALTER TABLE cms_pages DROP COLUMN IF EXISTS layout;

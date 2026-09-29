@@ -513,6 +513,15 @@ type CmsPage struct {
 	// (a new page is a draft). Mirrors content_entries.published.
 	Published bool `json:"published" yaml:"published"`
 
+	// Layout selects which registered layout preset (bos-svelte's layout registry)
+	// renders this page's regions (hero vs main) — a bos-framework concept the
+	// original BR entity never had. NOT server-side validated: an unregistered id is
+	// data selecting among code-declared web-side presets, the same fails-open trust
+	// boundary already accepted for a section's Kind (docs/proposals/bos-layout-
+	// presets.md, corrected: regions are resolved from SectionKind, not a stored
+	// slot). Defaults to "default" at the DB column.
+	Layout string `json:"layout" yaml:"layout"`
+
 	// SeoMeta is the optional per-page SEO + Open Graph override payload (P0-A,
 	// Site hub) — the SHARED seo.SeoMeta value type (the same one property.seo_meta
 	// carries). A zero value round-trips as SQL NULL (Value returns nil), so a page
@@ -639,6 +648,7 @@ func (m PostgresMapper) Columns() []string {
 		"c.draft_content",
 		"c.published_content",
 		"c.published",
+		"c.layout",
 		"c.seo_meta",
 		"c.version",
 		"c.created_by",
@@ -677,6 +687,7 @@ func (m PostgresMapper) ToRow(p CmsPage) (map[string]any, error) {
 		"draft_content":     p.DraftContent,
 		"published_content": p.PublishedContent,
 		"published":         p.Published,
+		"layout":            p.Layout,
 		"seo_meta":          p.SeoMeta,
 		"version":           p.Version,
 		"created_by":        p.CreatedBy,
@@ -698,6 +709,7 @@ func (m PostgresMapper) FromRow(scan func(dest ...any) error) (CmsPage, error) {
 		&p.DraftContent,
 		&p.PublishedContent,
 		&p.Published,
+		&p.Layout,
 		&p.SeoMeta,
 		&p.Version,
 		&p.CreatedBy,

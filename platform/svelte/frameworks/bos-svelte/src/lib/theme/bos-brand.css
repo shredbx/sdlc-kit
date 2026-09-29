@@ -1,0 +1,196 @@
+/**
+ * bos default brand tokens — a generic, presentable default for any consumer that
+ * hasn't authored its own brand yet (bos-demo today; any future generic consumer
+ * later). Not a port of anything — the real per-client brand pipeline (D22,
+ * docs/proposals/bos-system-design.md) is a separate, later, pixel-parity import
+ * for the real bestierealestate migration. This is the fallback so a bos consumer
+ * doesn't look bare in the meantime, reusing @sbx/core-ui's already-working
+ * IStylePreset/brand-CSS mechanism (same token vocabulary as brands/shredbx-brand.css)
+ * rather than inventing a new one.
+ *
+ * Usage: apply data-brand="bos" (and data-theme="dark"|"light") to the root element.
+ * See docs/proposals/bos-admin-modules.md §5.
+ */
+
+[data-brand="bos"] {
+	/* Typography */
+	--font-family-sans:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+	--font-size-base: 15px;
+	--font-scale-ratio: linear;
+
+	/* Type scales */
+	--type-body-large-font-size: 16px;
+	--type-body-large-line-height: 24px;
+	--type-body-large-font-weight: 400;
+	--type-body-large-letter-spacing: 0px;
+	--type-body-medium-font-size: 14px;
+	--type-body-medium-line-height: 21px;
+	--type-body-medium-font-weight: 400;
+	--type-body-medium-letter-spacing: 0px;
+	--type-body-small-font-size: 13px;
+	--type-body-small-line-height: 19px;
+	--type-body-small-font-weight: 400;
+	--type-body-small-letter-spacing: 0px;
+	--type-display-large-font-size: 28px;
+	--type-display-large-line-height: 36px;
+	--type-display-large-font-weight: 700;
+	--type-display-large-letter-spacing: -0.25px;
+	--type-display-medium-font-size: 24px;
+	--type-display-medium-line-height: 32px;
+	--type-display-medium-font-weight: 700;
+	--type-display-medium-letter-spacing: -0.25px;
+	--type-display-small-font-size: 20px;
+	--type-display-small-line-height: 28px;
+	--type-display-small-font-weight: 700;
+	--type-display-small-letter-spacing: 0px;
+	--type-headline-large-font-size: 20px;
+	--type-headline-large-line-height: 28px;
+	--type-headline-large-font-weight: 600;
+	--type-headline-large-letter-spacing: 0px;
+	--type-headline-medium-font-size: 17px;
+	--type-headline-medium-line-height: 24px;
+	--type-headline-medium-font-weight: 600;
+	--type-headline-medium-letter-spacing: 0px;
+	--type-headline-small-font-size: 15px;
+	--type-headline-small-line-height: 22px;
+	--type-headline-small-font-weight: 600;
+	--type-headline-small-letter-spacing: 0px;
+	--type-label-large-font-size: 13px;
+	--type-label-large-line-height: 18px;
+	--type-label-large-font-weight: 600;
+	--type-label-large-letter-spacing: 0.1px;
+	--type-label-medium-font-size: 12px;
+	--type-label-medium-line-height: 16px;
+	--type-label-medium-font-weight: 600;
+	--type-label-medium-letter-spacing: 0.2px;
+	--type-label-small-font-size: 11px;
+	--type-label-small-line-height: 14px;
+	--type-label-small-font-weight: 600;
+	--type-label-small-letter-spacing: 0.3px;
+	--type-title-large-font-size: 16px;
+	--type-title-large-line-height: 22px;
+	--type-title-large-font-weight: 600;
+	--type-title-large-letter-spacing: 0px;
+	--type-title-medium-font-size: 14px;
+	--type-title-medium-line-height: 20px;
+	--type-title-medium-font-weight: 600;
+	--type-title-medium-letter-spacing: 0px;
+	--type-title-small-font-size: 13px;
+	--type-title-small-line-height: 18px;
+	--type-title-small-font-weight: 600;
+	--type-title-small-letter-spacing: 0px;
+
+	/* Colors — dark mode (default) */
+	--color-background: #0b0e14;
+	--color-surface: #12151c;
+	--color-surface-elevated: #1a1e27;
+	--color-border: #262b35;
+	--color-border-focus: #6366f1;
+	--color-text: #f4f5f7;
+	--color-text-muted: #9aa1ae;
+	--color-text-disabled: #565c68;
+	--color-text-on-accent: #ffffff;
+	--color-primary: #6366f1;
+	--color-primary-hover: #818cf8;
+	--color-primary-active: #4f46e5;
+	--color-status-success: #22c55e;
+	--color-status-warning: #f59e0b;
+	--color-status-error: #ef4444;
+	--color-status-info: #38bdf8;
+
+	/* Spacing (4px unit, same scale shape as the other bos-svelte brands) */
+	--spacing-unit: 4px;
+	--spacing-0: 0px;
+	--spacing-1: 4px;
+	--spacing-2: 8px;
+	--spacing-3: 12px;
+	--spacing-4: 16px;
+	--spacing-5: 20px;
+	--spacing-6: 24px;
+	--spacing-7: 32px;
+	--spacing-8: 40px;
+	--spacing-9: 48px;
+	--spacing-10: 64px;
+
+	/* Borders */
+	--border-radius-full: 9999px;
+	--border-radius-large: 12px;
+	--border-radius-medium: 8px;
+	--border-radius-small: 4px;
+	--border-radius-none: 0;
+	--border-width-default: 1px;
+	--border-width-thick: 2px;
+
+	/* Shadows */
+	--shadow-small: 0 1px 3px 0 rgb(0 0 0 / 0.4);
+	--shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+	--shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+	--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+	--shadow-none: none;
+
+	/* Motion */
+	--motion-duration-instant: 50ms;
+	--motion-duration-fast: 100ms;
+	--motion-duration-normal: 200ms;
+	--motion-duration-slow: 400ms;
+	--motion-easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+	--motion-easing-in: cubic-bezier(0.4, 0, 1, 1);
+	--motion-easing-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Variant: light */
+[data-brand="bos"][data-theme="light"] {
+	--color-background: #fafafa;
+	--color-surface: #ffffff;
+	--color-surface-elevated: #f3f4f6;
+	--color-border: #e2e4e8;
+	--color-border-focus: #4f46e5;
+	--color-text: #1a1d23;
+	--color-text-muted: #6b7280;
+	--color-text-disabled: #a1a5ab;
+	--color-primary: #4f46e5;
+	--color-primary-hover: #6366f1;
+	--color-primary-active: #4338ca;
+	--shadow-small: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+	--shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	--shadow-large: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+	--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Variant: high contrast */
+[data-brand="bos"][data-high-contrast] {
+	--color-background: #000000;
+	--color-surface: #0d0d0d;
+	--color-surface-elevated: #1a1a1a;
+	--color-border: #ffffff;
+	--color-border-focus: #818cf8;
+	--color-text: #ffffff;
+	--color-text-muted: #e5e5e5;
+	--color-text-disabled: #a0a0a0;
+	--color-primary: #818cf8;
+	--color-primary-hover: #a5b4fc;
+	--color-primary-active: #6366f1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-brand="bos"] {
+		--motion-duration-instant: 0ms;
+		--motion-duration-fast: 0ms;
+		--motion-duration-normal: 0ms;
+		--motion-duration-slow: 0ms;
+	}
+}
+
+/* core-ui ships no base/reset stylesheet of its own — components style themselves
+   from these tokens, but the page background stays the browser default unless
+   something sets it. This is that "something," scoped to when the bos brand is
+   actually active (html[data-brand="bos"]) so it never leaks into an app using a
+   different brand. */
+html[data-brand="bos"] body {
+	background: var(--color-background);
+	color: var(--color-text);
+	font-family: var(--font-family-sans);
+	font-size: var(--font-size-base);
+}

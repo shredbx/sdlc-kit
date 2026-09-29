@@ -1,0 +1,7 @@
+name: bos-postgres
+kind: datastore
+description: Postgres database for the bos-demo reference build.
+image: postgres:16
+ports: ["54325:5432"]
+volumes: ["./data/postgres:/var/lib/postgresql/data"]
+env: [POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB]
