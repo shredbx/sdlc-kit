@@ -1,0 +1,6 @@
+name: bos-dev
+description: Postgres + Redis for the bos-demo reference build.
+services: [bos-postgres, bos-redis]
+# Rendered into bos-demo's own location, not sdlc-kit's projects/services/ (bos-demo is not a
+# consuming client's own repo, so this stays relative to the sdlc-kit root itself).
+into: projects/demo/bos-demo/deploy

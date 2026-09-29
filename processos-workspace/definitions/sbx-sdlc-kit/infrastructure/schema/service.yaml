@@ -13,6 +13,7 @@ fields:
   description:     {type: string, required: true}
   image:           {type: string, required: true}
   ports:           {type: port-list, required: false}
+  volumes:         {type: volume-list, required: false}
   env:             {type: env-var-list, required: false}
   management_tool: {type: string, required: false}
   build:           {type: service-build, required: false}
