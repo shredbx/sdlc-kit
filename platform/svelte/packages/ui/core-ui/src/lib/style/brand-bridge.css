@@ -1,0 +1,88 @@
+/**
+ * Brand Bridge — Maps brand design tokens to component consumption tokens
+ *
+ * PROBLEM: Brand CSS defines --color-background, --font-family-sans, --border-radius-medium
+ *          Components consume --color-bg, --font-sans, --radius-md (app.css tokens)
+ *          No bridge = brand tokens loaded but unused by components
+ *
+ * SOLUTION: Alias brand tokens to component tokens via var() references.
+ *           Activates only when data-brand is set on an ancestor element.
+ *
+ * CASCADE ORDER:
+ *   1. app.css :root       — fallback values (no brand active)
+ *   2. hub-brand.css        — brand tokens under [data-brand="hub"]
+ *   3. brand-bridge.css     — aliases brand → component tokens (this file)
+ *   4. [data-theme] variant — dark/light overrides on brand tokens
+ *
+ * IMPORT ORDER in root layout:
+ *   @import 'brands/hub-brand.css';
+ *   @import 'brand-bridge.css';         <-- THIS FILE
+ *   Then app.css provides base styles using component tokens.
+ *
+ * Protocol: .sbx/.framework/core/brand.yml (token taxonomy)
+ * Protocol: .sbx/.framework/core/style-preset.yml (preset composition)
+ */
+
+/* ==============================================================================
+ * COLOR BRIDGE
+ * Brand: --color-{semantic}  →  Component: --color-{short}
+ * ============================================================================== */
+[data-brand] {
+  /* Background hierarchy */
+  --color-bg: var(--color-background);
+  --color-bg-secondary: var(--color-surface);
+  --color-bg-tertiary: var(--color-surface-elevated);
+
+  /* Text — the brand token name IS the component token name, so it passes through
+     directly from the brand CSS. It must NOT be aliased here:
+     `--color-text: var(--color-text)` is a self-reference that CSS resolves to an
+     invalid cycle (the property computes to empty), silently breaking every core-ui
+     component that reads --color-text. In light mode that fallback was `#fff`, so text
+     inputs rendered white-on-white — invisible (2026-07-11). --color-text-muted has the
+     same name collision and is likewise left as a direct passthrough. */
+
+  /* Accent (brand primary = component accent) */
+  --color-accent: var(--color-primary);
+  --color-accent-hover: var(--color-primary-hover);
+
+  /* Border — --color-border is a same-named passthrough (see the Text note above); only
+     the hover alias, whose names differ, is bridged. */
+  --color-border-hover: var(--color-border-focus);
+
+  /* Status */
+  --color-success: var(--color-status-success);
+  --color-warning: var(--color-status-warning);
+  --color-error: var(--color-status-error);
+}
+
+/* ==============================================================================
+ * TYPOGRAPHY BRIDGE
+ * Brand: --font-family-{stack}  →  Component: --font-{short}
+ * ============================================================================== */
+[data-brand] {
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+}
+
+/* ==============================================================================
+ * SPACING BRIDGE
+ * Brand: --spacing-{n} (index-based)  →  Component: --spacing-{size} (t-shirt)
+ * Brand unit = 4px.  xs=4px(1), sm=8px(2), md=16px(4), lg=24px(6), xl=32px(7)
+ * ============================================================================== */
+[data-brand] {
+  --spacing-xs: var(--spacing-1);
+  --spacing-sm: var(--spacing-2);
+  --spacing-md: var(--spacing-4);
+  --spacing-lg: var(--spacing-6);
+  --spacing-xl: var(--spacing-7);
+}
+
+/* ==============================================================================
+ * BORDER RADIUS BRIDGE
+ * Brand: --border-radius-{name}  →  Component: --radius-{short}
+ * ============================================================================== */
+[data-brand] {
+  --radius-sm: var(--border-radius-small);
+  --radius-md: var(--border-radius-medium);
+  --radius-lg: var(--border-radius-large);
+}

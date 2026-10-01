@@ -1,0 +1,16 @@
+type: fixture
+entity: property
+scenario: empty-title
+tags: [error-case, unit]
+description: Property with empty title — validation failure
+
+input:
+  title: ""
+  for_sale: true
+  for_lease: false
+  property_type: villa
+  sale_price: 100000000
+  price_currency: THB
+
+expected:
+  error: "title is required"

@@ -1,0 +1,23 @@
+{
+	"name": "@sbx/text-template",
+	"version": "0.0.1",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./src/lib/index.ts",
+			"svelte": "./src/lib/index.ts",
+			"default": "./src/lib/index.ts"
+		}
+	},
+	"files": [
+		"src"
+	],
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"devDependencies": {
+		"typescript": "^5.0.0",
+		"vitest": "^4.1.0"
+	}
+}

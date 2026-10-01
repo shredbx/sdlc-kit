@@ -1,0 +1,6 @@
+# A unit's folder, from the repository root: platform/python/packages/types, platform/go/packages/calendar/ical,
+# projects/products/process-os/process-cli. Its last segment is the unit's `name`. Where a unit lives is said by its own
+# record, so no tool needs a lookup table from a unit to its folder.
+name: unit-path
+type: string
+pattern: '[a-z][a-z0-9-]*(/[a-z0-9][a-z0-9_-]*)+'

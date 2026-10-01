@@ -1,0 +1,67 @@
+name: money
+tagline: >-
+  Type-safe money: a signed integer amount in the currency's smallest unit, with ISO 4217 currencies, overflow-checked addition and subtraction, and conversion through a rate provider.
+commands:
+  - "go test ./...    # this module's tests"
+overview: |-
+  `money` stores every amount as a **signed** `int64` in the smallest unit of its currency (satang for THB, cents for USD). `Add` and `Subtract` are integer arithmetic and return `ErrOverflow` rather than wrapping; `Multiply` and `Divide` scale by a `float64` factor, round to the nearest minor unit and saturate at the `int64` bounds. `Money` may be negative (fees, debts, adjustments); that an amount is not negative is a rule for a price, not an invariant of `Money`.
+
+  Currencies are ISO 4217 codes with a configurable number of decimals, held in a registry. `CurrencyCode` reads and writes JSON and SQL. Adding or comparing amounts of different currencies is an error (`ErrCurrencyMismatch`), never a silent conversion. Conversion is explicit: `Convert` takes a `RateProvider`, and `RateTable` is a simple one built from exact `big.Rat` rates. `ToDatabase` and `FromDatabase` split an amount into the two columns it is stored in: the minor-unit integer and the currency code.
+install: |-
+  `money` is a Go module in the `platform/go` workspace and is not published. Inside the workspace it is listed in `platform/go/go.work`, so there is nothing to install: import it.
+
+  From another module, require it and point the `replace` at this folder (the path is relative to your `go.mod`):
+
+  ```
+  require github.com/shredbx/sbx-core/pkg/money v0.0.0
+
+  replace github.com/shredbx/sbx-core/pkg/money => <path to platform/go/packages/money>
+  ```
+
+  The import path keeps its original name, `github.com/shredbx/sbx-core/pkg/money`, until the naming pass; only the folder was regrouped.
+usage: |-
+  Build an amount, add to it, and convert it:
+
+  ```go
+  package main
+
+  import (
+  	"errors"
+  	"fmt"
+  	"math/big"
+
+  	"github.com/shredbx/sbx-core/pkg/money"
+  )
+
+  func main() {
+  	price, _ := money.FromMinor(10000, "THB") // 100.00 THB, stored as 10000 satang
+  	fee := money.New(250, "THB")
+
+  	total, _ := price.Add(fee)
+  	fmt.Println(total.Display(), "=", total.ToMinor(), "satang")
+
+  	// Different currencies never mix silently.
+  	_, err := price.Add(money.Zero("USD"))
+  	fmt.Println("mixed currencies:", errors.Is(err, money.ErrCurrencyMismatch))
+
+  	// Conversion needs a rate provider; RateTable is a simple one.
+  	rates := money.NewRateTable().Set("THB", "USD", big.NewRat(1, 35))
+  	usd, _ := money.Convert(price, "USD", rates)
+  	fmt.Println(usd.Display())
+  }
+  ```
+
+  It prints:
+
+  ```
+  ฿102.50 = 10250 satang
+  mixed currencies: true
+  $2.86
+  ```
+sections:
+  - heading: "## Configuration"
+    body: |-
+      The set of known currencies is a registry. The governed table (`currencies.generated.go`, generated from a dictionary and not to be edited by hand) is registered at start-up; `RegisterCurrency` adds another, and `GetCurrency` and `ListCurrencies` read it. THB with two decimals is the default currency.
+  - heading: "## Tests"
+    body: |-
+      `go test ./...` in this folder, or `go -C platform/go/packages/money test ./...` from the repository root.

@@ -1,0 +1,18 @@
+# Invalid feed-sources registry fixture: the second source declares an unknown
+# parser kind ("atom"), which must make LoadSources fail fast and name the
+# offending source ("bad-parser").
+sources:
+  - id: bangkokpost-property
+    name: "Bangkok Post — Property"
+    url: https://www.bangkokpost.com/rss/data/property.xml
+    language: en
+    category: property
+    parser: rss2
+    enabled: true
+  - id: bad-parser
+    name: "Unknown Parser Source"
+    url: https://example.com/feed
+    language: en
+    category: property
+    parser: atom
+    enabled: true

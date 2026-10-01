@@ -1,0 +1,42 @@
+# Deterministic deal fixtures (Decision #0167 fixture mode) for the YAMLStore +
+# TransactionService tests. Money is carried inline (amount minor-units + currency)
+# — in fixture mode it round-trips through the struct, so tests assert on it without
+# a database. property_id values are stable test UUIDs (the engine never dereferences
+# them — property is a decoupled reference). See test-strategy.md §2.
+
+# FX-DEAL-SALE-OPEN — an open sale deal (SC-022-01, SC-023-01).
+- id: "d0000000-0000-0000-0000-000000000001"
+  type: sale
+  status: open
+  property_id: "11111111-1111-1111-1111-111111111111"
+  sale_price:
+    amount: 1500000000
+    currency: THB
+  opened_at: 2026-06-01T09:00:00Z
+
+# FX-DEAL-LEASE-OPEN — an open lease deal (SC-023-02).
+- id: "d0000000-0000-0000-0000-000000000002"
+  type: lease
+  status: open
+  property_id: "33333333-3333-3333-3333-333333333333"
+  lease_rent:
+    amount: 2500000
+    currency: THB
+  lease_deposit:
+    amount: 5000000
+    currency: THB
+  lease_duration: 12
+  opened_at: 2026-06-01T10:00:00Z
+
+# FX-DEAL-CLOSED — an already-closed sale deal (SC-022-02, SC-023-04). closed_as +
+# closed_at set so re-close is rejected.
+- id: "d0000000-0000-0000-0000-000000000004"
+  type: sale
+  status: closed
+  closed_as: sale
+  property_id: "22222222-2222-2222-2222-222222222222"
+  sale_price:
+    amount: 4500000000
+    currency: THB
+  opened_at: 2026-05-01T09:00:00Z
+  closed_at: 2026-05-20T15:00:00Z

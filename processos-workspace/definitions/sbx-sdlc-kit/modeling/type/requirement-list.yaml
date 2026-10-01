@@ -1,0 +1,4 @@
+# Dependencies, each as its manifest writes it.
+name: requirement-list
+type: sequence
+items: requirement

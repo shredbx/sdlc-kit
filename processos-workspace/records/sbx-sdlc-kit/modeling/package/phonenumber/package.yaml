@@ -1,0 +1,8 @@
+stack: go
+kit: contacts
+name: phonenumber
+path: platform/go/packages/contacts/phonenumber
+version: 0.0.0
+description: "PhoneNumber: an international phone number kept as a country code, a number and an optional type."
+uses: []
+dependencies: []

@@ -1,0 +1,76 @@
+name: seo
+tagline: >-
+  The `SeoMeta` value type: per-entity search-engine and Open Graph metadata, stored as one nullable JSON column.
+commands:
+  - "go test ./...    # this module's tests"
+overview: |-
+  `seo` gives any entity SEO and Open Graph control without a base class or a registry. An entity embeds a `*SeoMeta` field and rounds it through one nullable JSON column: `SeoMeta` implements `driver.Valuer` and `sql.Scanner`. Every field is optional, and an entirely empty value is stored as SQL `NULL`, never as `{}`, so a row that never set an override reads back as the zero value.
+
+  `Validate` enforces the two limits search results care about: a meta title of at most 60 runes and a meta description of at most 160, counted in runes so Thai or CJK text is measured by visible characters. A longer value is refused at the write boundary, not clipped.
+
+  The JSON shape is the one the frontend's SEO head renderer reads: `meta_title`, `meta_description`, `meta_keywords`, `og_title`, `og_description`, `og_image`, `canonical_url` and `noindex`.
+install: |-
+  `seo` is a Go module in the `platform/go` workspace and is not published. Inside the workspace it is listed in `platform/go/go.work`, so there is nothing to install: import it.
+
+  From another module, require it and point the `replace` at this folder (the path is relative to your `go.mod`):
+
+  ```
+  require github.com/shredbx/sbx-core/pkg/seo v0.0.0
+
+  replace github.com/shredbx/sbx-core/pkg/seo => <path to platform/go/packages/seo>
+  ```
+
+  The import path keeps its original name, `github.com/shredbx/sbx-core/pkg/seo`, until the naming pass; only the folder was regrouped.
+usage: |-
+  Validate before you write, and let the empty value store as `NULL`:
+
+  ```go
+  package main
+
+  import (
+  	"errors"
+  	"fmt"
+  	"strings"
+
+  	"github.com/shredbx/sbx-core/pkg/seo"
+  )
+
+  func main() {
+  	meta := seo.SeoMeta{
+  		MetaTitle:       "Sea-view villa, three bedrooms",
+  		MetaDescription: "A quiet villa a short walk from the beach.",
+  		OgImage:         "https://example.com/cover.jpg",
+  	}
+  	fmt.Println("valid:", meta.Validate() == nil)
+
+  	// A title over 60 runes is refused at the write boundary, not clipped.
+  	long := seo.SeoMeta{MetaTitle: strings.Repeat("x", seo.MaxMetaTitleLen+1)}
+  	fmt.Println("too long:", errors.Is(long.Validate(), seo.ErrMetaTitleTooLong))
+
+  	// An empty SeoMeta is stored as SQL NULL, never as "{}".
+  	v, _ := seo.SeoMeta{}.Value()
+  	fmt.Println("empty stores:", v)
+
+  	// Round trip through the JSON column.
+  	stored, _ := meta.Value()
+  	var back seo.SeoMeta
+  	_ = back.Scan(stored)
+  	fmt.Println("round trip:", back.MetaTitle)
+  }
+  ```
+
+  It prints:
+
+  ```
+  valid: true
+  too long: true
+  empty stores: <nil>
+  round trip: Sea-view villa, three bedrooms
+  ```
+sections:
+  - heading: "## Configuration"
+    body: |-
+      None. `seo` is a pure value type with no settings and no dependencies.
+  - heading: "## Tests"
+    body: |-
+      `go test ./...` in this folder, or `go -C platform/go/packages/seo test ./...` from the repository root.

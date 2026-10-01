@@ -1,0 +1,18 @@
+name: kit-edges
+
+on:
+  push:
+    paths: ["platform/go/**", "platform/svelte/**", "platform/tools/**", ".github/workflows/kit-edges.yml"]
+  pull_request:
+    paths: ["platform/go/**", "platform/svelte/**", "platform/tools/**", ".github/workflows/kit-edges.yml"]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Standard library only: the check reads go.mod and package.json files, nothing is installed.
+      - run: python3 platform/tools/check_kit_edges.py

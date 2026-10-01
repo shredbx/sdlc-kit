@@ -1,0 +1,16 @@
+type: fixture
+entity: property
+scenario: negative-price
+tags: [error-case, unit]
+description: Property with negative price — validation failure
+
+input:
+  title: "Test Property"
+  for_sale: true
+  for_lease: false
+  property_type: villa
+  sale_price: -100
+  price_currency: THB
+
+expected:
+  error: "price must be >= 0 when set"

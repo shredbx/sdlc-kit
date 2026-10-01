@@ -1,0 +1,8 @@
+stack: go
+kit: identity
+name: rbac
+path: platform/go/packages/identity/rbac
+version: 0.0.0
+description: "Role-based access control with static permission maps: an Authorizer, a role hierarchy, and net/http middleware for permission and ownership checks."
+uses: []
+dependencies: [github.com/google/uuid@v1.6.0]

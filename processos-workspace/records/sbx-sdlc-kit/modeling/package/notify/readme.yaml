@@ -1,0 +1,120 @@
+name: notify
+tagline: >-
+  A small notification abstraction: a `Notifier` interface, Telegram and SMTP adapters, and helpers that send one message to several channels without letting one failure stop the rest.
+commands:
+  - "go test ./...    # this module's tests"
+overview: |-
+  `notify` lets an application push a short message to an operator channel (a new enquiry arrived, a job failed) without knowing which channel. Code depends on the one-method `Notifier` interface, `Notify(ctx, Message) error`, and is handed a concrete adapter when the application is wired. A `Message` has a `Title`, a `Body` and optional `Fields` (key and value rows); all three are optional.
+
+  Four implementations:
+
+  - **`TelegramNotifier`**, from `NewTelegramNotifier(token, chatID, client)`, calls the Bot API `sendMessage` method with an HTML message: a bold title, the body, then one `<b>key</b>: value` line per field. Every value is HTML-escaped. A non-2xx reply is an error that carries the first 512 bytes of the response.
+  - **`SMTPNotifier`**, from `NewSMTPNotifier(SMTPConfig)`, sends a plain-text email through the standard library's `net/smtp`: the title is the subject, and the body and the fields are the text. Any SMTP host works; there is no provider-specific code.
+  - **`NoopNotifier`** accepts every message and returns nil. It is the default when no channel is configured, so callers never test for a nil notifier.
+  - **`MultiNotifier`**, from `NewMultiNotifier(logf, targets...)`, sends to every target whatever happens: it logs each failure through `logf` (nil means silent), skips nil targets, and returns the first error, or nil. One dead channel never stops the others.
+
+  Things to know before relying on it, each checked against the code:
+
+  - `Fields` is a map, so more than one field is written in an unspecified order.
+  - The SMTP adapter writes the title, the fields and the `From` and `To` addresses into the message without removing line breaks, so a title that contains one can add a header. Pass it only text you trust. The Telegram adapter escapes markup; the SMTP adapter does not sanitize.
+  - `SMTPConfig.TLS` decides only whether to authenticate (PLAIN); it does not turn encryption on. `net/smtp` upgrades with STARTTLS when the server offers it, and refuses to send the credentials over an unencrypted connection unless the host is localhost. `Host` and `Port` are not checked or defaulted; only `From` and `To` are required.
+  - A nil client in `NewTelegramNotifier` means `http.DefaultClient`, which has no timeout: pass a client with one, or a context with a deadline. The API host cannot be changed from outside the package, so to stay offline in a test, pass a client whose transport you control, as the example does.
+  - The SMTP adapter ignores the context (`net/smtp` has no cancellation).
+install: |-
+  `notify` is a Go module in the `platform/go` workspace and is not published. Inside the workspace it is listed in `platform/go/go.work`, so there is nothing to install: import it.
+
+  From another module, require it and point the `replace` at this folder (the path is relative to your `go.mod`):
+
+  ```
+  require github.com/shredbx/sbx-core/pkg/notify v0.0.0
+
+  replace github.com/shredbx/sbx-core/pkg/notify => <path to platform/go/packages/notifications/notify>
+  ```
+
+  The import path keeps its original name, `github.com/shredbx/sbx-core/pkg/notify`, until the naming pass; only the folder was regrouped.
+usage: |-
+  Send one message to two channels, one of them broken. The Telegram adapter talks to a fake Bot API, so nothing leaves the machine:
+
+  ```go
+  package main
+
+  import (
+  	"context"
+  	"encoding/json"
+  	"errors"
+  	"fmt"
+  	"io"
+  	"net/http"
+  	"strings"
+
+  	"github.com/shredbx/sbx-core/pkg/notify"
+  )
+
+  // fakeBotAPI answers like the Telegram Bot API and records what it was sent,
+  // so this example never touches the network.
+  type fakeBotAPI struct{ path, chat, text string }
+
+  func (f *fakeBotAPI) RoundTrip(req *http.Request) (*http.Response, error) {
+  	raw, _ := io.ReadAll(req.Body)
+  	var body struct {
+  		ChatID string `json:"chat_id"`
+  		Text   string `json:"text"`
+  	}
+  	_ = json.Unmarshal(raw, &body)
+  	f.path, f.chat, f.text = req.URL.Path, body.ChatID, body.Text
+  	return &http.Response{
+  		StatusCode: http.StatusOK,
+  		Header:     http.Header{},
+  		Body:       io.NopCloser(strings.NewReader(`{"ok":true}`)),
+  		Request:    req,
+  	}, nil
+  }
+
+  // brokenChannel is a Notifier that always fails.
+  type brokenChannel struct{}
+
+  func (brokenChannel) Notify(context.Context, notify.Message) error {
+  	return errors.New("channel down")
+  }
+
+  func main() {
+  	api := &fakeBotAPI{}
+  	telegram := notify.NewTelegramNotifier("123:example-token", "chat-1", &http.Client{Transport: api})
+
+  	logf := func(format string, args ...any) { fmt.Println("log:", fmt.Sprintf(format, args...)) }
+  	all := notify.NewMultiNotifier(logf, brokenChannel{}, nil, telegram)
+
+  	// The broken channel fails first, yet Telegram still gets the message.
+  	err := all.Notify(context.Background(), notify.Message{
+  		Title:  "New enquiry",
+  		Body:   "Asked about the sea-view villa <today>",
+  		Fields: map[string]string{"Email": "guest@example.com"},
+  	})
+  	fmt.Println("first error:", err)
+  	fmt.Println("path:", api.path)
+  	fmt.Println("chat:", api.chat)
+  	fmt.Println("text:")
+  	fmt.Println(api.text)
+  }
+  ```
+
+  It prints:
+
+  ```
+  log: notify: target main.brokenChannel failed: channel down
+  first error: channel down
+  path: /bot123:example-token/sendMessage
+  chat: chat-1
+  text:
+  <b>New enquiry</b>
+
+  Asked about the sea-view villa &lt;today&gt;
+  <b>Email</b>: guest@example.com
+  ```
+sections:
+  - heading: "## Configuration"
+    body: |-
+      `SMTPConfig` has `Host`, `Port`, `Username`, `Password`, `From`, `To` and `TLS` (see above). `NewTelegramNotifier` takes the bot token, the chat id and an optional `*http.Client`. Nothing is read from the environment: the application passes every value in.
+  - heading: "## Tests"
+    body: |-
+      `go test ./...` in this folder, or `go -C platform/go/packages/notifications/notify test ./...` from the repository root. The Telegram adapter is tested against a local stub server, and `NoopNotifier` and `MultiNotifier` with stub notifiers; the SMTP adapter has no tests of its own.

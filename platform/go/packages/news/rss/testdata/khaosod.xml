@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	 xmlns:media="http://search.yahoo.com/mrss/" >
+<channel>
+	<title>ข่าวสด</title>
+	<link>https://www.khaosod.co.th</link>
+	<description>ข่าวสด</description>
+	<lastBuildDate>Thu, 28 May 2026 01:55:00 +0000</lastBuildDate>
+	<language>th</language>
+	<generator>https://wordpress.org/?v=6.6.2</generator>
+	<item>
+		<title>มัลลิกา ประกาศพร้อมเต็มร้อย ชิงผู้ว่าฯกทม. ชู 12 ยุทธศาสตร์แก้เมือง</title>
+		<link>https://www.khaosod.co.th/politics/news_10261733</link>
+		<dc:creator><![CDATA[Cheat]]></dc:creator>
+		<pubDate>Thu, 28 May 2026 01:41:51 +0000</pubDate>
+		<category><![CDATA[การเมือง]]></category>
+		<category><![CDATA[ข่าวอัปเดต]]></category>
+		<category><![CDATA[ผู้ว่ากทม.]]></category>
+		<guid isPermaLink="false">https://www.khaosod.co.th/?p=10261733</guid>
+		<description><![CDATA[มัลลิกา ประกาศพร้อมเต็มร้อย ชิงผู้ว่าฯกทม. ชู 12 ยุทธศาสตร์แก้เมือง เร่งปราบฝุ่น PM2.5 และใช้ AI แก้ปัญหา]]></description>
+		<content:encoded><![CDATA[<p><strong>มัลลิกา ประกาศพร้อมเต็มร้อย ชิงผู้ว่าฯกทม.</strong></p>]]></content:encoded>
+		<media:content url="https://www.khaosod.co.th/wpapp/uploads/2026/05/44455.jpg" type="image/jpeg" medium="image" width="1200" height="675">
+			<media:title type="plain"><![CDATA[]]></media:title>
+			<media:thumbnail url="https://www.khaosod.co.th/wpapp/uploads/2026/05/44455.jpg" width="1200" height="675" />
+			<media:description type="plain"><![CDATA[]]></media:description>
+		</media:content>
+	</item>
+	<item>
+		<title>ดวงฤทธิ์ นำทีม ‘คนทำงาน’ สมัคร สก.</title>
+		<link>https://www.khaosod.co.th/politics/news_10261717</link>
+		<dc:creator><![CDATA[Sunee]]></dc:creator>
+		<pubDate>Wed, 27 May 2026 22:30:00 +0000</pubDate>
+		<category><![CDATA[การเมือง]]></category>
+		<guid isPermaLink="false">https://www.khaosod.co.th/?p=10261717</guid>
+		<description><![CDATA[ดวงฤทธิ์ นำทีมคนทำงาน สมัคร สก. ย้ำเจนใหม่ผนึกรุ่นเก๋า]]></description>
+		<content:encoded><![CDATA[<p>ดวงฤทธิ์ นำทีมคนทำงาน สมัคร สก.</p>]]></content:encoded>
+		<media:thumbnail url="https://www.khaosod.co.th/wpapp/uploads/2026/05/55566.jpg" width="1200" height="675" />
+	</item>
+	<item>
+		<title>ราคาทองวันนี้ ปรับขึ้นต่อเนื่อง</title>
+		<link>https://www.khaosod.co.th/economics/news_10261700</link>
+		<dc:creator><![CDATA[Admin]]></dc:creator>
+		<pubDate>Wed, 27 May 2026 12:00:00 +0000</pubDate>
+		<category><![CDATA[เศรษฐกิจ]]></category>
+		<guid isPermaLink="false">https://www.khaosod.co.th/?p=10261700</guid>
+		<description><![CDATA[ราคาทองวันนี้ปรับขึ้นต่อเนื่อง ตามทิศทางตลาดโลก]]></description>
+		<content:encoded><![CDATA[<p>ราคาทองวันนี้ปรับขึ้นต่อเนื่อง</p>]]></content:encoded>
+	</item>
+</channel>
+</rss>

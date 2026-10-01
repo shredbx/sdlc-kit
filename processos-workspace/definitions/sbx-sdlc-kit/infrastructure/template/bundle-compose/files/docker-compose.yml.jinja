@@ -1,8 +1,18 @@
+{#- members: every service of the bundle by name, so a depends_on can look at the service it waits for. An id that is not in the bundle fails the render (StrictUndefined) instead of producing a compose file that waits for nothing. -#}
+{%- set members = {} -%}
+{%- for m in services %}{% set _ = members.update({m.name: m}) %}{% endfor -%}
 services:
 {% for s in services %}
   {{ s.name }}:
     image: {{ s.image }}
     container_name: {{ bundle.name }}-{{ s.name }}
+{%- if s.build is defined %}
+    build:
+      context: {{ s.build.context | tojson }}
+{%- if s.build.dockerfile is defined %}
+      dockerfile: {{ s.build.dockerfile | tojson }}
+{%- endif %}
+{%- endif %}
 {%- if s.ports | default([]) %}
     ports:
 {%- for p in s.ports %}
@@ -13,6 +23,20 @@ services:
     environment:
 {%- for e in s.env %}
       {{ e }}: {{ '${' ~ e ~ '}' }}
+{%- endfor %}
+{%- endif %}
+{%- if s.healthcheck is defined %}
+    healthcheck:
+      test: ["CMD-SHELL", {{ s.healthcheck.test | tojson }}]
+      interval: {{ s.healthcheck.interval | default('5s') | tojson }}
+      timeout: 3s
+      retries: 20
+{%- endif %}
+{%- if s.depends_on | default([]) %}
+    depends_on:
+{%- for d in s.depends_on %}
+      {{ d }}:
+        condition: {{ 'service_healthy' if members[d].healthcheck is defined else 'service_started' }}
 {%- endfor %}
 {%- endif %}
 {% endfor %}

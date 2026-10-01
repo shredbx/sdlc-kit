@@ -1,0 +1,6 @@
+# A dependency as its stack's manifest writes it, without spaces. Python: pyyaml>=6, jinja2>=3,<4. Go: path@version, as `go get`
+# writes it: github.com/jackc/pgx/v5@v5.9.1. One alternative is added per stack when its first record needs it; the Svelte (npm) form
+# comes with its own scope (docs/proposals/unit-model-design.md). Forked from process-os.requirement.
+name: requirement
+type: string
+pattern: '([A-Za-z0-9][A-Za-z0-9._-]*(\[[A-Za-z0-9._,-]+\])?((==|!=|<=|>=|~=|<|>)[A-Za-z0-9.*+!-]+(,(==|!=|<=|>=|~=|<|>)[A-Za-z0-9.*+!-]+)*)?)|([a-z0-9][a-z0-9._-]*(/[A-Za-z0-9._~-]+)+@v[0-9][A-Za-z0-9.+-]*)'

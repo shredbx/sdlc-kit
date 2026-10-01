@@ -1,0 +1,8 @@
+stack: go
+kit: persistence
+name: database
+path: platform/go/packages/persistence/database
+version: 0.0.0
+description: "A PostgreSQL adapter over pgx: a schema-scoped pool, transactions, a file-based migration runner, one-off SQL files and an audit-log helper."
+uses: []
+dependencies: [github.com/jackc/pgx/v5@v5.9.1]

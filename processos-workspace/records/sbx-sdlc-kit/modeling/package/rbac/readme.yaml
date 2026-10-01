@@ -1,0 +1,123 @@
+name: rbac
+tagline: >-
+  Role-based access control with static permission maps: an `Authorizer`, role inheritance through a hierarchy, and `net/http` middleware for permission and ownership checks.
+commands:
+  - "go test ./...    # this module's tests"
+overview: |-
+  `rbac` decides whether a role may do something. Permissions are compile-time constants in a static map, not database rows, and the `Authorizer` is pure logic with no I/O. A `Permission` is a `resource:action` string (`user:invite`), a `RoleCode` names a role, and an `RBACConfig` holds the role-to-permissions map, a `DefaultRole` and a `RoleHierarchy`.
+
+  `NewAuthorizer(cfg)` flattens the hierarchy once: each role in `RoleHierarchy` gets the permissions of every role before it, so a config can list only what each role adds. Roles that are not in the hierarchy keep their own set as it is. The `Authorizer` then offers `HasPermission`, `GetPermissions`, `ValidateRole` (an `*ErrInvalidRole` for an unknown role), `CheckOwnership` (the "any" permission wins; otherwise the "own" permission and the same user id), `AvailableRoles` and `FilterPermissions` (the requested permissions that the role holds).
+
+  Two middleware constructors wrap `net/http` handlers:
+
+  - `RequirePermission(authz, perm, roleFrom)` answers 403 unless the role holds the permission. A role that the config does not know is refused too, and logged through the standard `log` package as `rbac: unknown_role ...`, as a sign of a tampered or stale token.
+  - `RequireOwnership(...)` lets a role with the "any" permission through. Otherwise it needs the "own" permission, asks your `ownerExtractor` for the resource's owner, and compares it with the requesting user: 403 when they differ, 500 when the lookup fails. The package comment advises taking the owner from your database, never from the request.
+
+  The role and the user id come from functions you supply (`RoleFromContext`, `UserIDFromContext`), so the package does not import your authentication code.
+
+  `NewShredbxConfig()` is a ready-made three-role hierarchy (team-member, admin, super-admin) with the `Perm…` and `Role…` constants that go with it: a default for new projects, not a requirement.
+
+  Things to know, each checked by running the code:
+
+  - A role named in `RoleHierarchy` but missing from `Roles` still exists, and inherits the roles before it.
+  - `GetPermissions` returns the authorizer's own set, not a copy. Changing it changes what the authorizer allows, and for a role outside the hierarchy it is the very map you passed in the config. Treat it as read-only. The authorizer takes no locks: it is safe for concurrent reads because nothing changes after construction.
+  - `AvailableRoles`, and the role list inside `ErrInvalidRole`, come in no fixed order.
+  - `DefaultRole` is stored in the config, and nothing in this package uses it.
+  - The middleware writes its JSON error bodies with `http.Error`, so the `Content-Type` is `text/plain; charset=utf-8`.
+install: |-
+  `rbac` is a Go module in the `platform/go` workspace and is not published. Inside the workspace it is listed in `platform/go/go.work`, so there is nothing to install: import it.
+
+  From another module, require it and point the `replace` at this folder (the path is relative to your `go.mod`), then run `go mod tidy` to pull in its one third-party requirement, `github.com/google/uuid`:
+
+  ```
+  require github.com/shredbx/sbx-core/pkg/rbac v0.0.0
+
+  replace github.com/shredbx/sbx-core/pkg/rbac => <path to platform/go/packages/identity/rbac>
+  ```
+
+  The import path keeps its original name, `github.com/shredbx/sbx-core/pkg/rbac`, until the naming pass; only the folder was regrouped.
+usage: |-
+  Build an authorizer from a hierarchy, check permissions and ownership, and guard an HTTP handler. The handler runs against an in-memory recorder, so there is no server:
+
+  ```go
+  package main
+
+  import (
+  	"context"
+  	"errors"
+  	"fmt"
+  	"net/http"
+  	"net/http/httptest"
+  	"strings"
+
+  	"github.com/google/uuid"
+  	"github.com/shredbx/sbx-core/pkg/rbac"
+  )
+
+  type roleKey struct{}
+
+  // roleFrom reads the role that an earlier authentication step put in the request context.
+  func roleFrom(ctx context.Context) (rbac.RoleCode, bool) {
+  	role, ok := ctx.Value(roleKey{}).(rbac.RoleCode)
+  	return role, ok
+  }
+
+  func main() {
+  	// Each role declares only what it adds; it inherits everything above it in the hierarchy.
+  	authz := rbac.NewAuthorizer(rbac.RBACConfig{
+  		Roles: map[rbac.RoleCode]rbac.PermissionSet{
+  			"viewer": rbac.NewPermissionSet("post:read"),
+  			"editor": rbac.NewPermissionSet("post:update-own"),
+  			"admin":  rbac.NewPermissionSet("post:update-any", "post:delete"),
+  		},
+  		RoleHierarchy: []rbac.RoleCode{"viewer", "editor", "admin"},
+  	})
+  	fmt.Println("editor can read (inherited):", authz.HasPermission("editor", "post:read"))
+  	fmt.Println("viewer can delete:", authz.HasPermission("viewer", "post:delete"))
+
+  	var invalid *rbac.ErrInvalidRole
+  	fmt.Println("unknown role is an ErrInvalidRole:", errors.As(authz.ValidateRole("guest"), &invalid))
+
+  	// Ownership: the "any" permission wins; otherwise the "own" permission needs the same user.
+  	alice, bob := uuid.New(), uuid.New()
+  	fmt.Println("editor, own post:", authz.CheckOwnership("editor", "post:update-own", "post:update-any", alice, alice))
+  	fmt.Println("editor, someone else's:", authz.CheckOwnership("editor", "post:update-own", "post:update-any", alice, bob))
+  	fmt.Println("admin, someone else's:", authz.CheckOwnership("admin", "post:update-own", "post:update-any", alice, bob))
+
+  	// As HTTP middleware, with no server: the handler runs against an in-memory recorder.
+  	remove := rbac.RequirePermission(authz, "post:delete", roleFrom)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+  		fmt.Fprint(w, "deleted")
+  	}))
+  	for _, role := range []rbac.RoleCode{"admin", "editor"} {
+  		req := httptest.NewRequest(http.MethodDelete, "/posts/1", nil)
+  		req = req.WithContext(context.WithValue(req.Context(), roleKey{}, role))
+  		rec := httptest.NewRecorder()
+  		remove.ServeHTTP(rec, req)
+  		fmt.Println(role, rec.Code, strings.TrimSpace(rec.Body.String()))
+  		if rec.Code != http.StatusOK {
+  			fmt.Println("  Content-Type:", rec.Header().Get("Content-Type"))
+  		}
+  	}
+  }
+  ```
+
+  It prints:
+
+  ```
+  editor can read (inherited): true
+  viewer can delete: false
+  unknown role is an ErrInvalidRole: true
+  editor, own post: true
+  editor, someone else's: false
+  admin, someone else's: true
+  admin 200 deleted
+  editor 403 {"error":"insufficient permissions"}
+    Content-Type: text/plain; charset=utf-8
+  ```
+sections:
+  - heading: "## Configuration"
+    body: |-
+      None: no environment variables and no files. The only wiring is the functions you pass to the middleware.
+  - heading: "## Tests"
+    body: |-
+      `go test ./...` in this folder, or `go -C platform/go/packages/identity/rbac test ./...` from the repository root.

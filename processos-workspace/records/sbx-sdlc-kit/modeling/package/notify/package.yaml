@@ -1,0 +1,8 @@
+stack: go
+kit: notifications
+name: notify
+path: platform/go/packages/notifications/notify
+version: 0.0.0
+description: "A Notifier interface with Telegram and SMTP adapters, and best-effort fan-out to several channels."
+uses: []
+dependencies: []

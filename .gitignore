@@ -226,3 +226,12 @@ node_modules/
 .svelte-kit/
 .pnpm-store/
 review-receipts/
+
+# Node / SvelteKit (platform/svelte) and Go (platform/go) build artifacts
+node_modules/
+.svelte-kit/
+*.test
+
+# Svelte packages keep their source under src/lib/ (the SvelteKit package convention); the Python
+# template's `lib/` rule above would otherwise swallow it.
+!platform/svelte/**/src/lib/
