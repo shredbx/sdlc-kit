@@ -4,3 +4,6 @@
 [submodule "consumers/clients/bestie/bestierealestate"]
 	path = consumers/clients/bestie/bestierealestate
 	url = git@github.com:shredbx/sdlc-bestie-bestierealestate.git
+[submodule "consumers/clients/andrei/prototypes-pages"]
+	path = consumers/clients/andrei/prototypes-pages
+	url = git@github.com:shredbx/prototypes-pages.git
