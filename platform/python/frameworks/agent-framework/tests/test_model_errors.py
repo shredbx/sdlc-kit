@@ -11,6 +11,7 @@ from pydantic_ai.exceptions import (
     ModelAPIError,
     ModelHTTPError,
     UnexpectedModelBehavior,
+    UsageLimitExceeded,
 )
 
 
@@ -146,3 +147,11 @@ def test_a_fallback_group_of_only_rejections_is_a_rejection() -> None:
 
 def test_a_group_with_no_model_failures_is_not_classified() -> None:
     assert classify_model_error(ExceptionGroup("unrelated", [ValueError("a"), KeyError("b")])) is None
+
+
+def test_hitting_the_cap_on_requests_per_turn_is_a_retryable_too_many_steps() -> None:
+    failure = classify_model_error(UsageLimitExceeded("The next request would exceed the request_limit of 6"))
+
+    assert failure is not None
+    assert (failure.status, failure.code, failure.retryable) == (502, "too_many_steps", True)
+    assert "request_limit" not in failure.message  # the library's own text stays out of the client message

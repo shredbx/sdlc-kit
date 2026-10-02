@@ -1,6 +1,7 @@
 """GET /account/credits: who may ask, what comes back, and what happens when the provider cannot be reached."""
 
 import pytest
+from agent_framework.core.auth import AuthUnavailable
 from agent_framework.core.providers.credits import CreditsUnavailable, KeyUsage
 from agent_framework.server import app as app_module
 from agent_framework.server.app import create_app
@@ -87,3 +88,18 @@ class TestWhatComesBack:
         assert response.status_code == 503
         assert response.json() == {"detail": "The usage figures are not available right now.", "code": "credits_unavailable", "retryable": True}
         assert "sk-or" not in response.text and "401" not in response.text
+
+
+class TestWhenTheLoginCheckCannotAnswer:
+    def test_it_is_a_retryable_503_not_a_401_and_the_provider_is_not_asked(self) -> None:
+        async def provider_down(token: str) -> str | None:
+            raise AuthUnavailable("Supabase Auth answered 503")
+
+        source = FakeSource()
+
+        response = client(source, verifier=provider_down).get("/account/credits", headers=STAFF)
+
+        assert response.status_code == 503
+        assert response.headers["cache-control"] == "no-store"
+        assert (response.json()["code"], response.json()["retryable"]) == ("auth_unavailable", True)
+        assert source.asked == 0

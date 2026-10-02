@@ -52,6 +52,9 @@ def create_app(
     # What the provider key has spent (core/providers/credits.py), served at GET /account/credits to signed-in users.
     # None -> that route answers {"supported": false}. Needs a user_verifier; without one the route is not mounted.
     credits: CreditsSource | None = None,
+    # The most model requests one turn may make (each tool call is another request); a model that keeps calling tools is stopped there with a clear
+    # error instead of at pydantic-ai's own limit of 50. None = that default.
+    max_requests_per_turn: int | None = None,
 ) -> FastAPI:
     app = FastAPI() if docs_enabled else FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -76,6 +79,7 @@ def create_app(
             pricing=pricing,
             token_limit=token_limit,
             max_message_chars=max_message_chars,
+            max_requests_per_turn=max_requests_per_turn,
         )
     )
     if auth_router is not None:

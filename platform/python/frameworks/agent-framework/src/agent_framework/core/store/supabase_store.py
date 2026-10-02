@@ -16,7 +16,7 @@ invisible to anyone holding only the public/publishable key — the schema being
 PostgREST's routing is a separate concern from who has read/write grants on what's inside it."""
 
 import json
-import uuid
+from datetime import UTC, datetime
 
 import httpx
 from pydantic_ai import ModelMessagesTypeAdapter
@@ -40,13 +40,7 @@ class SupabaseSessionStore(SessionStore):
         )
         rows = response.json()
         if not rows:
-            await self._client.request(
-                "POST",
-                self._path,
-                json={"id": session_id},
-                headers={"Content-Profile": self._schema, "Prefer": "return=minimal"},
-            )
-            return Session(id=session_id)
+            return Session(id=session_id)  # a miss writes nothing: the first save creates the row
         row = rows[0]
         messages = ModelMessagesTypeAdapter.validate_python(row["messages"] or [])
         return Session(id=row["id"], user_id=row["user_id"], messages=messages, data=row["data"] or {})
@@ -57,6 +51,7 @@ class SupabaseSessionStore(SessionStore):
             "user_id": session.user_id,
             "messages": json.loads(ModelMessagesTypeAdapter.dump_json(session.messages)),
             "data": session.data,
+            "updated_at": datetime.now(UTC).isoformat(),  # the upsert would otherwise keep the first save's time
         }
         await self._client.request(
             "POST",
@@ -64,18 +59,9 @@ class SupabaseSessionStore(SessionStore):
             json=payload,
             headers={"Content-Profile": self._schema, "Prefer": "resolution=merge-duplicates,return=minimal"},
         )
-
-    async def link_user(self, session_id: str, user_id: str) -> Session:
-        old = await self.get_or_create(session_id)
-        new = Session(id=str(uuid.uuid4()), user_id=user_id, messages=old.messages, data=old.data)
-        await self.save(new)
-        await self._client.request(
-            "DELETE",
-            self._path,
-            params={"id": f"eq.{session_id}"},
-            headers={"Content-Profile": self._schema},
-        )
-        return new
+        if session.replaces:
+            await self._client.request("DELETE", self._path, params={"id": f"eq.{session.replaces}"}, headers={"Content-Profile": self._schema})
+            session.replaces = None
 
     async def close(self) -> None:
         await self._client.aclose()

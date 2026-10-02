@@ -17,6 +17,7 @@ processed one - so the stored session stays bounded too, not just what is sent. 
 
 import json
 from collections.abc import Callable, Sequence
+from dataclasses import replace
 from typing import Any
 
 from pydantic_ai.messages import (
@@ -52,6 +53,13 @@ def trim_history(max_turns: int | None, max_chars: int | None) -> HistoryProcess
         return messages[: starts[0]] + messages[kept_from:]
 
     return process
+
+
+def without_instructions(messages: list[ModelMessage]) -> list[ModelMessage]:
+    """The messages as they should be stored: no request keeps the copy of the instructions it was sent with. pydantic-ai writes the full
+    rendered instructions onto every request (about 20 KB each for a long prompt) but only ever sends the NEWEST request's, freshly rendered -
+    so the copies are never read back and were 92% of a stored session. The model's input is unchanged."""
+    return [replace(m, instructions=None) if isinstance(m, ModelRequest) and m.instructions is not None else m for m in messages]
 
 
 def starts_turn(message: ModelMessage) -> bool:

@@ -77,3 +77,14 @@ def test_no_limits_configured_means_no_check_at_all() -> None:
     assert r1.status_code == 200 and r1.json()["limits"] is None
     assert r2.status_code == 200 and r2.json()["limits"] is None
     assert _calls == ["called", "called"]
+
+
+def test_a_quota_of_zero_refuses_nothing_and_reports_no_allowance() -> None:
+    client = _build_client(Limits(throttle_seconds=0, quota_per_hour=0))
+
+    first = client.post("/agents/chat/chat", json={"message": "hi"})
+    second = client.post("/agents/chat/chat", json={"message": "again"}, headers={"x-session-id": first.json()["session_id"]})
+
+    assert first.status_code == 200 and second.status_code == 200
+    assert first.json()["limits"] is None and second.json()["limits"] is None
+    assert _calls == ["called", "called"]

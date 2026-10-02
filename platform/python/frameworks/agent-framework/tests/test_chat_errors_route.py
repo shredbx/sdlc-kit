@@ -33,9 +33,12 @@ def _ok_model(messages: list, info: object) -> ModelResponse:
     return ModelResponse(parts=[TextPart(content="ok")])
 
 
+def _session_id(token: str) -> str:
+    return URLSafeTimedSerializer(_SECRET, salt="agent-framework.session").loads(token)
+
+
 def _session(store: MemoryStore, token: str):  # noqa: ANN202
-    session_id = URLSafeTimedSerializer(_SECRET, salt="agent-framework.session").loads(token)
-    return store._sessions[session_id]  # noqa: SLF001 - the test inspects what the route persisted
+    return store._sessions[_session_id(token)]  # noqa: SLF001 - the test inspects what the route persisted
 
 
 def test_a_busy_model_is_a_503_with_a_code_not_a_200_reply() -> None:
@@ -103,7 +106,7 @@ def test_a_failed_turn_is_not_saved_so_a_resend_starts_from_the_same_point() -> 
     client, store = _build(flaky)
     failed = client.post("/agents/chat/chat", json={"message": "first"})
     token = failed.json()["session_id"]
-    assert _session(store, token).messages == []
+    assert _session_id(token) not in store._sessions  # noqa: SLF001 - a failed turn writes nothing, not even an empty row
 
     resent = client.post("/agents/chat/chat", json={"message": "first"}, headers={"x-session-id": token})
 

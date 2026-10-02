@@ -218,7 +218,8 @@ def test_a_model_failure_after_the_stream_started_is_an_error_event_and_nothing_
     error = events[0][1]
     assert (error["code"], error["retryable"]) == ("unavailable", True)
     assert "provider body" not in json.dumps(error)
-    assert _session(store, error["session_id"]).messages == []
+    session_id = URLSafeTimedSerializer(_SECRET, salt="agent-framework.session").loads(error["session_id"])
+    assert session_id not in store._sessions  # noqa: SLF001 - a failed turn writes nothing, not even an empty row
 
 
 async def _buggy(messages: list, info: AgentInfo):  # noqa: ANN202
@@ -327,6 +328,4 @@ async def test_a_client_that_disconnects_mid_stream_cancels_the_run_and_nothing_
 
     assert any(b"partial" in m.get("body", b"") for m in sent)
     assert not any(b"event: done" in m.get("body", b"") for m in sent)
-    assert store._sessions  # noqa: SLF001 - the session row exists (resolved before the run)...
-    for session in store._sessions.values():  # noqa: SLF001
-        assert session.messages == [] and "usage" not in session.data  # ...but nothing from the cancelled turn was saved
+    assert store._sessions == {}  # noqa: SLF001 - nothing from the cancelled turn was saved, not even an empty row

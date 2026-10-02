@@ -7,6 +7,7 @@ import uuid
 
 import asyncpg
 import pytest
+from agent_framework.core.store.base import rotate_for_user
 from agent_framework.core.store.postgres_store import PostgresStore
 from pydantic_ai import Agent
 from pydantic_ai.messages import ModelResponse, TextPart
@@ -62,11 +63,28 @@ async def test_history_survives_a_new_store_instance(store: PostgresStore) -> No
     await fresh_store.close()
 
 
-async def test_link_user_persists_and_rotates_the_session_id(store: PostgresStore) -> None:
+async def test_a_miss_writes_nothing_and_the_first_save_creates_the_row(store: PostgresStore) -> None:
     session_id = f"test-{uuid.uuid4()}"
-    await store.get_or_create(session_id)
+    session = await store.get_or_create(session_id)
 
-    linked = await store.link_user(session_id, "user-123")
+    admin = await asyncpg.connect(DSN)
+    try:
+        assert await admin.fetchval("SELECT count(*) FROM sessions WHERE id = $1", session_id) == 0
+        session.data["x"] = 1
+        await store.save(session)
+        assert await admin.fetchval("SELECT count(*) FROM sessions WHERE id = $1", session_id) == 1
+    finally:
+        await admin.close()
+
+
+async def test_saving_a_rotated_session_persists_it_and_deletes_the_old_row(store: PostgresStore) -> None:
+    session_id = f"test-{uuid.uuid4()}"
+    anonymous = await store.get_or_create(session_id)
+    anonymous.data["contact_name"] = "Andrei"
+    await store.save(anonymous)
+
+    linked = rotate_for_user(await store.get_or_create(session_id), "user-123")
+    await store.save(linked)
 
     assert linked.id != session_id  # OWASP: regenerate the id on a privilege-level change
     assert linked.user_id == "user-123"

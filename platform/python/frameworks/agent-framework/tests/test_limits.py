@@ -70,3 +70,15 @@ def test_resets_at_reflects_the_current_window_end() -> None:
     _, status, _ = evaluate_and_consume({}, limits, _NOW)
 
     assert status.resets_at == (_NOW + timedelta(hours=1)).isoformat()
+
+
+def test_a_quota_of_zero_means_no_hourly_quota_but_the_throttle_still_applies() -> None:
+    limits = Limits(throttle_seconds=3.0, quota_per_hour=0)
+    data: dict = {}
+    for i in range(100):
+        allowed, _, data = evaluate_and_consume(data, limits, _NOW + timedelta(seconds=10 * i))
+        assert allowed is True  # a hundred messages in less than an hour, none refused for the quota
+
+    allowed, _, _ = evaluate_and_consume(data, limits, _NOW + timedelta(seconds=10 * 99 + 1))
+
+    assert allowed is False  # still too fast

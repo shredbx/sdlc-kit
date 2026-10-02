@@ -8,9 +8,10 @@ from typing import Any
 from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import JSONResponse
 
-from agent_framework.core.auth import UserVerifier
+from agent_framework.core.auth import AuthUnavailable, UserVerifier
 from agent_framework.core.providers.credits import CreditsSource, CreditsUnavailable
 from agent_framework.server.bearer import bearer_token
+from agent_framework.server.model_errors import AUTH_UNAVAILABLE
 
 _NO_STORE = {"Cache-Control": "no-store"}  # the figures are for the signed-in user only: no shared cache keeps them
 
@@ -21,7 +22,12 @@ def build_credits_router(credits: CreditsSource | None, user_verifier: UserVerif
     @router.get("/account/credits", response_model=None)
     async def get_credits(authorization: str | None = Header(default=None)) -> Any:
         token = bearer_token(authorization)
-        if not token or await user_verifier(token) is None:
+        try:
+            user_id = await user_verifier(token) if token else None
+        except AuthUnavailable:
+            body = {"detail": AUTH_UNAVAILABLE.message, "code": AUTH_UNAVAILABLE.code, "retryable": AUTH_UNAVAILABLE.retryable}
+            return JSONResponse(body, status_code=AUTH_UNAVAILABLE.status, headers=_NO_STORE)
+        if user_id is None:
             raise HTTPException(status_code=401, detail="a valid Authorization: Bearer <token> is required")
         if credits is None:
             return JSONResponse({"supported": False}, headers=_NO_STORE)

@@ -1,8 +1,8 @@
 """History trimming is pure list surgery - table-tested without a model - plus one real agent run proving that what
 the framework saves afterwards is the trimmed history too."""
 
-from agent_framework.core.history import size_of, starts_turn, trim_history
-from pydantic_ai import Agent
+from agent_framework.core.history import size_of, starts_turn, trim_history, without_instructions
+from pydantic_ai import Agent, ModelMessagesTypeAdapter
 from pydantic_ai.capabilities import ProcessHistory
 from pydantic_ai.messages import (
     ModelMessage,
@@ -167,3 +167,49 @@ async def test_a_tool_call_in_the_current_run_is_never_cut_from_its_result() -> 
     assert any(isinstance(p, ToolCallPart) for m in after_tool for p in m.parts)  # ... the run's own call and result stay
     assert any(isinstance(p, ToolReturnPart) for m in after_tool for p in m.parts)
     assert result.output == "done"
+
+
+class TestWithoutInstructions:
+    LONG = "You write reply drafts. " * 800  # about 19 KB, like the assistant's
+
+    def stored(self) -> list[ModelMessage]:
+        first = ModelRequest(parts=[UserPromptPart(content="hi")], instructions=self.LONG)
+        second = ModelRequest(parts=[UserPromptPart(content="again")], instructions=self.LONG)
+        return [first, reply("hello"), second]
+
+    def test_no_request_keeps_its_copy_and_nothing_else_changes(self) -> None:
+        messages = self.stored()
+
+        stripped = without_instructions(messages)
+
+        assert [m.instructions for m in stripped if isinstance(m, ModelRequest)] == [None, None]
+        assert [m.parts for m in stripped] == [m.parts for m in messages]
+        assert messages[0].instructions == self.LONG  # the input list is not modified
+
+    def test_the_stored_size_drops_by_the_size_of_the_copies(self) -> None:
+        before = len(ModelMessagesTypeAdapter.dump_json(self.stored()))
+        after = len(ModelMessagesTypeAdapter.dump_json(without_instructions(self.stored())))
+
+        assert after < before / 20
+
+    def test_a_request_that_never_had_instructions_is_left_as_it_is(self) -> None:
+        plain = [user("hi"), reply("hello")]
+
+        assert without_instructions(plain) == plain
+
+    async def test_the_model_is_sent_the_same_instructions_whether_or_not_the_old_copies_were_kept(self) -> None:
+        seen: list[str | None] = []
+
+        def spy(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+            seen.append(info.instructions)
+            return reply("ok")
+
+        agent = Agent(FunctionModel(spy), instructions=self.LONG, name="test_strip")
+        first = await agent.run("one")
+
+        with_copies = await agent.run("two", message_history=first.all_messages())
+        without_copies = await agent.run("two", message_history=without_instructions(first.all_messages()))
+
+        assert seen[1] == seen[2] == self.LONG.strip()
+        assert without_copies.output == with_copies.output
+        assert len(without_copies.all_messages()) == len(with_copies.all_messages())

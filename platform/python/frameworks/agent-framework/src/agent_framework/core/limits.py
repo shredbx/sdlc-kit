@@ -17,7 +17,7 @@ _WINDOW = timedelta(hours=1)
 
 class Limits(BaseModel):
     throttle_seconds: float = 3.0
-    quota_per_hour: int = 40
+    quota_per_hour: int = 40  # 0 = no hourly quota (the throttle still applies; no figure is reported to the client)
 
 
 class LimitStatus(BaseModel):
@@ -54,7 +54,7 @@ def evaluate_and_consume(data: dict[str, Any], limits: Limits, now: datetime) ->
 
     last_accepted_at = _parse(data.get("last_accepted_at"))
     throttled = last_accepted_at is not None and now - last_accepted_at < timedelta(seconds=limits.throttle_seconds)
-    over_quota = count >= limits.quota_per_hour
+    over_quota = limits.quota_per_hour > 0 and count >= limits.quota_per_hour
     resets_at = (window_start + _WINDOW).isoformat()
 
     if throttled or over_quota:

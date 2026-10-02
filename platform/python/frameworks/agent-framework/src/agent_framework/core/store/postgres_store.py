@@ -12,7 +12,6 @@ trivial, synchronous constructor — the pool is built, and migrations applied, 
 real request needs it, inside whatever loop is actually running by then."""
 
 import json
-import uuid
 
 import asyncpg
 from pydantic_ai import ModelMessagesTypeAdapter
@@ -47,8 +46,7 @@ class PostgresStore(SessionStore):
         async with pool.acquire() as conn:
             row = await conn.fetchrow("SELECT id, user_id, messages, data FROM sessions WHERE id = $1", session_id)
             if row is None:
-                await conn.execute("INSERT INTO sessions (id) VALUES ($1)", session_id)
-                return Session(id=session_id)
+                return Session(id=session_id)  # a miss writes nothing: the first save creates the row
             messages = ModelMessagesTypeAdapter.validate_json(row["messages"] or "[]")
             data = json.loads(row["data"] or "{}")
             return Session(id=row["id"], user_id=row["user_id"], messages=messages, data=data)
@@ -57,7 +55,7 @@ class PostgresStore(SessionStore):
         messages_json = ModelMessagesTypeAdapter.dump_json(session.messages).decode("utf-8")
         data_json = json.dumps(session.data)
         pool = await self._get_pool()
-        async with pool.acquire() as conn:
+        async with pool.acquire() as conn, conn.transaction():  # the new row and the removal of the old one succeed or fail together
             await conn.execute(
                 """
                 INSERT INTO sessions (id, user_id, messages, data, updated_at)
@@ -69,15 +67,9 @@ class PostgresStore(SessionStore):
                 messages_json,
                 data_json,
             )
-
-    async def link_user(self, session_id: str, user_id: str) -> Session:
-        old = await self.get_or_create(session_id)
-        new = Session(id=str(uuid.uuid4()), user_id=user_id, messages=old.messages, data=old.data)
-        await self.save(new)
-        pool = await self._get_pool()
-        async with pool.acquire() as conn:
-            await conn.execute("DELETE FROM sessions WHERE id = $1", session_id)
-        return new
+            if session.replaces:
+                await conn.execute("DELETE FROM sessions WHERE id = $1", session.replaces)
+                session.replaces = None
 
     async def close(self) -> None:
         if self._pool is not None:

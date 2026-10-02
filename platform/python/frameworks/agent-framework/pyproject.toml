@@ -11,6 +11,7 @@ dependencies = [
     "pyyaml>=6",
     "asyncpg>=0.29",
     "itsdangerous>=2.1",
+    "pyjwt[crypto]>=2.8",
 ]
 
 [dependency-groups]

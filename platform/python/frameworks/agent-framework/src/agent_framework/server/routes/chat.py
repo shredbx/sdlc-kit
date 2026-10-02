@@ -16,18 +16,19 @@ import logfire
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
-from pydantic_ai import AgentRunResult, AgentRunResultEvent
+from pydantic_ai import AgentRunResult, AgentRunResultEvent, UsageLimits
 
-from agent_framework.core.auth import UserVerifier
+from agent_framework.core.auth import AuthUnavailable, UserVerifier
 from agent_framework.core.cards import AgentReply, Card, flatten_cards_to_text
 from agent_framework.core.debug_model import build_debug_model
+from agent_framework.core.history import without_instructions
 from agent_framework.core.limits import Limits, LimitStatus, evaluate_and_consume
-from agent_framework.core.store.base import Session, SessionStore
+from agent_framework.core.store.base import Session, SessionStore, rotate_for_user
 from agent_framework.core.tool_registry import ToolEntry
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.bearer import bearer_token as _bearer_token
 from agent_framework.server.middleware.session import ResolvedSession, session_dependency, sign_session_token
-from agent_framework.server.model_errors import INTERNAL, ModelFailure, classify_model_error
+from agent_framework.server.model_errors import AUTH_UNAVAILABLE, INTERNAL, ModelFailure, classify_model_error
 from agent_framework.server.streaming import frames_for, sse
 from agent_framework.server.turn_log import log_turn, turn_record
 from agent_framework.server.usage import Pricing, TokenLimit, TokenUsage, add_turn_usage, summarize
@@ -60,7 +61,8 @@ class _Turn:
 
     registered: RegisteredAgent
     session: Session
-    session_token: str
+    session_token: str  # what a finished turn hands back: for a session that was just linked to a user, the token of its NEW id
+    failure_token: str  # what a turn that does not finish hands back: the id the client already holds, still the valid one
     limit_status: LimitStatus | None
 
 
@@ -79,10 +81,13 @@ def build_router(
     # Size caps, checked before anything else: None = no cap on the message. The context cap is fixed -
     # client_context is a few small fields (a name, a source, a link), and it is saved on the session.
     max_message_chars: int | None = None,
+    # The most model requests one turn may make; None = pydantic-ai's own default (50).
+    max_requests_per_turn: int | None = None,
 ) -> APIRouter:
     router = APIRouter()
     resolve_session = session_dependency(store, secret_key)
     registry = tool_registry or {}
+    run_limits = UsageLimits(request_limit=max_requests_per_turn) if max_requests_per_turn else None
 
     async def begin_turn(name: str, request: ChatRequest, resolved: ResolvedSession, authorization: str | None) -> _Turn | JSONResponse:
         """Everything before the model runs. Raises HTTPException (404/401/500) or returns the 429
@@ -96,28 +101,30 @@ def build_router(
 
         too_big = _size_problem(request, max_message_chars)
         if too_big is not None:
-            return _failure_response(too_big, session_token)
+            return _failure_response(too_big, resolved.token)
 
         if registered.auth == "required":
             if user_verifier is None:
                 raise HTTPException(status_code=500, detail=f"agent {name!r} requires auth but no user_verifier is configured")
             token = _bearer_token(authorization)
-            user_id = await user_verifier(token) if token else None
+            try:
+                user_id = await user_verifier(token) if token else None
+            except AuthUnavailable:
+                return _failure_response(AUTH_UNAVAILABLE, resolved.token)
             if user_id is None:
                 raise HTTPException(status_code=401, detail="a valid Authorization: Bearer <token> is required")
             if session.user_id != user_id:
-                # A privilege-level change (first time this session is linked, or a different user
-                # than before) - store.link_user() unconditionally rotates the session id (OWASP
-                # Session Management Cheat Sheet, see its own docstring), so the response has to
-                # carry a freshly signed token for the NEW id, not resolved.token.
-                session = await store.link_user(session.id, user_id)
+                # A privilege-level change (first time this session is linked, or a different user than before) rotates the session id
+                # (OWASP Session Management Cheat Sheet, see rotate_for_user). Nothing is written yet: the new row is saved with the finished
+                # turn, which deletes the old one - so the response to a finished turn carries a token for the NEW id, and a turn that fails
+                # leaves the client holding the old, still valid one.
+                session = rotate_for_user(session, user_id)
                 session_token = sign_session_token(secret_key, session.id)
 
         # Raw passthrough, overwritten (not merged) every request - see ChatRequest.client_context's
         # own comment for why staleness across turns is the consumer's problem to solve, not this
-        # route's. Set AFTER the auth step above: linking a session to a user can hand back a different
-        # Session object (a store may reload it), and a value set on the old one would silently be lost
-        # on exactly the first request of every signed-in conversation.
+        # route's. Set AFTER the auth step above, so it lands on the session that is run and saved
+        # (linking a user gives the turn a new Session object).
         if request.client_context is not None:
             session.data["client_context"] = request.client_context
 
@@ -125,15 +132,17 @@ def build_router(
         # unchanged behavior from before this feature existed.
         limit_status: LimitStatus | None = None
         if limits is not None:
-            allowed, limit_status, updated = evaluate_and_consume(session.data.get("limits", {}), limits, datetime.now(UTC))
+            allowed, status, updated = evaluate_and_consume(session.data.get("limits", {}), limits, datetime.now(UTC))
+            # A quota of 0 means no hourly quota: there is no allowance to report (the throttle still applies).
+            limit_status = status if limits.quota_per_hour > 0 else None
             if not allowed:
                 # No agent.run(), no store.save() - an over-limit message costs nothing. Returned
                 # as a plain JSONResponse (not ChatResponse) so the body is exactly {limits, session_id},
                 # not wrapped in FastAPI's default {"detail": ...} shape.
-                return JSONResponse(status_code=429, content={"limits": limit_status.model_dump(), "session_id": session_token})
+                return JSONResponse(status_code=429, content={"limits": limit_status.model_dump() if limit_status else None, "session_id": resolved.token})
             session.data["limits"] = updated
 
-        return _Turn(registered=registered, session=session, session_token=session_token, limit_status=limit_status)
+        return _Turn(registered=registered, session=session, session_token=session_token, failure_token=resolved.token, limit_status=limit_status)
 
     async def complete_turn(turn: _Turn, result: AgentRunResult[Any]) -> tuple[str, list[Card] | None, TokenUsage]:
         """Everything after a run that SUCCEEDED: persist the history and the running token totals,
@@ -146,7 +155,7 @@ def build_router(
             output_tokens=run_usage.output_tokens,
             tool_calls=run_usage.tool_calls,
         )
-        turn.session.messages = result.all_messages()
+        turn.session.messages = without_instructions(result.all_messages())
         turn.session.data["usage"] = add_turn_usage(turn.session.data.get("usage", {}), turn_usage)
         await store.save(turn.session)
         text, cards = _render_output(turn.registered, result.output)
@@ -196,7 +205,7 @@ def build_router(
         with logfire.span("chat", user_id=session.user_id) if session.user_id else nullcontext():
             with override:
                 try:
-                    result = await registered.agent.run(request.message, deps=deps, message_history=session.messages)
+                    result = await registered.agent.run(request.message, deps=deps, message_history=session.messages, usage_limits=run_limits)
                 except Exception as exc:
                     # A model/network failure (rate limit, 503 "high demand", bad key, connection
                     # error, timeout, ...) becomes a real HTTP error with a machine-readable code
@@ -209,7 +218,7 @@ def build_router(
                         raise
                     _log_failure(failure, exc)
                     record_turn(turn, started=started, streamed=False, status="error", code=failure.code)
-                    return _failure_response(failure, turn.session_token)
+                    return _failure_response(failure, turn.failure_token)
 
         text, cards, turn_usage = await complete_turn(turn, result)
         record_turn(turn, started=started, streamed=False, status="ok", usage=turn_usage)
@@ -247,7 +256,7 @@ def build_router(
                 # normal completion, on an error, or when the client disconnects (Starlette cancels
                 # this generator). complete_turn() below is only reached for a finished run, so a
                 # cancelled or failed turn is never saved.
-                async with registered.agent.run_stream_events(message, deps=deps, message_history=session.messages) as events:
+                async with registered.agent.run_stream_events(message, deps=deps, message_history=session.messages, usage_limits=run_limits) as events:
                     async for event in events:
                         if isinstance(event, AgentRunResultEvent):
                             text, cards, turn_usage = await complete_turn(turn, event.result)
@@ -264,7 +273,7 @@ def build_router(
             else:
                 _log_failure(failure, exc)
             outcome, code = "error", failure.code
-            yield sse("error", {"code": failure.code, "retryable": failure.retryable, "detail": failure.message, "session_id": turn.session_token})
+            yield sse("error", {"code": failure.code, "retryable": failure.retryable, "detail": failure.message, "session_id": turn.failure_token})
         finally:
             record_turn(turn, started=started, streamed=True, status=outcome, code=code, usage=turn_usage)
 

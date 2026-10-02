@@ -21,6 +21,7 @@ async def test_a_valid_token_resolves_back_to_the_same_session() -> None:
     store = MemoryStore()
     resolve = session_dependency(store, secret_key="s3cret")
     first = await resolve(None)
+    await store.save(first.session)  # a session exists once a turn has saved it: resolving alone writes nothing
 
     second = await resolve(first.token)
 

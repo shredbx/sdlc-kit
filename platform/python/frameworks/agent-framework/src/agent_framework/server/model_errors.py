@@ -13,7 +13,7 @@ import asyncio
 from dataclasses import dataclass
 
 import httpx
-from pydantic_ai.exceptions import ContentFilterError, ModelAPIError, ModelHTTPError, UnexpectedModelBehavior
+from pydantic_ai.exceptions import ContentFilterError, ModelAPIError, ModelHTTPError, UnexpectedModelBehavior, UsageLimitExceeded
 
 try:
     # pydantic-ai 2 and the provider SDKs (google-genai, openai, anthropic) send requests with `httpx2`, a fork of httpx under
@@ -42,10 +42,17 @@ _TIMEOUT_MESSAGE = "The assistant took too long to answer. Please try again."
 _REJECTED_MESSAGE = "The model provider rejected the request. Check the API key and model settings on the server."
 _FILTERED_MESSAGE = "The model declined to answer this message."
 _BAD_OUTPUT_MESSAGE = "The assistant returned an unusable answer. Please try again."
+_TOO_MANY_STEPS_MESSAGE = "The assistant needed too many steps to answer this message. Please try again, or ask it in a simpler way."
 
 # Used by the stream route for a failure that is not a model/network one: the response has already
 # started, so there is no 500 to send - the client gets this as an `error` event instead.
 INTERNAL = ModelFailure(status=500, code="internal", retryable=True, message="Something went wrong on the server. Please try again.")
+
+# The login check could not get an answer from the identity provider (core/auth.py AuthUnavailable). Not a "sign in again" (401): the person is
+# probably signed in fine, and a client that signed them out on a provider hiccup would be wrong.
+AUTH_UNAVAILABLE = ModelFailure(
+    status=503, code="auth_unavailable", retryable=True, message="Signing in could not be checked right now. Please try again in a moment."
+)
 
 _MAX_RETRY_AFTER_SECONDS = 60
 
@@ -56,6 +63,9 @@ def classify_model_error(exc: BaseException) -> ModelFailure | None:
         return _classify_group(exc)
     if isinstance(exc, ModelHTTPError):
         return _classify_http_status(exc)
+    if isinstance(exc, UsageLimitExceeded):
+        # The run hit the cap on model requests per turn (build_router's max_requests_per_turn): a model that keeps calling tools.
+        return ModelFailure(status=502, code="too_many_steps", retryable=True, message=_TOO_MANY_STEPS_MESSAGE)
     if isinstance(exc, ContentFilterError):
         return ModelFailure(status=422, code="content_filtered", retryable=False, message=_FILTERED_MESSAGE)
     if isinstance(exc, UnexpectedModelBehavior):

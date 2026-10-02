@@ -12,10 +12,14 @@ this module needing to know about it."""
 from typing import Protocol
 
 
+class AuthUnavailable(Exception):
+    """The identity provider could not answer (it is unreachable, timed out, or is rate limiting or failing). Not a verdict on the token: the routes
+    answer a retryable 503 - never the 401 that tells a client to sign in again, which a provider hiccup must not cause."""
+
+
 class UserVerifier(Protocol):
     async def __call__(self, token: str) -> str | None:
         """Returns the verified user's stable id, or None if the token is missing, invalid, or
-        expired. Never raises for a bad token - only for a genuine infrastructure failure (the
-        identity provider itself unreachable), which routes/chat.py lets propagate as a 500 rather
-        than silently treating as "not authenticated"."""
+        expired. Never raises for a bad token. Raises AuthUnavailable when the identity provider
+        cannot give an answer, which the routes turn into a retryable 503."""
         ...

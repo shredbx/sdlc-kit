@@ -27,9 +27,9 @@ class ResolvedSession:
 
 def sign_session_token(secret_key: str, session_id: str) -> str:
     """The same signing `session_dependency`'s closure does internally, exposed for routes/chat.py
-    to mint a fresh token after SessionStore.link_user() rotates a session's id mid-request (auth,
+    to mint a fresh token after rotate_for_user() gives a session a new id mid-request (auth,
     core/auth.py) - that rotation happens after this dependency already resolved the OLD id, so the
-    response has to carry a token for the NEW one instead of ResolvedSession.token."""
+    response to a finished turn has to carry a token for the NEW one instead of ResolvedSession.token."""
     return URLSafeTimedSerializer(secret_key, salt=_SALT).dumps(session_id)
 
 
