@@ -25,11 +25,12 @@ from agent_framework.core.limits import Limits, LimitStatus, evaluate_and_consum
 from agent_framework.core.store.base import Session, SessionStore
 from agent_framework.core.tool_registry import ToolEntry
 from agent_framework.core.types import RegisteredAgent
+from agent_framework.server.bearer import bearer_token as _bearer_token
 from agent_framework.server.middleware.session import ResolvedSession, session_dependency, sign_session_token
 from agent_framework.server.model_errors import INTERNAL, ModelFailure, classify_model_error
 from agent_framework.server.streaming import frames_for, sse
 from agent_framework.server.turn_log import log_turn, turn_record
-from agent_framework.server.usage import Pricing, TokenUsage, add_turn_usage, summarize
+from agent_framework.server.usage import Pricing, TokenLimit, TokenUsage, add_turn_usage, summarize
 
 _MAX_CONTEXT_CHARS = 4096
 
@@ -73,6 +74,8 @@ def build_router(
     *,
     secret_key: str,
     pricing: Pricing | None = None,
+    # Reported with every finished turn so the client can measure the session against it; None = no limit.
+    token_limit: TokenLimit | None = None,
     # Size caps, checked before anything else: None = no cap on the message. The context cap is fixed -
     # client_context is a few small fields (a name, a source, a link), and it is saved on the session.
     max_message_chars: int | None = None,
@@ -249,7 +252,7 @@ def build_router(
                         if isinstance(event, AgentRunResultEvent):
                             text, cards, turn_usage = await complete_turn(turn, event.result)
                             outcome = "ok"
-                            yield sse("done", _done_payload(turn, text, cards, turn_usage, pricing))
+                            yield sse("done", _done_payload(turn, text, cards, turn_usage, pricing, token_limit))
                             return
                         for frame_name, data in frames_for(event):
                             yield sse(frame_name, data)
@@ -268,13 +271,15 @@ def build_router(
     return router
 
 
-def _done_payload(turn: _Turn, text: str, cards: list[Card] | None, turn_usage: TokenUsage, pricing: Pricing | None) -> dict[str, Any]:
+def _done_payload(
+    turn: _Turn, text: str, cards: list[Card] | None, turn_usage: TokenUsage, pricing: Pricing | None, token_limit: TokenLimit | None
+) -> dict[str, Any]:
     return {
         "reply": text,
         "cards": [card.model_dump(mode="json") for card in cards] if cards else None,
         "session_id": turn.session_token,
         "limits": turn.limit_status.model_dump(mode="json") if turn.limit_status else None,
-        "usage": summarize(turn.session.data["usage"], turn_usage, pricing).model_dump(mode="json"),
+        "usage": summarize(turn.session.data["usage"], turn_usage, pricing, token_limit).model_dump(mode="json"),
         "state": _state_summary(turn.registered, turn.session),
     }
 
@@ -328,9 +333,3 @@ def _failure_response(failure: ModelFailure, session_token: str) -> JSONResponse
 def _log_failure(failure: ModelFailure, exc: BaseException) -> None:
     # The provider's own detail stays in the logs only - never in the response.
     logfire.error("model call failed", code=failure.code, status=failure.status, error_type=type(exc).__name__, error=str(exc)[:500])
-
-
-def _bearer_token(authorization: str | None) -> str | None:
-    if not authorization or not authorization.lower().startswith("bearer "):
-        return None
-    return authorization[7:].strip() or None

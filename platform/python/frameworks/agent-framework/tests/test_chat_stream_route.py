@@ -12,7 +12,7 @@ from agent_framework.core.store.base import Session
 from agent_framework.core.store.memory_store import MemoryStore
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.routes.chat import build_router
-from agent_framework.server.usage import Pricing
+from agent_framework.server.usage import Pricing, TokenLimit
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from itsdangerous import URLSafeTimedSerializer
@@ -36,6 +36,7 @@ def _build(
     user_verifier: object = None,
     limits: Limits | None = None,
     pricing: Pricing | None = None,
+    token_limit: TokenLimit | None = None,
 ) -> tuple[TestClient, MemoryStore]:
     _seen_history_lengths.clear()
     store = MemoryStore()
@@ -51,7 +52,16 @@ def _build(
         state_summary=state_summary,  # type: ignore[arg-type]
     )
     app = FastAPI()
-    app.include_router(build_router({"chat": registered}, store, user_verifier=user_verifier, limits=limits, secret_key=_SECRET, pricing=pricing))  # type: ignore[arg-type]
+    router = build_router(
+        {"chat": registered},
+        store,
+        user_verifier=user_verifier,
+        limits=limits,
+        secret_key=_SECRET,
+        pricing=pricing,
+        token_limit=token_limit,  # type: ignore[arg-type]
+    )
+    app.include_router(router)
     return TestClient(app, raise_server_exceptions=False), store
 
 
@@ -93,7 +103,8 @@ def test_text_arrives_in_pieces_then_done_carries_the_final_reply() -> None:
     assert done["reply"] == "Two places are free."
     assert done["cards"] is None and done["limits"] is None and done["state"] is None
     assert done["session_id"]
-    assert set(done["usage"]) == {"turn", "session", "cost_usd"} and done["usage"]["cost_usd"] is None
+    assert set(done["usage"]) == {"turn", "session", "cost_usd", "limit"} and done["usage"]["cost_usd"] is None
+    assert done["usage"]["limit"] is None
 
 
 def _search(q: str) -> str:
@@ -118,6 +129,16 @@ def test_tool_calls_are_announced_and_counted_in_the_usage() -> None:
     assert usage["turn"]["tool_calls"] == 1 and usage["turn"]["requests"] == 2
     assert usage["session"] == usage["turn"]  # first turn of the session
     assert usage["cost_usd"] is not None and usage["cost_usd"] > 0
+
+
+def test_the_session_token_limit_is_reported_with_every_finished_turn() -> None:
+    client, _ = _build(_two_chunks, token_limit=TokenLimit(tokens=150_000, rule="WARN"))
+
+    first = _stream(client)[-1][1]
+    second = _stream(client, "again", token=first["session_id"])[-1][1]
+
+    assert first["usage"]["limit"] == {"tokens": 150_000, "rule": "WARN"}
+    assert second["usage"]["limit"] == {"tokens": 150_000, "rule": "WARN"}
 
 
 def test_session_usage_accumulates_across_turns() -> None:
