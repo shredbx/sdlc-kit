@@ -4,6 +4,9 @@ invalid token is rejected before the model ever runs, a valid one links the sess
 and rotates its id (SessionStore.link_user's own OWASP-motivated contract), and a "public" agent's
 behavior is completely unchanged (the default, and today's only real caller, the website widget)."""
 
+import uuid
+
+from agent_framework.core.store.base import Session
 from agent_framework.core.store.memory_store import MemoryStore
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.routes.chat import build_router
@@ -89,3 +92,37 @@ def test_required_agent_accepts_a_valid_token_links_the_session_and_rotates_its_
     assert r2.status_code == 200
     assert r2.json()["session_id"] == token1
     assert _calls == ["called", "called"]
+
+
+class _ReloadingStore(MemoryStore):
+    """Like the Supabase / Postgres stores: linking a user hands back a Session rebuilt from what was
+    SAVED, not the in-memory object the request has been changing."""
+
+    async def link_user(self, session_id: str, user_id: str):  # noqa: ANN201
+        old = self._sessions.pop(session_id)
+        new = Session(id=str(uuid.uuid4()), user_id=user_id, messages=list(old.messages), data={})
+        self._sessions[new.id] = new
+        return new
+
+
+def test_client_context_survives_the_session_being_replaced_when_a_user_is_linked() -> None:
+    seen: list[dict] = []
+    agent = Agent(FunctionModel(_counting_model), name="test_chat")
+    registered = RegisteredAgent(
+        name="chat",
+        agent=agent,
+        build_deps=lambda session: seen.append(dict(session.data.get("client_context") or {})),
+        auth="required",
+    )
+    app = FastAPI()
+    app.include_router(build_router({"chat": registered}, _ReloadingStore(), user_verifier=_verify_good_token, secret_key="test-secret"))
+    client = TestClient(app)
+
+    response = client.post(
+        "/agents/chat/chat",
+        json={"message": "hi", "client_context": {"user_name": "Anna", "user_source": "facebook"}},
+        headers={"Authorization": "Bearer good-token"},
+    )
+
+    assert response.status_code == 200
+    assert seen == [{"user_name": "Anna", "user_source": "facebook"}]  # the first request of a signed-in conversation had its context

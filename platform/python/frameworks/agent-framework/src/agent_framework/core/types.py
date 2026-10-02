@@ -59,3 +59,8 @@ class RegisteredAgent:
     prompt_fields: dict[str, str] | None = None
     channel: Channel = "website"
     output_protocol: OutputProtocol = "rich_cards"
+    # Optional: given the finished turn's Session, returns a small JSON-able summary of what the
+    # agent has captured so far (e.g. booking and visit preferences), or None. The streaming route
+    # hands it to the client in the final `done` event so a UI can show it; the framework never
+    # interprets it. None -> the `done` event's `state` is null.
+    state_summary: Callable[[Any], dict[str, Any] | None] | None = None

@@ -13,6 +13,7 @@ from agent_framework.core.tool_registry import ToolEntry
 from agent_framework.server.routes.chat import build_router
 from agent_framework.server.routes.introspect import build_introspection_router
 from agent_framework.server.routes.knowledge import build_knowledge_router
+from agent_framework.server.usage import Pricing
 
 
 def create_app(
@@ -29,8 +30,16 @@ def create_app(
     auth_router: APIRouter | None = None,
     *,
     secret_key: str,
+    # USD per million tokens, optional - lets the streaming route report what a session has cost so
+    # far. None (or a missing price) -> the usage summary carries tokens only, never a guessed cost.
+    pricing: Pricing | None = None,
+    # Longest message accepted, in characters; None = no cap. A longer one is refused (413) before it costs a model call.
+    max_message_chars: int | None = None,
+    # The interactive API docs (/docs, /redoc, /openapi.json): useful in development, an unneeded public
+    # description of every route in production.
+    docs_enabled: bool = True,
 ) -> FastAPI:
-    app = FastAPI()
+    app = FastAPI() if docs_enabled else FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
     # No dependency checks (store/model reachability) - a health check is polled frequently by the
     # deploy platform to decide whether to keep routing traffic to this container/restart it, and a
@@ -41,7 +50,19 @@ def create_app(
         return {"status": "ok"}
 
     agents = {registered.name: registered for registered in discover(agents_package)}
-    app.include_router(build_router(agents, store or MemoryStore(), tool_registry, debug_mode, limits, user_verifier, secret_key=secret_key))
+    app.include_router(
+        build_router(
+            agents,
+            store or MemoryStore(),
+            tool_registry,
+            debug_mode,
+            limits,
+            user_verifier,
+            secret_key=secret_key,
+            pricing=pricing,
+            max_message_chars=max_message_chars,
+        )
+    )
     if auth_router is not None:
         app.include_router(auth_router)
     if debug_mode:

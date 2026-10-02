@@ -23,6 +23,9 @@
 **/.env
 **/.env.local
 
+# local trace logs hold customer conversation text - never part of an image
+**/logs/
+
 docs/
 review-receipts/
 receipts/
