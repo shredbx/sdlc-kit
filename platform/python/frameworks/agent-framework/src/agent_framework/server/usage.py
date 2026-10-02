@@ -41,6 +41,40 @@ def _float_env(name: str) -> float | None:
         raise ValueError(f"{name} must be a number (USD per million tokens), got {raw!r}") from exc
 
 
+# The rules a consumer can ask for. WARN only reports the limit to the client, which decides what to
+# show - nothing here refuses or cuts a turn. A blocking rule is added to this tuple later without
+# touching clients that already understand WARN.
+SUPPORTED_LIMIT_RULES = ("WARN",)
+DEFAULT_LIMIT_RULE = "WARN"
+
+
+class TokenLimit(BaseModel):
+    """A session's token allowance: total input + output tokens over all its model requests."""
+
+    tokens: int
+    rule: str = DEFAULT_LIMIT_RULE
+
+
+def load_token_limit_from_env() -> TokenLimit | None:
+    """`SESSION_TOKEN_LIMIT` (a whole number >= 1; unset or blank = no limit) and
+    `SESSION_TOKEN_LIMIT_RULE` (default WARN, the only rule supported so far). A value that is not
+    understood raises at startup rather than silently running without the limit."""
+    rule = os.environ.get("SESSION_TOKEN_LIMIT_RULE", "").strip().upper() or DEFAULT_LIMIT_RULE
+    if rule not in SUPPORTED_LIMIT_RULES:
+        raise ValueError(f"SESSION_TOKEN_LIMIT_RULE must be one of {', '.join(SUPPORTED_LIMIT_RULES)}, got {rule!r}")
+
+    raw = os.environ.get("SESSION_TOKEN_LIMIT", "").strip()
+    if not raw:
+        return None
+    try:
+        tokens = int(raw)
+    except ValueError as exc:
+        raise ValueError(f"SESSION_TOKEN_LIMIT must be a whole number of tokens, got {raw!r}") from exc
+    if tokens < 1:
+        raise ValueError(f"SESSION_TOKEN_LIMIT must be at least 1 (leave it empty for no limit), got {raw!r}")
+    return TokenLimit(tokens=tokens, rule=rule)
+
+
 class TokenUsage(BaseModel):
     requests: int = 0
     input_tokens: int = 0
@@ -53,6 +87,8 @@ class UsageSummary(BaseModel):
     session: TokenUsage
     # Cost of the whole session so far; None unless both prices are configured.
     cost_usd: float | None = None
+    # The session allowance the client measures `session` against; None = no limit configured.
+    limit: TokenLimit | None = None
 
 
 def add_turn_usage(stored: dict[str, int], turn: TokenUsage) -> dict[str, int]:
@@ -73,7 +109,7 @@ def cost_usd(usage: TokenUsage, pricing: Pricing | None) -> float | None:
     return round((usage.input_tokens * pricing.input_per_mtok + usage.output_tokens * pricing.output_per_mtok) / 1_000_000, 6)
 
 
-def summarize(stored: dict[str, int], turn: TokenUsage, pricing: Pricing | None) -> UsageSummary:
+def summarize(stored: dict[str, int], turn: TokenUsage, pricing: Pricing | None, token_limit: TokenLimit | None = None) -> UsageSummary:
     """`stored` is the session totals ALREADY including `turn` (i.e. after add_turn_usage)."""
     session = TokenUsage(**stored)
-    return UsageSummary(turn=turn, session=session, cost_usd=cost_usd(session, pricing))
+    return UsageSummary(turn=turn, session=session, cost_usd=cost_usd(session, pricing), limit=token_limit)

@@ -1,7 +1,16 @@
 """Token totals and cost are pure arithmetic - table-tested without a model or a store."""
 
 import pytest
-from agent_framework.server.usage import Pricing, TokenUsage, add_turn_usage, cost_usd, load_pricing_from_env, summarize
+from agent_framework.server.usage import (
+    Pricing,
+    TokenLimit,
+    TokenUsage,
+    add_turn_usage,
+    cost_usd,
+    load_pricing_from_env,
+    load_token_limit_from_env,
+    summarize,
+)
 
 
 def test_a_fresh_session_starts_from_zero_and_the_input_is_not_mutated() -> None:
@@ -75,3 +84,45 @@ def test_a_price_that_is_not_a_number_fails_loudly(monkeypatch: pytest.MonkeyPat
 
     with pytest.raises(ValueError, match="GOOGLE_PRICE_INPUT_PER_MTOK"):
         load_pricing_from_env("google")
+
+
+def test_the_summary_carries_the_limit_it_was_given() -> None:
+    turn = TokenUsage(requests=1, input_tokens=10, output_tokens=5)
+
+    assert summarize(add_turn_usage({}, turn), turn, None, TokenLimit(tokens=100)).limit == TokenLimit(tokens=100, rule="WARN")
+    assert summarize(add_turn_usage({}, turn), turn, None).limit is None
+
+
+def test_the_token_limit_is_read_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("SESSION_TOKEN_LIMIT", "150000")
+    monkeypatch.setenv("SESSION_TOKEN_LIMIT_RULE", " warn ")
+
+    assert load_token_limit_from_env() == TokenLimit(tokens=150_000, rule="WARN")
+
+
+def test_an_unset_or_blank_limit_means_no_limit_and_the_rule_defaults_to_warn(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("SESSION_TOKEN_LIMIT", raising=False)
+    monkeypatch.delenv("SESSION_TOKEN_LIMIT_RULE", raising=False)
+    assert load_token_limit_from_env() is None
+
+    monkeypatch.setenv("SESSION_TOKEN_LIMIT", "  ")
+    assert load_token_limit_from_env() is None
+
+    monkeypatch.setenv("SESSION_TOKEN_LIMIT", "500")
+    assert load_token_limit_from_env() == TokenLimit(tokens=500, rule="WARN")
+
+
+@pytest.mark.parametrize("raw", ["lots", "1.5", "0", "-10"])
+def test_a_limit_that_is_not_a_positive_whole_number_fails_loudly(monkeypatch: pytest.MonkeyPatch, raw: str) -> None:
+    monkeypatch.setenv("SESSION_TOKEN_LIMIT", raw)
+
+    with pytest.raises(ValueError, match="SESSION_TOKEN_LIMIT"):
+        load_token_limit_from_env()
+
+
+def test_a_rule_that_is_not_supported_fails_loudly_even_without_a_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("SESSION_TOKEN_LIMIT", raising=False)
+    monkeypatch.setenv("SESSION_TOKEN_LIMIT_RULE", "BLOCK")
+
+    with pytest.raises(ValueError, match="SESSION_TOKEN_LIMIT_RULE"):
+        load_token_limit_from_env()
