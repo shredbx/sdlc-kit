@@ -15,6 +15,18 @@ from dataclasses import dataclass
 import httpx
 from pydantic_ai.exceptions import ContentFilterError, ModelAPIError, ModelHTTPError, UnexpectedModelBehavior
 
+try:
+    # pydantic-ai 2 and the provider SDKs (google-genai, openai, anthropic) send requests with `httpx2`, a fork of httpx under
+    # its own import name: its errors are not instances of httpx's. google-genai lets them out unwrapped, so both are matched.
+    import httpx2
+except ImportError:  # pydantic-ai 1.x
+    httpx2 = None  # type: ignore[assignment]
+
+_HTTP_LIBRARIES = tuple(library for library in (httpx, httpx2) if library is not None)
+_TIMEOUTS = (TimeoutError, asyncio.TimeoutError, *(library.TimeoutException for library in _HTTP_LIBRARIES))
+_TRANSPORT_ERRORS = tuple(library.TransportError for library in _HTTP_LIBRARIES)
+_STATUS_ERRORS = tuple(library.HTTPStatusError for library in _HTTP_LIBRARIES)
+
 
 @dataclass(frozen=True)
 class ModelFailure:
@@ -51,11 +63,11 @@ def classify_model_error(exc: BaseException) -> ModelFailure | None:
     if isinstance(exc, ModelAPIError):
         # A provider SDK's own connection/timeout error, wrapped by pydantic-ai without a status.
         return _timeout() if _caused_by_timeout(exc) else _unavailable()
-    if isinstance(exc, httpx.TimeoutException | TimeoutError | asyncio.TimeoutError):
+    if isinstance(exc, _TIMEOUTS):
         return _timeout()
-    if isinstance(exc, httpx.TransportError):
+    if isinstance(exc, _TRANSPORT_ERRORS):
         return _unavailable()
-    if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code >= 500:
+    if isinstance(exc, _STATUS_ERRORS) and exc.response.status_code >= 500:
         return _unavailable()
     return None
 
@@ -81,7 +93,7 @@ def _classify_group(group: ExceptionGroup) -> ModelFailure | None:
 def _caused_by_timeout(exc: BaseException) -> bool:
     cause = exc.__cause__
     while cause is not None:
-        if isinstance(cause, httpx.TimeoutException | TimeoutError | asyncio.TimeoutError):
+        if isinstance(cause, _TIMEOUTS):
             return True
         cause = cause.__cause__
     return False

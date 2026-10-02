@@ -54,6 +54,53 @@ def test_a_provider_sdk_timeout_wrapped_as_model_api_error_is_a_timeout() -> Non
     assert failure is not None and failure.code == "timeout"
 
 
+# pydantic-ai 2, google-genai, openai and anthropic send requests with `httpx2`, a fork under its own import name:
+# its errors are NOT instances of httpx's. google-genai lets them out unwrapped (no ModelAPIError around them), so the
+# classifier must know both - found when an unreachable provider was reported as a generic "internal" error.
+def _httpx2():  # type: ignore[no-untyped-def]
+    return pytest.importorskip("httpx2")
+
+
+def test_a_connection_failure_from_the_httpx2_fork_is_unavailable() -> None:
+    failure = classify_model_error(_httpx2().ConnectError("All connection attempts failed"))
+
+    assert failure is not None
+    assert (failure.status, failure.code, failure.retryable) == (503, "unavailable", True)
+
+
+def test_a_timeout_from_the_httpx2_fork_is_a_timeout() -> None:
+    failure = classify_model_error(_httpx2().ReadTimeout("slow"))
+
+    assert failure is not None and (failure.status, failure.code) == (504, "timeout")
+
+
+def test_a_provider_sdk_timeout_caused_by_the_httpx2_fork_is_a_timeout() -> None:
+    wrapped = ModelAPIError("some-model", "Request timed out.")
+    wrapped.__cause__ = _httpx2().ReadTimeout("slow")
+
+    failure = classify_model_error(wrapped)
+
+    assert failure is not None and failure.code == "timeout"
+
+
+def test_an_httpx2_5xx_is_unavailable_but_a_4xx_is_a_bug() -> None:
+    lib = _httpx2()
+    request = lib.Request("GET", "https://example.test")
+    five_hundred = lib.HTTPStatusError("bad", request=request, response=lib.Response(502, request=request))
+    four_hundred = lib.HTTPStatusError("bad", request=request, response=lib.Response(404, request=request))
+
+    assert getattr(classify_model_error(five_hundred), "code", None) == "unavailable"
+    assert classify_model_error(four_hundred) is None
+
+
+def test_an_httpx2_failure_inside_a_fallback_group_is_still_found() -> None:
+    group = FallbackExceptionGroup("all models failed", [_httpx2().ConnectError("refused"), _http(400)])
+
+    failure = classify_model_error(group)
+
+    assert failure is not None and (failure.code, failure.retryable) == ("unavailable", True)
+
+
 @pytest.mark.parametrize("exc", [ValueError("bug in a tool"), KeyError("x"), RuntimeError("boom")])
 def test_anything_else_is_not_classified_and_stays_a_500(exc: BaseException) -> None:
     assert classify_model_error(exc) is None
