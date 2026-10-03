@@ -5,6 +5,7 @@ BEFORE the first byte is still an ordinary HTTP error."""
 
 import asyncio
 import json
+from decimal import Decimal
 
 from agent_framework.core.cards import AgentReply, Card
 from agent_framework.core.limits import Limits
@@ -12,17 +13,33 @@ from agent_framework.core.store.base import Session
 from agent_framework.core.store.memory_store import MemoryStore
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.routes.chat import build_router
-from agent_framework.server.usage import Pricing, TokenLimit
+from agent_framework.server.usage import TokenLimit
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from itsdangerous import URLSafeTimedSerializer
 from pydantic_ai import Agent
+from pydantic_ai.capabilities.hooks import Hooks
 from pydantic_ai.exceptions import ModelHTTPError
 from pydantic_ai.messages import ToolReturnPart
 from pydantic_ai.models.function import AgentInfo, DeltaToolCall, FunctionModel
 
 _SECRET = "test-secret"
 _seen_history_lengths: list[int] = []
+
+
+def _priced(cost: Decimal | None, only_tool_requests: bool) -> list[Hooks]:
+    """A stub model has no price; give each request (or only the ones that call a tool) the cost a real provider's answer would carry."""
+    if cost is None:
+        return []
+    hooks = Hooks()
+
+    @hooks.on.after_model_request
+    async def set_cost(ctx, *, request_context, response):  # noqa: ANN001, ANN202, ARG001
+        if not only_tool_requests or response.tool_calls:
+            response.usage.cost = cost
+        return response
+
+    return [hooks]
 
 
 def _build(
@@ -35,12 +52,13 @@ def _build(
     auth: str = "public",
     user_verifier: object = None,
     limits: Limits | None = None,
-    pricing: Pricing | None = None,
+    request_cost: Decimal | None = None,
+    only_tool_requests: bool = False,
     token_limit: TokenLimit | None = None,
 ) -> tuple[TestClient, MemoryStore]:
     _seen_history_lengths.clear()
     store = MemoryStore()
-    agent = Agent(FunctionModel(stream_function=stream_fn), name="test_chat", output_type=output_type)  # type: ignore[arg-type]
+    agent = Agent(FunctionModel(stream_function=stream_fn), name="test_chat", output_type=output_type, capabilities=_priced(request_cost, only_tool_requests))  # type: ignore[arg-type]
     for tool in tools:
         agent.tool_plain(tool)
     registered = RegisteredAgent(
@@ -58,7 +76,6 @@ def _build(
         user_verifier=user_verifier,
         limits=limits,
         secret_key=_SECRET,
-        pricing=pricing,
         token_limit=token_limit,  # type: ignore[arg-type]
     )
     app.include_router(router)
@@ -119,7 +136,7 @@ async def _tool_then_text(messages: list, info: AgentInfo):  # noqa: ANN202
 
 
 def test_tool_calls_are_announced_and_counted_in_the_usage() -> None:
-    client, _ = _build(_tool_then_text, tools=(_search,), pricing=Pricing(input_per_mtok=1.0, output_per_mtok=2.0))
+    client, _ = _build(_tool_then_text, tools=(_search,), request_cost=Decimal("0.001"))
 
     events = _stream(client)
 
@@ -128,7 +145,15 @@ def test_tool_calls_are_announced_and_counted_in_the_usage() -> None:
     usage = events[-1][1]["usage"]
     assert usage["turn"]["tool_calls"] == 1 and usage["turn"]["requests"] == 2
     assert usage["session"] == usage["turn"]  # first turn of the session
-    assert usage["cost_usd"] is not None and usage["cost_usd"] > 0
+    assert usage["cost_usd"] == 0.002  # two requests, each priced by the model that answered it
+
+
+def test_one_request_with_no_known_price_makes_the_session_cost_unknown() -> None:
+    client, _ = _build(_tool_then_text, tools=(_search,), request_cost=Decimal("0.001"), only_tool_requests=True)
+
+    usage = _stream(client)[-1][1]["usage"]
+
+    assert usage["turn"]["requests"] == 2 and usage["cost_usd"] is None  # a partial sum would be a guess
 
 
 def test_the_session_token_limit_is_reported_with_every_finished_turn() -> None:

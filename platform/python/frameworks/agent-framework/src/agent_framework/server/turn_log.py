@@ -13,7 +13,7 @@ import sys
 from datetime import UTC, datetime
 from typing import Any, TextIO
 
-from agent_framework.server.usage import Pricing, TokenUsage, cost_usd
+from agent_framework.server.usage import TokenUsage
 
 LOGGER_NAME = "agent_framework.turn"
 
@@ -29,7 +29,7 @@ def turn_record(
     status: str,  # ok | error | cancelled | rejected
     code: str | None = None,
     usage: TokenUsage | None = None,
-    pricing: Pricing | None = None,
+    cost_usd: float | None = None,  # what the turn's requests cost; None = not fully known (or the turn did not finish)
     now: datetime | None = None,
 ) -> dict[str, Any]:
     source = (client_context or {}).get("user_source")
@@ -48,7 +48,7 @@ def turn_record(
         "tool_calls": usage.tool_calls if usage else 0,
         "input_tokens": usage.input_tokens if usage else 0,
         "output_tokens": usage.output_tokens if usage else 0,
-        "cost_usd": cost_usd(usage, pricing) if usage else None,
+        "cost_usd": cost_usd,
     }
 
 

@@ -2,43 +2,39 @@
 `Session.data["usage"]` - the same free-form per-session bag core/limits.py already uses, no new
 storage - and are summed here from pydantic-ai's own RunUsage after each completed run.
 
-Prices are optional configuration the consumer passes in (`Pricing`, USD per million tokens). When
-either price is missing the cost is None - never a guess - and a client shows tokens only. All
-functions are pure so they are table-testable without a model or a store."""
+The cost is what each model request cost, as the model that answered it reports it (pydantic-ai fills
+`ModelResponse.usage.cost` from its price table, and a consumer can set it itself for a model the table
+does not know). There is no price configured here: a session can be answered by several models in turn.
+A request with no known cost is counted, never guessed, and one of them makes the whole session's cost
+unknown - a client then shows tokens only. All functions are pure so they are table-testable without a
+model or a store."""
 
 import os
+from collections.abc import Iterable
 from dataclasses import dataclass
+from decimal import Decimal
 
 from pydantic import BaseModel
 
 
 @dataclass(frozen=True)
-class Pricing:
-    """USD per million tokens. None = not configured."""
+class TurnCost:
+    """What a turn's model requests cost: the sum of the known costs, and how many requests had none."""
 
-    input_per_mtok: float | None = None
-    output_per_mtok: float | None = None
+    usd: float = 0.0
+    unpriced_requests: int = 0
 
-
-def load_pricing_from_env(prefix: str) -> Pricing:
-    """`{PREFIX}_PRICE_INPUT_PER_MTOK` / `{PREFIX}_PRICE_OUTPUT_PER_MTOK`, both optional - the
-    consumer passes the prefix of the provider that is active (e.g. "GOOGLE"), so swapping providers
-    swaps the prices with it. Unset or blank -> None for that price. A value that is not a number
-    raises at startup rather than silently reporting no cost."""
-    return Pricing(
-        input_per_mtok=_float_env(f"{prefix.upper()}_PRICE_INPUT_PER_MTOK"),
-        output_per_mtok=_float_env(f"{prefix.upper()}_PRICE_OUTPUT_PER_MTOK"),
-    )
+    @property
+    def reported_usd(self) -> float | None:
+        """The cost to report: None as soon as one request had no known cost (a partial sum would be a guess)."""
+        return None if self.unpriced_requests else round(self.usd, 6)
 
 
-def _float_env(name: str) -> float | None:
-    raw = os.environ.get(name, "").strip()
-    if not raw:
-        return None
-    try:
-        return float(raw)
-    except ValueError as exc:
-        raise ValueError(f"{name} must be a number (USD per million tokens), got {raw!r}") from exc
+def turn_cost(request_costs: Iterable[Decimal | None]) -> TurnCost:
+    """`request_costs` is `ModelResponse.usage.cost` of every request of the turn; None = no price known for that model."""
+    costs = list(request_costs)
+    known = [cost for cost in costs if cost is not None]
+    return TurnCost(usd=float(sum(known, Decimal(0))), unpriced_requests=len(costs) - len(known))
 
 
 # The rules a consumer can ask for. WARN only reports the limit to the client, which decides what to
@@ -85,31 +81,37 @@ class TokenUsage(BaseModel):
 class UsageSummary(BaseModel):
     turn: TokenUsage
     session: TokenUsage
-    # Cost of the whole session so far; None unless both prices are configured.
+    # Cost of the whole session so far; None when any of its requests had no known cost.
     cost_usd: float | None = None
     # The session allowance the client measures `session` against; None = no limit configured.
     limit: TokenLimit | None = None
 
 
-def add_turn_usage(stored: dict[str, int], turn: TokenUsage) -> dict[str, int]:
-    """The session's running totals after adding `turn`. `stored` is `session.data.get("usage", {})`
-    - {} for a session that has not completed a run yet; it is not modified."""
+def add_turn_usage(stored: dict[str, int | float], turn: TokenUsage, cost: TurnCost) -> dict[str, int | float]:
+    """The session's running totals after adding `turn` and what it cost. `stored` is `session.data.get("usage", {})`
+    - {} for a session that has not completed a run yet; it is not modified. A session saved before costs were
+    recorded has no cost keys: its earlier requests count as unpriced, so its cost stays unknown."""
     session = TokenUsage(**stored)
-    return TokenUsage(
-        requests=session.requests + turn.requests,
-        input_tokens=session.input_tokens + turn.input_tokens,
-        output_tokens=session.output_tokens + turn.output_tokens,
-        tool_calls=session.tool_calls + turn.tool_calls,
-    ).model_dump()
+    unpriced_before = stored.get("unpriced_requests", 0 if "cost_usd" in stored else session.requests)
+    return {
+        **TokenUsage(
+            requests=session.requests + turn.requests,
+            input_tokens=session.input_tokens + turn.input_tokens,
+            output_tokens=session.output_tokens + turn.output_tokens,
+            tool_calls=session.tool_calls + turn.tool_calls,
+        ).model_dump(),
+        "cost_usd": round(stored.get("cost_usd", 0.0) + cost.usd, 9),
+        "unpriced_requests": int(unpriced_before) + cost.unpriced_requests,
+    }
 
 
-def cost_usd(usage: TokenUsage, pricing: Pricing | None) -> float | None:
-    if pricing is None or pricing.input_per_mtok is None or pricing.output_per_mtok is None:
+def session_cost(stored: dict[str, int | float]) -> float | None:
+    """The session's cost so far, or None when it is not fully known."""
+    if "cost_usd" not in stored or stored.get("unpriced_requests", 0):
         return None
-    return round((usage.input_tokens * pricing.input_per_mtok + usage.output_tokens * pricing.output_per_mtok) / 1_000_000, 6)
+    return round(float(stored["cost_usd"]), 6)
 
 
-def summarize(stored: dict[str, int], turn: TokenUsage, pricing: Pricing | None, token_limit: TokenLimit | None = None) -> UsageSummary:
+def summarize(stored: dict[str, int | float], turn: TokenUsage, token_limit: TokenLimit | None = None) -> UsageSummary:
     """`stored` is the session totals ALREADY including `turn` (i.e. after add_turn_usage)."""
-    session = TokenUsage(**stored)
-    return UsageSummary(turn=turn, session=session, cost_usd=cost_usd(session, pricing), limit=token_limit)
+    return UsageSummary(turn=turn, session=TokenUsage(**stored), cost_usd=session_cost(stored), limit=token_limit)

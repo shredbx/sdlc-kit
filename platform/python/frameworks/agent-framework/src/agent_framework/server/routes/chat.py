@@ -16,7 +16,7 @@ import logfire
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
-from pydantic_ai import AgentRunResult, AgentRunResultEvent, UsageLimits
+from pydantic_ai import AgentRunResult, AgentRunResultEvent, ModelResponse, UsageLimits
 
 from agent_framework.core.auth import AuthUnavailable, UserVerifier
 from agent_framework.core.cards import AgentReply, Card, flatten_cards_to_text
@@ -31,7 +31,7 @@ from agent_framework.server.middleware.session import ResolvedSession, session_d
 from agent_framework.server.model_errors import AUTH_UNAVAILABLE, INTERNAL, ModelFailure, classify_model_error
 from agent_framework.server.streaming import frames_for, sse
 from agent_framework.server.turn_log import log_turn, turn_record
-from agent_framework.server.usage import Pricing, TokenLimit, TokenUsage, add_turn_usage, summarize
+from agent_framework.server.usage import TokenLimit, TokenUsage, add_turn_usage, summarize, turn_cost
 
 _MAX_CONTEXT_CHARS = 4096
 
@@ -75,7 +75,6 @@ def build_router(
     user_verifier: UserVerifier | None = None,
     *,
     secret_key: str,
-    pricing: Pricing | None = None,
     # Reported with every finished turn so the client can measure the session against it; None = no limit.
     token_limit: TokenLimit | None = None,
     # Size caps, checked before anything else: None = no cap on the message. The context cap is fixed -
@@ -144,10 +143,11 @@ def build_router(
 
         return _Turn(registered=registered, session=session, session_token=session_token, failure_token=resolved.token, limit_status=limit_status)
 
-    async def complete_turn(turn: _Turn, result: AgentRunResult[Any]) -> tuple[str, list[Card] | None, TokenUsage]:
-        """Everything after a run that SUCCEEDED: persist the history and the running token totals,
+    async def complete_turn(turn: _Turn, result: AgentRunResult[Any]) -> tuple[str, list[Card] | None, TokenUsage, float | None]:
+        """Everything after a run that SUCCEEDED: persist the history and the running token totals and cost,
         and shape the output. A failed run never reaches this, so a failed turn leaves the session
-        exactly as it was and re-sending the same message starts from the same point."""
+        exactly as it was and re-sending the same message starts from the same point. The last item is what
+        the turn cost (None when not fully known)."""
         run_usage = result.usage
         turn_usage = TokenUsage(
             requests=run_usage.requests,
@@ -155,13 +155,16 @@ def build_router(
             output_tokens=run_usage.output_tokens,
             tool_calls=run_usage.tool_calls,
         )
+        cost = turn_cost(message.usage.cost for message in result.new_messages() if isinstance(message, ModelResponse))
         turn.session.messages = without_instructions(result.all_messages())
-        turn.session.data["usage"] = add_turn_usage(turn.session.data.get("usage", {}), turn_usage)
+        turn.session.data["usage"] = add_turn_usage(turn.session.data.get("usage", {}), turn_usage, cost)
         await store.save(turn.session)
         text, cards = _render_output(turn.registered, result.output)
-        return text, cards, turn_usage
+        return text, cards, turn_usage, cost.reported_usd
 
-    def record_turn(turn: _Turn, *, started: float, streamed: bool, status: str, code: str | None = None, usage: TokenUsage | None = None) -> None:
+    def record_turn(
+        turn: _Turn, *, started: float, streamed: bool, status: str, code: str | None = None, usage: TokenUsage | None = None, cost_usd: float | None = None
+    ) -> None:
         log_turn(
             turn_record(
                 agent=turn.registered.name,
@@ -173,7 +176,7 @@ def build_router(
                 status=status,
                 code=code,
                 usage=usage,
-                pricing=pricing,
+                cost_usd=cost_usd,
             )
         )
 
@@ -220,8 +223,8 @@ def build_router(
                     record_turn(turn, started=started, streamed=False, status="error", code=failure.code)
                     return _failure_response(failure, turn.failure_token)
 
-        text, cards, turn_usage = await complete_turn(turn, result)
-        record_turn(turn, started=started, streamed=False, status="ok", usage=turn_usage)
+        text, cards, turn_usage, turn_cost_usd = await complete_turn(turn, result)
+        record_turn(turn, started=started, streamed=False, status="ok", usage=turn_usage, cost_usd=turn_cost_usd)
         return ChatResponse(reply=text, cards=cards, session_id=turn.session_token, limits=turn.limit_status)
 
     @router.post("/agents/{name}/chat/stream", response_model=None)
@@ -249,7 +252,7 @@ def build_router(
         registered, session = turn.registered, turn.session
         deps = registered.build_deps(session)
         started = time.monotonic()
-        outcome, code, turn_usage = "cancelled", None, None  # what the turn record says unless the run finishes or fails first
+        outcome, code, turn_usage, turn_cost_usd = "cancelled", None, None, None  # what the turn record says unless the run finishes or fails first
         try:
             with logfire.span("chat", user_id=session.user_id) if session.user_id else nullcontext():
                 # The run happens in a background task that is cancelled when this block exits - on
@@ -259,9 +262,9 @@ def build_router(
                 async with registered.agent.run_stream_events(message, deps=deps, message_history=session.messages, usage_limits=run_limits) as events:
                     async for event in events:
                         if isinstance(event, AgentRunResultEvent):
-                            text, cards, turn_usage = await complete_turn(turn, event.result)
+                            text, cards, turn_usage, turn_cost_usd = await complete_turn(turn, event.result)
                             outcome = "ok"
-                            yield sse("done", _done_payload(turn, text, cards, turn_usage, pricing, token_limit))
+                            yield sse("done", _done_payload(turn, text, cards, turn_usage, token_limit))
                             return
                         for frame_name, data in frames_for(event):
                             yield sse(frame_name, data)
@@ -275,20 +278,18 @@ def build_router(
             outcome, code = "error", failure.code
             yield sse("error", {"code": failure.code, "retryable": failure.retryable, "detail": failure.message, "session_id": turn.failure_token})
         finally:
-            record_turn(turn, started=started, streamed=True, status=outcome, code=code, usage=turn_usage)
+            record_turn(turn, started=started, streamed=True, status=outcome, code=code, usage=turn_usage, cost_usd=turn_cost_usd)
 
     return router
 
 
-def _done_payload(
-    turn: _Turn, text: str, cards: list[Card] | None, turn_usage: TokenUsage, pricing: Pricing | None, token_limit: TokenLimit | None
-) -> dict[str, Any]:
+def _done_payload(turn: _Turn, text: str, cards: list[Card] | None, turn_usage: TokenUsage, token_limit: TokenLimit | None) -> dict[str, Any]:
     return {
         "reply": text,
         "cards": [card.model_dump(mode="json") for card in cards] if cards else None,
         "session_id": turn.session_token,
         "limits": turn.limit_status.model_dump(mode="json") if turn.limit_status else None,
-        "usage": summarize(turn.session.data["usage"], turn_usage, pricing, token_limit).model_dump(mode="json"),
+        "usage": summarize(turn.session.data["usage"], turn_usage, token_limit).model_dump(mode="json"),
         "state": _state_summary(turn.registered, turn.session),
     }
 

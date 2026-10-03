@@ -16,7 +16,7 @@ from agent_framework.server.routes.chat import build_router
 from agent_framework.server.routes.credits import build_credits_router
 from agent_framework.server.routes.introspect import build_introspection_router
 from agent_framework.server.routes.knowledge import build_knowledge_router
-from agent_framework.server.usage import Pricing, TokenLimit
+from agent_framework.server.usage import TokenLimit
 
 
 def create_app(
@@ -33,9 +33,6 @@ def create_app(
     auth_router: APIRouter | None = None,
     *,
     secret_key: str,
-    # USD per million tokens, optional - lets the streaming route report what a session has cost so
-    # far. None (or a missing price) -> the usage summary carries tokens only, never a guessed cost.
-    pricing: Pricing | None = None,
     # Soft per-session token allowance, reported with every finished turn so a client can warn before the
     # session gets expensive. Nothing is refused or cut off. None = no limit.
     token_limit: TokenLimit | None = None,
@@ -76,7 +73,6 @@ def create_app(
             limits,
             user_verifier,
             secret_key=secret_key,
-            pricing=pricing,
             token_limit=token_limit,
             max_message_chars=max_message_chars,
             max_requests_per_turn=max_requests_per_turn,

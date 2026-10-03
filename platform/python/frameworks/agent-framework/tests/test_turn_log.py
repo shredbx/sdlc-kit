@@ -6,16 +6,18 @@ import io
 import json
 import logging
 from datetime import UTC, datetime
+from decimal import Decimal
 
 import pytest
 from agent_framework.core.store.memory_store import MemoryStore
 from agent_framework.core.types import RegisteredAgent
 from agent_framework.server.routes.chat import build_router
 from agent_framework.server.turn_log import LOGGER_NAME, configure_turn_log, log_turn, turn_record
-from agent_framework.server.usage import Pricing, TokenUsage
+from agent_framework.server.usage import TokenUsage
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic_ai import Agent, ModelResponse, TextPart
+from pydantic_ai.capabilities.hooks import Hooks
 from pydantic_ai.exceptions import ModelHTTPError
 from pydantic_ai.models.function import FunctionModel
 
@@ -32,7 +34,7 @@ def record(**overrides):  # noqa: ANN003, ANN201
         "latency_seconds": 1.2345,
         "status": "ok",
         "usage": TokenUsage(requests=3, input_tokens=12_000, output_tokens=400, tool_calls=2),
-        "pricing": Pricing(input_per_mtok=0.5, output_per_mtok=2.0),
+        "cost_usd": 0.0068,
         "now": NOW,
     }
     return turn_record(**{**args, **overrides})
@@ -64,12 +66,12 @@ class TestTurnRecord:
         assert "Anna" not in text and "https://x" not in text
 
     def test_a_failed_turn_has_a_code_and_zero_usage(self) -> None:
-        failed = record(status="error", code="unavailable", usage=None)
+        failed = record(status="error", code="unavailable", usage=None, cost_usd=None)
 
         assert (failed["status"], failed["code"], failed["input_tokens"], failed["cost_usd"]) == ("error", "unavailable", 0, None)
 
-    def test_no_prices_means_no_cost(self) -> None:
-        assert record(pricing=None)["cost_usd"] is None
+    def test_an_unknown_cost_stays_unknown(self) -> None:
+        assert record(cost_usd=None)["cost_usd"] is None
 
     def test_a_missing_or_odd_source_is_none(self) -> None:
         assert record(client_context=None)["source"] is None
@@ -100,10 +102,22 @@ class TestLogging:
         assert [json.loads(line)["status"] for line in lines] == ["ok", "error"]
 
 
+def priced(cost: Decimal) -> Hooks:
+    """A model that costs `cost` per request, the way a real provider's answer carries its price."""
+    hooks = Hooks()
+
+    @hooks.on.after_model_request
+    async def set_cost(ctx, *, request_context, response):  # noqa: ANN001, ANN202, ARG001
+        response.usage.cost = cost
+        return response
+
+    return hooks
+
+
 def build_client(model: FunctionModel) -> TestClient:
-    registered = RegisteredAgent(name="chat", agent=Agent(model, name="t"), build_deps=lambda session: None)
+    registered = RegisteredAgent(name="chat", agent=Agent(model, name="t", capabilities=[priced(Decimal("0.0012"))]), build_deps=lambda session: None)
     app = FastAPI()
-    app.include_router(build_router({"chat": registered}, MemoryStore(), secret_key="k", pricing=Pricing(1.0, 2.0)))
+    app.include_router(build_router({"chat": registered}, MemoryStore(), secret_key="k"))
     return TestClient(app, raise_server_exceptions=False)
 
 
@@ -134,7 +148,7 @@ class TestRoutesWriteARecordPerTurn:
         assert (
             (line["agent"], line["stream"], line["status"], line["requests"]) == ("chat", False, "ok", 1)
             and line["input_tokens"] > 0
-            and line["cost_usd"] is not None
+            and line["cost_usd"] == 0.0012
         )
 
     def test_plain_model_failure(self, caplog: pytest.LogCaptureFixture) -> None:

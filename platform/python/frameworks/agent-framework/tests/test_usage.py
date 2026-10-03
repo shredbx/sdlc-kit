@@ -1,96 +1,101 @@
 """Token totals and cost are pure arithmetic - table-tested without a model or a store."""
 
+from decimal import Decimal
+
 import pytest
 from agent_framework.server.usage import (
-    Pricing,
     TokenLimit,
     TokenUsage,
+    TurnCost,
     add_turn_usage,
-    cost_usd,
-    load_pricing_from_env,
     load_token_limit_from_env,
     summarize,
+    turn_cost,
 )
+
+NO_COST = TurnCost()
 
 
 def test_a_fresh_session_starts_from_zero_and_the_input_is_not_mutated() -> None:
-    stored: dict[str, int] = {}
+    stored: dict[str, int | float] = {}
 
-    updated = add_turn_usage(stored, TokenUsage(requests=2, input_tokens=100, output_tokens=12, tool_calls=1))
+    updated = add_turn_usage(stored, TokenUsage(requests=2, input_tokens=100, output_tokens=12, tool_calls=1), TurnCost(usd=0.002))
 
-    assert updated == {"requests": 2, "input_tokens": 100, "output_tokens": 12, "tool_calls": 1}
+    assert updated == {"requests": 2, "input_tokens": 100, "output_tokens": 12, "tool_calls": 1, "cost_usd": 0.002, "unpriced_requests": 0}
     assert stored == {}
 
 
 def test_turns_accumulate() -> None:
-    first = add_turn_usage({}, TokenUsage(requests=1, input_tokens=100, output_tokens=10))
+    first = add_turn_usage({}, TokenUsage(requests=1, input_tokens=100, output_tokens=10), TurnCost(usd=0.001))
 
-    second = add_turn_usage(first, TokenUsage(requests=3, input_tokens=300, output_tokens=30, tool_calls=2))
+    second = add_turn_usage(first, TokenUsage(requests=3, input_tokens=300, output_tokens=30, tool_calls=2), TurnCost(usd=0.0025))
 
-    assert second == {"requests": 4, "input_tokens": 400, "output_tokens": 40, "tool_calls": 2}
-
-
-def test_cost_needs_both_prices() -> None:
-    usage = TokenUsage(input_tokens=2_000_000, output_tokens=500_000)
-
-    assert cost_usd(usage, Pricing(input_per_mtok=0.10, output_per_mtok=0.40)) == 0.4  # 0.2 + 0.2
-    assert cost_usd(usage, Pricing(input_per_mtok=0.10)) is None
-    assert cost_usd(usage, Pricing(output_per_mtok=0.40)) is None
-    assert cost_usd(usage, Pricing()) is None
-    assert cost_usd(usage, None) is None
+    assert second == {"requests": 4, "input_tokens": 400, "output_tokens": 40, "tool_calls": 2, "cost_usd": 0.0035, "unpriced_requests": 0}
 
 
-def test_cost_is_rounded_to_micro_dollars() -> None:
-    assert cost_usd(TokenUsage(input_tokens=1_000_000, output_tokens=0), Pricing(input_per_mtok=0.1234567, output_per_mtok=0.0)) == 0.123457
+def test_the_cost_of_a_turn_is_what_each_request_cost_added_up() -> None:
+    assert turn_cost([Decimal("0.001"), Decimal("0.0025")]) == TurnCost(usd=0.0035, unpriced_requests=0)
+
+
+def test_a_request_with_no_known_price_is_counted_not_guessed() -> None:
+    assert turn_cost([Decimal("0.001"), None, None]) == TurnCost(usd=0.001, unpriced_requests=2)
+    assert turn_cost([]) == TurnCost(usd=0.0, unpriced_requests=0)
+
+
+def test_a_turn_with_a_request_of_unknown_cost_reports_no_cost_and_a_known_one_is_rounded() -> None:
+    assert TurnCost(usd=0.001, unpriced_requests=1).reported_usd is None
+    assert TurnCost(usd=0.0012345678).reported_usd == 0.001235
+
+
+def test_a_session_that_has_a_request_with_no_price_reports_no_cost() -> None:
+    turn = TokenUsage(requests=2, input_tokens=10, output_tokens=5)
+    stored = add_turn_usage({}, turn, TurnCost(usd=0.001, unpriced_requests=1))
+
+    assert summarize(stored, turn).cost_usd is None
+
+
+def test_a_session_started_before_costs_were_recorded_never_reports_a_cost() -> None:
+    old = {"requests": 3, "input_tokens": 300, "output_tokens": 30, "tool_calls": 1}  # no cost keys: saved by an earlier version
+    turn = TokenUsage(requests=1, input_tokens=100, output_tokens=10)
+
+    stored = add_turn_usage(old, turn, TurnCost(usd=0.001))
+
+    assert stored["unpriced_requests"] == 3  # the three earlier requests had no price recorded
+    assert summarize(stored, turn).cost_usd is None
+    assert summarize(old, turn).cost_usd is None
+
+
+def test_the_cost_is_rounded_to_micro_dollars() -> None:
+    turn = TokenUsage(requests=1, input_tokens=1, output_tokens=1)
+
+    assert summarize(add_turn_usage({}, turn, TurnCost(usd=0.12345678)), turn).cost_usd == 0.123457
 
 
 def test_summary_reports_the_turn_the_session_and_the_session_cost() -> None:
-    turn = TokenUsage(requests=1, input_tokens=1_000_000, output_tokens=0)
-    stored = add_turn_usage({"requests": 1, "input_tokens": 1_000_000, "output_tokens": 0, "tool_calls": 0}, turn)
+    first = TokenUsage(requests=1, input_tokens=1_000_000, output_tokens=0)
+    second = TokenUsage(requests=1, input_tokens=1_000_000, output_tokens=0)
+    stored = add_turn_usage(add_turn_usage({}, first, TurnCost(usd=0.5)), second, TurnCost(usd=0.5))
 
-    summary = summarize(stored, turn, Pricing(input_per_mtok=0.5, output_per_mtok=1.0))
+    summary = summarize(stored, second)
 
     assert summary.turn.input_tokens == 1_000_000
     assert summary.session.input_tokens == 2_000_000
     assert summary.cost_usd == 1.0
 
 
-def test_summary_without_pricing_has_no_cost() -> None:
+def test_a_session_of_unpriced_requests_has_no_cost() -> None:
     turn = TokenUsage(requests=1, input_tokens=10, output_tokens=5)
 
-    summary = summarize(add_turn_usage({}, turn), turn, None)
+    summary = summarize(add_turn_usage({}, turn, TurnCost(unpriced_requests=1)), turn)
 
     assert summary.cost_usd is None
-
-
-def test_prices_are_read_per_provider_prefix(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("GOOGLE_PRICE_INPUT_PER_MTOK", "0.10")
-    monkeypatch.setenv("GOOGLE_PRICE_OUTPUT_PER_MTOK", "0.40")
-    monkeypatch.setenv("OPENROUTER_PRICE_INPUT_PER_MTOK", "9")
-
-    assert load_pricing_from_env("google") == Pricing(input_per_mtok=0.10, output_per_mtok=0.40)
-    assert load_pricing_from_env("openrouter") == Pricing(input_per_mtok=9.0, output_per_mtok=None)
-
-
-def test_unset_or_blank_prices_are_none(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("GOOGLE_PRICE_INPUT_PER_MTOK", raising=False)
-    monkeypatch.setenv("GOOGLE_PRICE_OUTPUT_PER_MTOK", "  ")
-
-    assert load_pricing_from_env("google") == Pricing()
-
-
-def test_a_price_that_is_not_a_number_fails_loudly(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("GOOGLE_PRICE_INPUT_PER_MTOK", "cheap")
-
-    with pytest.raises(ValueError, match="GOOGLE_PRICE_INPUT_PER_MTOK"):
-        load_pricing_from_env("google")
 
 
 def test_the_summary_carries_the_limit_it_was_given() -> None:
     turn = TokenUsage(requests=1, input_tokens=10, output_tokens=5)
 
-    assert summarize(add_turn_usage({}, turn), turn, None, TokenLimit(tokens=100)).limit == TokenLimit(tokens=100, rule="WARN")
-    assert summarize(add_turn_usage({}, turn), turn, None).limit is None
+    assert summarize(add_turn_usage({}, turn, NO_COST), turn, TokenLimit(tokens=100)).limit == TokenLimit(tokens=100, rule="WARN")
+    assert summarize(add_turn_usage({}, turn, NO_COST), turn).limit is None
 
 
 def test_the_token_limit_is_read_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
