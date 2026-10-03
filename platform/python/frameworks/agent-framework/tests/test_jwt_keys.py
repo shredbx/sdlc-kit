@@ -136,6 +136,10 @@ class TestAnyOtherTokenIsRefused:
         key, _, verifier = setup
         assert await verifier.user_id(token(key, sub=None)) is None
 
+    async def test_an_empty_subject(self, setup: tuple) -> None:
+        key, _, verifier = setup
+        assert await verifier.user_id(token(key, sub="")) is None
+
     async def test_no_expiry(self, setup: tuple) -> None:
         key, _, verifier = setup
         assert await verifier.user_id(token(key, exp_in=None)) is None  # type: ignore[arg-type]
@@ -212,6 +216,19 @@ class TestTheKeySet:
 
         assert await verifier.user_id(token(new, "k2")) == "user-1"
         assert provider.key_set_requests == 2
+
+    async def test_a_rotated_key_is_looked_for_exactly_when_the_wait_has_passed_and_not_before(self) -> None:
+        old, new = ec_key(), ec_key()
+        provider = Provider([jwk(old, "k1")])
+        clock = [0.0]
+        verifier = keyset(provider, clock, unknown_kid_wait_seconds=30)
+        await verifier.user_id(token(old))
+        provider.keys = [jwk(old, "k1"), jwk(new, "k2")]
+
+        clock[0] = 29.9
+        assert await verifier.user_id(token(new, "k2")) is None
+        clock[0] = 30
+        assert await verifier.user_id(token(new, "k2")) == "user-1"
 
     async def test_tokens_with_made_up_kids_cannot_make_this_server_hammer_the_provider(self) -> None:
         key = ec_key()

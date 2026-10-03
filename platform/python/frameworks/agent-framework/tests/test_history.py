@@ -213,3 +213,15 @@ class TestWithoutInstructions:
         assert seen[1] == seen[2] == self.LONG.strip()
         assert without_copies.output == with_copies.output
         assert len(without_copies.all_messages()) == len(with_copies.all_messages())
+
+
+def test_a_turn_that_brings_the_text_to_exactly_the_limit_is_kept_and_one_character_less_room_drops_it() -> None:
+    messages = history(turn(1, size=10), turn(2, size=10))  # 20 characters a turn
+
+    assert user_texts(trim_history(None, max_chars=40)(messages)) == ["u1", "u2"]
+    assert user_texts(trim_history(None, max_chars=39)(messages)) == ["u2"]
+
+
+def test_a_user_message_made_of_several_parts_is_counted_part_by_part() -> None:
+    assert size_of(ModelRequest(parts=[UserPromptPart(content=["ab", "cde"])])) == 5
+
