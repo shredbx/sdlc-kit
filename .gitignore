@@ -220,6 +220,11 @@ __marimo__/
 # Claude Code plugin audit logs (protect-mcp, review-agent-governance) — per-session tool-call
 # logs, not repo content, same category as processos-workspace/runs/.
 receipts/
+
+# Node/Svelte (platform/svelte/*, any future JS/TS package) — install/build output, never source.
+node_modules/
+.svelte-kit/
+.pnpm-store/
 review-receipts/
 
 # Node / SvelteKit (platform/svelte) and Go (platform/go) build artifacts

@@ -8,10 +8,10 @@ class MemoryStore(SessionStore):
         self._sessions: dict[str, Session] = {}
 
     async def get_or_create(self, session_id: str) -> Session:
-        return self._sessions.setdefault(session_id, Session(id=session_id))
+        return self._sessions.get(session_id) or Session(id=session_id)
 
     async def save(self, session: Session) -> None:
         self._sessions[session.id] = session
-
-    async def link_user(self, session_id: str, user_id: str) -> None:
-        (await self.get_or_create(session_id)).user_id = user_id
+        if session.replaces:
+            self._sessions.pop(session.replaces, None)
+            session.replaces = None

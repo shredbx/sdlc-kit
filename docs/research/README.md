@@ -40,6 +40,12 @@ accordingly).
    finding below — plus a fully-specified, never-built AI-assistant plan directly relevant to this
    workspace's own future AI Assistant product, and an explicit, considered rejection of
    capability-as-namespace organization.
+7. **[`pydantic-ai-session-memory-patterns.md`](./pydantic-ai-session-memory-patterns.md)** —
+   agent-produced. PydanticAI session/state management for `agent-framework`: what's already
+   correctly shaped (one shared `Agent` + stateless tools + explicit history load/save), two real
+   anti-patterns (mutable deps racing under parallel tool calls; an unauthenticated session id is
+   not an identity boundary for accumulated facts), and why `StepPersistence`/`Memory` are real but
+   premature before a model is actually in the loop.
 
 ## Headline findings
 

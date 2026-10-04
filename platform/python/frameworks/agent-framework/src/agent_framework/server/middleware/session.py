@@ -1,16 +1,54 @@
-"""Resolves a request's session id into a `Session`. Header-based for now; swapping in real auth
-(cookie, bearer token) later only changes this file — routes/chat.py doesn't change."""
+"""Resolves a request's session id from a signed, server-minted token carried in the
+`X-Session-Id` header. Missing, invalid, or expired -> a fresh session is minted server-side (the
+server never adopts a client-proposed id, which is what actually prevents session fixation); the
+signed token for whichever session was resolved is returned alongside it so the caller
+(routes/chat.py) can hand it back to the client to carry on the next request. Transport is the
+caller's choice - this only produces/verifies the token, it doesn't set cookies or decide how the
+client stores it."""
 
 import uuid
 from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
 
 from fastapi import Header
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from agent_framework.core.store.base import Session, SessionStore
 
+_SALT = "agent-framework.session"
+_MAX_AGE_SECONDS = 60 * 60 * 24 * 30  # 30-day idle expiry
 
-def session_dependency(store: SessionStore) -> Callable[[str | None], Awaitable[Session]]:
-    async def _resolve(x_session_id: str | None = Header(default=None)) -> Session:
-        return await store.get_or_create(x_session_id or str(uuid.uuid4()))
+
+@dataclass
+class ResolvedSession:
+    session: Session
+    token: str  # signed token for `session.id` - hand this back to the client
+
+
+def sign_session_token(secret_key: str, session_id: str) -> str:
+    """The same signing `session_dependency`'s closure does internally, exposed for routes/chat.py
+    to mint a fresh token after rotate_for_user() gives a session a new id mid-request (auth,
+    core/auth.py) - that rotation happens after this dependency already resolved the OLD id, so the
+    response to a finished turn has to carry a token for the NEW one instead of ResolvedSession.token."""
+    return URLSafeTimedSerializer(secret_key, salt=_SALT).dumps(session_id)
+
+
+def session_dependency(store: SessionStore, secret_key: str) -> Callable[[str | None], Awaitable[ResolvedSession]]:
+    serializer = URLSafeTimedSerializer(secret_key, salt=_SALT)
+
+    async def _resolve(x_session_id: str | None = Header(default=None)) -> ResolvedSession:
+        session_id = _verify(serializer, x_session_id) or str(uuid.uuid4())
+        session = await store.get_or_create(session_id)
+        return ResolvedSession(session=session, token=serializer.dumps(session.id))
 
     return _resolve
+
+
+def _verify(serializer: URLSafeTimedSerializer, token: str | None) -> str | None:
+    if not token:
+        return None
+    try:
+        session_id = serializer.loads(token, max_age=_MAX_AGE_SECONDS)
+    except (BadSignature, SignatureExpired):
+        return None
+    return session_id if isinstance(session_id, str) else None

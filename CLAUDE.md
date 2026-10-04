@@ -159,6 +159,41 @@ efficiency and stability in real use — and flag it when a CLI-first (`process-
 other workflow would serve better than the MCP round-trip, with a concrete recommendation rather
 than a vague complaint.
 
+## Skills — invoke them, do not work from memory
+
+The installed plugins carry the practices this repo expects. Before the work a skill covers, call it (Skill tool) and follow it. A skill that applies
+and is skipped is a defect. When work is delegated to a subagent, its prompt carries this table and the standing rules below.
+
+| When | Invoke before acting |
+|---|---|
+| A feature, a behaviour change, a restructure | `superpowers:brainstorming`, then `superpowers:writing-plans` |
+| Writing or changing code | `superpowers:test-driven-development` |
+| A bug, a failing test, anything unexpected | `superpowers:systematic-debugging` |
+| Before saying done / works / passes, and before a commit or PR | `superpowers:verification-before-completion`, then `superpowers:requesting-code-review` |
+| Python | `python-development:` `python-design-patterns`, `python-project-structure`, `python-code-style`, `python-type-safety`, `python-configuration`, `python-error-handling`, `python-testing-patterns`; review with `python-anti-patterns`; speed or memory with `python-performance-optimization`; dependencies with `uv-package-manager` |
+| A Pydantic AI agent (tools, instructions, history, deps, tests) | `ai:building-pydantic-ai-agents` |
+| Prompts and instructions for a model | `llm-application-dev:prompt-engineering-patterns`, then `llm-application-dev:llm-evaluation` to measure them |
+| Sign-in, tokens, sessions | `developer-essentials:auth-implementation-patterns` |
+| Supabase, Postgres, SQL | `supabase:supabase`, `supabase:supabase-postgres-best-practices`, `developer-essentials:sql-optimization-patterns` |
+| Svelte | `svelte-skills:svelte-runes` before any `$effect`, then `svelte-skills:svelte-components`, `svelte-skills:svelte-styling` |
+| Tracing, logs, metrics | `python-development:python-observability` |
+| Editing any CLAUDE.md | `claude-md-management:claude-md-improver` |
+| Two or more independent tasks | `superpowers:dispatching-parallel-agents` |
+
+## Standing rules (each one was broken in real work)
+
+1. **Verify, then claim.** Name what was run, where, and on which address or device. A fact about which service a request hit, what a document says, or
+   what a number is comes from config, the raw source or a measurement — never from memory, and never from a page summary (read the raw text). What was
+   not checked is said to be unchecked.
+2. **Resources first.** We build high-end software: the fewest requests, bytes, tokens and CPU, short clean code, no cache, engine or abstraction
+   without a measured need. Every tunable is a setting, never a literal inside logic.
+3. **Names are the scope.** A folder or file is named for the concept it holds in the thing being built (for an agent: config, instructions, tools, deps,
+   context, services, output validators). Never `utils`, `common`, `helpers`, `state`, `search`, `misc`. A name that needs explaining is the wrong name.
+4. **Evidence or silence.** A suggestion carries its source and how it was checked; one with neither is dropped, not offered. Do not ask a question whose
+   answer changes nothing.
+5. **Smallest change that does the job.** No schema change, no unrequested refactor, no extra feature.
+6. **Commit only when asked, in small commits.** Show the before/after tree before changing a structure, then wait for the go.
+
 ## Memory (MCP `memory` server)
 
 When writing to the knowledge graph memory server, tag every entity/observation with a clear
