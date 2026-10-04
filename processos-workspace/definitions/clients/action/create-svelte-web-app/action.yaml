@@ -1,0 +1,5 @@
+# Create a Svelte + Vite web app service within a client's project.
+name: create-svelte-web-app
+type: shell
+input:
+  service: clients.service

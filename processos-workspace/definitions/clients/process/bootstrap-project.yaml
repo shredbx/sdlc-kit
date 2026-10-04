@@ -1,0 +1,6 @@
+# Create a new project within a client's repository.
+name: bootstrap-project
+input:
+  project: clients.project
+steps:
+  - create-project

@@ -1,0 +1,8 @@
+# A service within a client's project.
+name: service
+type: mapping
+fields:
+  codename:      {type: string, required: true}
+  repo_name:     {type: string, required: true}
+  project_name:  {type: string, required: true}
+  service_name:  {type: string, required: true}

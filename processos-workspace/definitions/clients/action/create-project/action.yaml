@@ -1,0 +1,5 @@
+# Create a new project within a client's repository.
+name: create-project
+type: shell
+input:
+  project: clients.project

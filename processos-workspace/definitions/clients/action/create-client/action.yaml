@@ -1,0 +1,5 @@
+# Create a new client: creates the client record and the client folder.
+name: create-client
+type: shell
+input:
+  client: clients.client

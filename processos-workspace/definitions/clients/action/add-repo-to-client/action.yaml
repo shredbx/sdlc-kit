@@ -1,0 +1,5 @@
+# Add a repository to a client: adds git submodule, clones it, and creates basic repo structure.
+name: add-repo-to-client
+type: shell
+input:
+  client-repo: clients.client-repo

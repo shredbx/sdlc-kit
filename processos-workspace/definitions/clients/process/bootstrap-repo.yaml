@@ -1,0 +1,6 @@
+# Add a repository to a client: adds git submodule, clones it, and creates basic repo structure.
+name: bootstrap-repo
+input:
+  client-repo: clients.client-repo
+steps:
+  - add-repo-to-client

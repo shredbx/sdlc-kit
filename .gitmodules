@@ -7,3 +7,6 @@
 [submodule "consumers/clients/andrei/prototypes-pages"]
 	path = consumers/clients/andrei/prototypes-pages
 	url = git@github.com:shredbx/prototypes-pages.git
+[submodule "consumers/clients/jack/hot-potato"]
+	path = consumers/clients/jack/hot-potato
+	url = git@github.com:shredbx/jack-the-hot-potato.git

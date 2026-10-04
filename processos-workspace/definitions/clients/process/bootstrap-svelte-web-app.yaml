@@ -1,0 +1,6 @@
+# Create a Svelte + Vite web app service within a client's project.
+name: bootstrap-svelte-web-app
+input:
+  service: clients.service
+steps:
+  - create-svelte-web-app

@@ -1,0 +1,7 @@
+# A project within a client's repository.
+name: project
+type: mapping
+fields:
+  codename:      {type: string, required: true}
+  repo_name:     {type: string, required: true}
+  project_name:  {type: string, required: true}

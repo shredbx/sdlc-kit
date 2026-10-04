@@ -1,0 +1,6 @@
+# Create a new client record and folder.
+name: bootstrap-client
+input:
+  client: clients.client
+steps:
+  - create-client

@@ -1,0 +1,7 @@
+# A repository for a client: the repo name and its remote URL.
+name: client-repo
+type: mapping
+fields:
+  codename:   {type: string, required: true}
+  repo_name:  {type: string, required: true}
+  repo_url:   {type: string, required: true}
