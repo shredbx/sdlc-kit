@@ -2,8 +2,38 @@
 
 **Date:** 2026-10-08
 **Status:** Proposed delivery plan. Scope and estimates require review before implementation.
-**Inputs:** BOS system design and app roadmap; the supplied BR PostgreSQL DDL; the supplied
-Bestays Supabase schema; existing platform packages and the BOS demo review.
+**Inputs:** BOS system design and app roadmap; PR #2 (`worktree-bestierealestate--stage-2`);
+the canonical `shredbx` source checkout; existing platform packages and frameworks; the supplied
+Bestays Supabase schema.
+
+## Evidence baseline and limits
+
+This plan is updated against the canonical monorepo snapshot at
+`references/shredbx`, commit `a96d9d058fb312eb896e2509710905a4acd6c8bb` (2026-10-02).
+The BR project history in that snapshot last records project commit `4c5286ed4` (2026-10-02).
+BR's own deployment documentation describes `shredbx/bestierealestate` as a generated mirror;
+the monorepo, not that deployment repository, is the source used here. The snapshot has not been
+compared with a newer monorepo revision or with the running production deployment.
+
+The inspected scale matters to the estimate: BR has a 3,860-line API composition file, 115 API
+handler source files, 310 SQL migrations, and 229 files in its Svelte admin route group (88
+`+page.svelte` files). Bestays is a separate, much smaller Postgres dashboard: its Go API is 977
+lines and it has five SQL migrations. Its booking schema includes `bookings` and `booking_units`,
+but the inspected booking-create handler writes only the booking row; it does not create booking
+unit rows. Treat this as a behavior and completeness question to resolve, not a feature to copy
+without review.
+
+The current BOS checkout already has Go packages covering domains including property,
+transactions, contacts, identity/RBAC, calendar, CMS, FAQ, SEO, media, persistence and reference
+data. `bos-go` currently supplies common settings, middleware, health/root routes and an API mount;
+`bos-svelte` supplies security headers, same-origin API pass-through and a placeholder home. Neither
+currently implements the complete cross-platform feature registration and adapter selection
+required for thin consumers. Package name overlap is not proof of BR behavior parity.
+
+This was a source/layout inventory, not a complete route-by-route behavior matrix. No BR production
+dump rows were inspected or restored; neither application was run; PR #2's reported checks were not
+rerun. Any data compatibility, production parity, current live behavior, or test-health claim still
+needs its own evidence gate.
 
 ## Goal
 
@@ -41,10 +71,16 @@ couplings. A narrow, temporary copy is acceptable only as a measured extraction 
 individual module, with its source and destination and the removal gate recorded; it is not the
 consumer architecture.
 
-The Bestays checkout was not available during this planning pass: the expected consumer directory
-was empty/uninitialized. Its supplied SQL schema is not a substitute for the Go/Svelte source,
-workflows, auth behavior, or migration history. Therefore the first task is a source-availability
-and behavior-inventory gate. Do not claim a Bestays port or parity until that gate passes.
+Both consumer sources are now available in the pinned monorepo snapshot. The first checkpoint is
+therefore a bounded behavior-to-module inventory—not source acquisition. It must determine which
+BR capabilities are genuinely shared, which belong only to BR, what Bestays currently does, and
+what must be designed or completed before either app can be called a thin consumer.
+
+The working example should initially be a manually composed consumer, proving the framework
+seams directly. Once that composition works, use the framework bootstrap to create the example
+app(s) from their consumer configurations, and compare the generated result with the manually
+validated behavior. The examples then document real configurations; bootstrap is not a prerequisite
+for proving the framework.
 
 ## Scope boundaries
 
@@ -61,8 +97,8 @@ and behavior-inventory gate. Do not claim a Bestays port or parity until that ga
   rules.
 - Plain PostgreSQL persistence, with deliberate replacements for Supabase-specific dependencies.
 - A runnable local profile for each consumer and short HTTP smoke checks.
-- Later bootstrap/example extraction only after the two consumers demonstrate the actual
-  configuration and registration seams.
+- Bootstrap and example applications derived from the manually validated consumer compositions;
+  the examples should demonstrate distinct BR and Bestays capability selections.
 
 ### Out of scope for the initial two-day checkpoint
 
@@ -74,9 +110,10 @@ and behavior-inventory gate. Do not claim a Bestays port or parity until that ga
 - Pixel-identical visual parity or a generalized generator built before both consumer profiles
   run.
 
-The Bestays enum includes `sale`, `rent`, `lease`, and `sale-lease`; without reading source rows or
-the app, migration code must not assume that every legacy record is rent-only. Define the
-authorized migration population and mapping before any import.
+The supplied legacy Bestays Supabase schema is not identical to the canonical Bestays dashboard's
+Postgres schema, and its enum includes `sale`, `rent`, `lease`, and `sale-lease`. Do not infer the
+authorized import population from the project name or schema alone. Review the actual source and
+record scope with the user before any data import. Do not access production or commit raw dumps.
 
 ## Delivery checkpoints
 
@@ -84,22 +121,25 @@ The checkpoints are evidence gates and delegation boundaries, not a mandatory pr
 Each checkpoint receives its own reviewed scope and exact before/after tree before implementation.
 Do not start dependent implementation while its prerequisite evidence or decision is missing.
 
-| # | Deliverable | Acceptance evidence | Estimate after source access |
+| # | Deliverable | Acceptance evidence | Preliminary estimate |
 |---|---|---|---:|
-| 0 | **Source and behavior inventory**: make BR and Bestays source checkouts available; inventory BR's routes, admin modules, adapters, models, migrations, and Bestays booking/listing journeys. Mark each behavior `reuse`, `extract`, `consumer-only`, `defer`, or `decision required`. | Traceable behavior-to-kit matrix; source versions recorded; unresolved rules named (booking lifecycle, date boundaries, overlaps, unit/whole-property semantics, price basis, guest data, roles). No production access. | 0.5–1.5 days |
-| 1 | **Consumer configuration and composition proof**: one explicit app config per consumer, common Go/Svelte registration, startup validation, and enabled-feature gates. | Both app profiles start locally. BR enables sale/lease and has no rental/booking registrations; Bestays enables rent/booking and has no sale/lease registrations. Focused config/route tests plus curl health and route checks. | 1–2 days |
-| 2 | **Shared back-office extraction slice**: extract the common admin shell/registration surface and the first high-value shared modules from BR into BOS without changing BR's behavior. | BR runs through BOS registration; normalized route/API checks match the recorded BR baseline for the extracted slice. Bestays can register the same modules without importing BR-specific app code. | 2–4 days |
-| 3 | **Property and adapter composition**: make the shared property foundation independent of a mandatory sale/lease selection; select Postgres/media adapters by consumer configuration. Map BR fields and Bestays's legacy property/unit shape explicitly. | Unit tests cover valid BR sale/lease, valid Bestays rent-only, and rejected disabled offerings. Local Postgres reads/writes preserve representative property and media references. Existing BR property behavior stays green. | 2–4 days |
-| 4 | **Optional booking module**: implement the minimum agreed rental reservation lifecycle and safe public availability surface, separate from sale/lease deal transactions. | Tests cover date boundaries, overlapping concurrent reservations, property/unit ownership, lifecycle transitions, and public-field redaction. Manual curl checks exercise the agreed public availability and authorized booking/admin paths. | 2–4 days |
-| 5 | **Remaining shared back-office modules and Bestays app wiring**: move only the inventoried reusable BR functionality needed by Bestays; keep product-specific routes/configuration in each consumer. | Per-module route/API checks and the minimum affected Go/Svelte checks pass; both apps have their own config/seed/brand while sharing BOS-owned code. | 2–5 days |
-| 6 | **Data-port and integrated acceptance**: implement a reviewed import/mapping for the authorized Bestays scope, and run the clean local stack against both profiles. | Sanitized fixture import checks counts, relationships, representative values, and application reads. Curl smoke: health, public listing/detail, safe availability, admin-auth boundary, and disabled-offering rejection. No dump data committed. | 1–3 days |
-| 7 | **Bootstrap/example extraction**: derive the smallest bootstrap and examples from accepted BR and Bestays compositions, not from an assumed feature grid. | A fresh app can be composed from the demonstrated profiles; generated/hand-maintained examples do not drift; a clean start and smoke checks pass. | 1–2 days |
+| 0 | **Behavior-to-module inventory**: trace selected BR and Bestays journeys through routes, handlers, UI, packages, and migrations. Mark each `reuse`, `extract`, `consumer-only`, `defer`, or `decision required`. | Source revisions recorded; bounded capability list and route/API baseline; unresolved booking, role, data, and migration decisions stated. | 1–2 days |
+| 1 | **Consumer config and composition proof**: define explicit BR and Bestays capability selections and validate them at startup. | Tests prove BR selects sale/lease but not rent/booking, and Bestays selects rent/booking but not sale/lease; selected and disabled route registrations are checked. | 2–4 days |
+| 2 | **Go app composition slice**: demonstrate compiled module registration, common middleware, route mounting, Postgres/Redis configuration and selected migrations. | A manually composed local app starts; selected routes work; disabled routes are absent; focused Go checks pass. | 3–6 days |
+| 3 | **Svelte app composition slice**: establish server-only feature services and consumer UI/admin registration while retaining ordinary SvelteKit route stubs. | A selected public/admin path uses the shared composition seam; module selection matches Go; targeted Svelte checks pass. | 3–6 days |
+| 4 | **BR reference vertical slice**: move one agreed high-value BR feature through BOS without changing its source behavior or product-specific data semantics. | Route/API and representative persistence behavior match an explicitly recorded BR baseline; tests cover relevant authorization and error paths. | 4–8 days |
+| 5 | **Property, offerings and adapters**: support BR sale/lease and Bestays rent without requiring either product to expose the other's offering; configure PostgreSQL, Redis and media storage by consumer. | Domain/config tests reject disabled offerings; local persistence checks preserve representative property, transaction and media relationships. | 4–8 days |
+| 6 | **Bestays booking slice**: implement or complete a separate optional booking module; settle unit assignment, lifecycle, availability and guest-data rules before exposing endpoints. | Postgres-backed tests cover date boundaries, conflicting concurrent reservations, unit/property consistency, state transitions and public-field redaction; authorized HTTP paths pass. | 4–8 days |
+| 7 | **Local integration and data acceptance**: run the selected profiles with isolated local PostgreSQL, Redis and pgAdmin; define and test only an approved legacy import scope. | Clean-start documented; curl checks cover health, representative public/admin paths and disabled offerings; sanitized fixtures verify counts, relationships and representative values. | 2–5 days |
+| 8 | **Bootstrap and examples**: derive bootstrap from the validated app composition, then create example app(s) from consumer configs. | A fresh example is bootstrapped and runs; BR and Bestays examples show distinct capability sets and do not drift from the tested compositions. | 2–4 days |
 
-The rough sum is **11.5–25.5 focused person-days after both source repositories and local
-dependencies are available**, with the widest uncertainty in the BR feature inventory, the
-Bestays application behavior, and the property/booking mapping. This is an initial planning range,
-not a delivery commitment. Re-estimate after checkpoint 0 using the actual module count, test
-health, and amount of consumer-specific code found.
+The preliminary range for this **selected-module integration pilot is 25–51 focused person-days**,
+not including broad parity for every BR admin workflow or a production data migration. A wider
+conversion of BR into a thin consumer, plus completed Bestays booking and approved legacy-data
+porting, is an order-of-magnitude **60–120+ focused person-days**. These are planning ranges, not
+commitments: checkpoint 0 must narrow the selected module count, baseline test health, and
+extraction-versus-rewrite ratio before implementation estimates are treated as delivery forecasts.
+The previous 11.5–25.5-day range predates canonical source access and is superseded.
 
 ## The first two-day checkpoint
 
@@ -107,40 +147,36 @@ Two days is a realistic target for a **runnable architecture proof**, not for ex
 back-office feature, completing booking, migrating all records, and achieving full parity.
 Timebox the first implementation checkpoint to:
 
-### Day 1 — make both profiles compose
+### Day 1 — establish the composition seam
 
-- Confirm both consumer sources and the local BOS baseline are available; stop and report a
-  blocker if Bestays source is still missing.
-- Use existing framework/package code first; identify the minimal missing common admin/property
-  registration surface.
-- Add app configurations that select BR sale + lease versus Bestays rent + booking without
-  enabling the other profile's offerings.
-- Start isolated local Postgres and required dependencies; expose health checks.
-- Validate profile loading and ensure disabled routes/modules do not register.
+- Confirm the exact local BOS baseline and capture the behavior for one agreed BR path and one
+  Bestays path from the pinned source; do not imply the snapshot proves the live production state.
+- Define the smallest explicit module/config selection seam using existing packages and frameworks.
+- Configure the two capability profiles without implementing all module extraction.
+- Start only the isolated local services needed for the chosen paths; keep ports/data separate.
+- Validate profile loading and that disabled offering routes are not registered.
 
-**Day 1 gate:** both profiles build/start or an exact missing-source/module blocker is recorded;
-profile-level tests show the distinct enabled sets.
+**Day 1 gate:** both profiles select the intended capabilities in tests and the initial missing
+framework seam is bounded. This is not a claim that either full consumer is composed.
 
-### Day 2 — prove one real path in each profile
+### Day 2 — prove one bounded path
 
-- Run one representative BR property/admin path through BOS and compare it with the available
-  baseline.
-- Run one Bestays rent-only property plus minimal booking/availability path against local
-  PostgreSQL, using only behaviors verified from the Bestays source or an explicitly approved
-  provisional contract.
-- Exercise with curl: health; public property list/detail; safe availability; authorized admin
-  access; rejected or absent sale/lease route in Bestays; rejected or absent rental/booking route
-  in BR.
-- Run the smallest relevant Go tests plus framework/config checks and one end-to-end database
-  test. Record commands, addresses, and results.
+- Implement one narrow vertical slice chosen from the inventory—prefer an existing BOS package
+  with a directly testable BR and Bestays use, rather than promising full booking in two days.
+- Run the path against isolated local PostgreSQL if the selected behavior requires persistence;
+  record any missing adapter or model contract instead of hiding it behind a mock.
+- Exercise with curl: health, the chosen public/admin path, and checks proving disabled offering
+  routes are absent. Record the exact local address, commands and results.
+- Run focused package/config tests and one database integration test only if the slice depends on
+  persistence.
 
-**Day 2 gate:** the two profiles are demonstrably composed from common BOS code, their offering
-boundaries hold over HTTP, one real path per consumer works, and deferred work is estimated from
-observed gaps.
+**Day 2 gate:** a small shared-code integration path is runnable and its consumer boundaries are
+measurable. The result is an architecture proof, not a thin-consumer conversion or booking/data
+parity milestone.
 
-If the source checkout is not ready, Day 1 can deliver configuration/route-gating proof and the
-Bestays part of Day 2 must be a schema-backed spike only—not represented as a working consumer or
-parity result.
+If a representative path cannot safely fit the timebox, narrow it to config/route-gating proof and
+report that no product behavior was ported. Do not manufacture a Bestays booking contract from its
+schema alone.
 
 ## Minimal validation strategy
 
@@ -165,14 +201,17 @@ routes are known.
 
 ## Delegation boundaries
 
-Once sources are available, these workstreams can be delegated without competing edits:
+After checkpoint 0 and individual scope approval, these workstreams can be delegated without
+competing edits:
 
-- **Inventory:** read-only BR/Bestays behavior-to-kit matrix and booking rule evidence.
+- **Inventory:** read-only completion of the BR/Bestays behavior-to-kit matrix and booking rule
+  evidence from the pinned monorepo snapshot.
 - **Framework composition:** Go config/module registration and profile tests.
 - **Svelte/admin extraction:** shared shell and selected admin module registration.
 - **Booking domain:** isolated schema/domain contract proposal and tests, after booking rules are
   approved.
-- **Data mapping:** Bestays legacy-to-BOS field/relationship mapping and sanitized-fixture plan.
+- **Data mapping:** Bestays legacy-to-BOS field/relationship mapping and sanitized-fixture plan,
+  after the authorized legacy-record scope is settled.
 
 Only one owner should integrate edits to the shared app config, route registry, and local service
 bundle. Do not delegate several agents to independently redefine the same module contract.
@@ -181,16 +220,20 @@ default, and no BR-only behavior should leak into Bestays.
 
 ## Risks and estimate triggers
 
-- **Missing source checkout:** blocks reliable route, behavior, and data mapping. The current
-  worktree had no Bestays files, only the supplied DDL.
-- **"All BR admin" is not yet a bounded list:** checkpoint 0 must inventory it; each actual module
-  added to the reusable surface changes the estimate.
-- **Booking semantics are underspecified by the schema:** overlap, cancellation/status, whole-
-  property versus unit-level inventory, and public availability semantics need product decisions.
+- **Snapshot provenance:** the canonical source is pinned and locally inspectable, but this review
+  did not compare it to a newer upstream revision or verify it against the live deployment.
+- **"All BR admin" is not a bounded deliverable:** BR's 229 admin route files show why checkpoint
+  0 must name the selected modules; each added feature changes the estimate.
+- **Bestays booking completeness and rules:** the local API does not write booking-unit rows on
+  create. Resolve unit assignment, overlap/concurrency, cancellation/status, inventory semantics,
+  and public availability before treating the module as ready.
+- **BR baseline breadth:** 310 migrations and extensive app-owned route/handler code mean that
+  package-name overlap cannot substitute for behavior, SQL, authorization, and data comparison.
 - **Current shared property validation requires sale or lease:** it needs an approved offering-aware
   model change before Bestays can be rent-only.
-- **Supabase behavior is broader than SQL DDL:** auth, RLS, grants, public views, functions, and
-  triggers need source review and a deliberate plain-Postgres replacement.
+- **Legacy Supabase migration is distinct from the local Bestays app:** auth, RLS, grants, public
+  views, functions, triggers and the allowed row population need source review and a deliberate
+  plain-Postgres mapping.
 - **Current transaction money reads:** `SaveMoney` is called on create/update, but the current
   service `Get`/`List` paths do not call `LoadMoney`; address this separately if it is within the
   BR data-compatibility acceptance scope.
@@ -198,8 +241,8 @@ default, and no BR-only behavior should leak into Bestays.
   and an isolated, access-controlled environment.
 
 Re-estimate upward if the apps require new workflows rather than extraction, if tests are missing
-or failing at baseline, if schema semantics do not map cleanly, or if production-shaped import is
-required as part of the two-day checkpoint.
+or failing at baseline, if schema semantics do not map cleanly, if broad BR admin parity is added,
+or if production-shaped import is required as part of the two-day checkpoint.
 
 ## Decision requested before implementation
 
