@@ -1,0 +1,11 @@
+{
+  "name": "hot-potato-app-framework-demo",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "pnpm --filter web-app dev",
+    "check": "pnpm --filter web-app check",
+    "test": "pnpm --filter web-app test",
+    "build": "pnpm --filter web-app build"
+  }
+}
