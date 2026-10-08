@@ -11,9 +11,42 @@
     "./server": {
       "types": "./src/lib/server/index.ts",
       "default": "./src/lib/server/index.ts"
+    },
+    "./admin": {
+      "types": "./src/lib/admin/index.ts",
+      "svelte": "./src/lib/admin/index.ts",
+      "default": "./src/lib/admin/index.ts"
+    },
+    "./renderers": {
+      "types": "./src/lib/renderers/index.ts",
+      "svelte": "./src/lib/renderers/index.ts",
+      "default": "./src/lib/renderers/index.ts"
+    },
+    "./chrome": {
+      "types": "./src/lib/chrome/index.ts",
+      "svelte": "./src/lib/chrome/index.ts",
+      "default": "./src/lib/chrome/index.ts"
+    },
+    "./layouts": {
+      "types": "./src/lib/layouts/index.ts",
+      "svelte": "./src/lib/layouts/index.ts",
+      "default": "./src/lib/layouts/index.ts"
+    },
+    "./*": {
+      "types": "./src/lib/*",
+      "svelte": "./src/lib/*",
+      "default": "./src/lib/*"
+    }
+  },
+  "typesVersions": {
+    ">4.0": {
+      "*": ["./src/lib/*"]
     }
   },
   "files": ["src"],
+  "dependencies": {
+    "@sbx/core-ui": "workspace:*"
+  },
   "peerDependencies": {
     "@sveltejs/kit": "^2.0.0",
     "svelte": "^5.0.0"

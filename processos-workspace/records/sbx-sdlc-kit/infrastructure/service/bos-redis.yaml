@@ -1,0 +1,6 @@
+name: bos-redis
+kind: datastore
+description: Redis cache for the bos-demo reference build.
+image: redis:7
+ports: ["6325:6379"]
+volumes: ["./data/redis:/data"]

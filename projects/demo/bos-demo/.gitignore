@@ -1,0 +1,20 @@
+# the datastore bundle's data and secrets (see README.md); docker-compose.yml and .env.example
+# are rendered by the sdlc-kit process but committed, same as postgres-dev's own
+deploy/data/
+deploy/.env
+
+# bos generated output and the settings the Makefile writes (never edited by hand)
+.bos/
+
+# Node / SvelteKit
+node_modules/
+.svelte-kit/
+build/
+
+# Go
+/apps/api/bin/
+/apps/api/api
+/api
+
+# OS
+.DS_Store

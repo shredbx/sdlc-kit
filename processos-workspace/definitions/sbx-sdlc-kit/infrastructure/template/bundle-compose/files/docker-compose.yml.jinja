@@ -19,6 +19,12 @@ services:
       - "{{ p }}"
 {%- endfor %}
 {%- endif %}
+{%- if s.volumes | default([]) %}
+    volumes:
+{%- for v in s.volumes %}
+      - "{{ v }}"
+{%- endfor %}
+{%- endif %}
 {%- if s.env | default([]) %}
     environment:
 {%- for e in s.env %}

@@ -668,9 +668,10 @@ func TestPostgresMapper_Columns(t *testing.T) {
 	m := NewPostgresMapper("bestierealestate")
 	cols := m.Columns()
 	// 11 base/foundation columns + draft_content + published_content (#0273) +
-	// the published flag (#0281 / AE4 direct-save gate) + seo_meta (P0-A) = 15.
-	if len(cols) != 15 {
-		t.Fatalf("want 15 columns, got %d: %v", len(cols), cols)
+	// the published flag (#0281 / AE4 direct-save gate) + seo_meta (P0-A) +
+	// layout (bos-layout-presets.md) = 16.
+	if len(cols) != 16 {
+		t.Fatalf("want 16 columns, got %d: %v", len(cols), cols)
 	}
 	if cols[0] != "c.id" {
 		t.Errorf("first column = %q; want c.id", cols[0])
@@ -743,8 +744,8 @@ func TestPostgresMapper_ToRow(t *testing.T) {
 func TestPostgresMapper_FromRow_Published(t *testing.T) {
 	m := NewPostgresMapper("bestierealestate")
 	// Column order (Columns()): id, slug, title, body_markdown, details,
-	// draft_content, published_content, published, seo_meta, version, created_by,
-	// updated_by, created_at, updated_at, deleted_at.
+	// draft_content, published_content, published, layout, seo_meta, version,
+	// created_by, updated_by, created_at, updated_at, deleted_at.
 	values := []any{
 		"id-1",            // id
 		Slug("about"),     // slug
@@ -754,6 +755,7 @@ func TestPostgresMapper_FromRow_Published(t *testing.T) {
 		SectionList(nil),  // draft_content
 		SectionList(nil),  // published_content
 		true,              // published
+		"default",         // layout
 		seo.SeoMeta{},     // seo_meta
 		2,                 // version
 		(*string)(nil),    // created_by

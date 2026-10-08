@@ -1,0 +1,22 @@
+services:
+
+  bos-postgres:
+    image: postgres:16
+    container_name: bos-dev-bos-postgres
+    ports:
+      - "54325:5432"
+    volumes:
+      - "./data/postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+  bos-redis:
+    image: redis:7
+    container_name: bos-dev-bos-redis
+    ports:
+      - "6325:6379"
+    volumes:
+      - "./data/redis:/data"
+
