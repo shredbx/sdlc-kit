@@ -1,0 +1,41 @@
+# Wanflo — what we sell. STRUCTURE ONLY.
+#
+# The WORDS are not here. Name, summary and every feature bullet live in
+# content/copy/<lang>.yml under `package.<id>.name` / `.summary` / `.f1`, `.f2`, … because
+# they are prose, and prose is per-language. Kept here they rendered ENGLISH on the Thai and
+# Russian pages while the build stayed green — the keyset check only ever guarded the copy
+# decks. Now a missing Thai bullet fails the build and names itself.
+#
+# ADD A BULLET: add `package.<id>.f<next>` to en.yml, th.yml AND ru.yml. Nothing here
+# changes — the count is read off the master keyset.
+#
+# price: FREE TEXT, rendered exactly as written. "from 35,000 THB" · "35,000-60,000 THB" ·
+#        "2 weeks, fixed" — anything. It is never parsed, reformatted or translated.
+#        OMIT the key entirely and the card shows the localized "Pricing on request"
+#        string instead. No price is ever emitted into structured data: free text is not
+#        machine-readable, and a fabricated machine-readable price is worse than none.
+#
+# group: web | mobile — decides which page the card appears on. Same component on both.
+# Order in this file is the order on the page.
+
+# ── WEB ──────────────────────────────────────────────────────────────────────
+- id: homepage
+  group: web
+  price: "2,000 THB"
+
+- id: real-estate
+  group: web
+
+- id: custom-web
+  group: web
+
+# ── MOBILE ───────────────────────────────────────────────────────────────────
+- id: app-starter
+  group: mobile
+  price: "15,000 THB"
+
+- id: business-app
+  group: mobile
+
+- id: custom-mobile
+  group: mobile

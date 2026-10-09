@@ -1,9 +1,11 @@
 # App framework, BOS extension, and bootstrap/examples
 
-**Date:** 2026-10-07
-**Status:** The active scope is completing and accepting the full Hot Potato website port on the
-Svelte app framework. Keep the pinned source submodule unchanged. Do not advance to BOS/BR until
-the user accepts this port. Bootstrap remains later work, derived from an accepted consumer demo.
+**Date:** 2026-10-09
+**Status:** The active scope is the Svelte app-framework refactor proven first against the copied
+Wanflo app at `projects/demo/wanflo/`. Preserve its current pages, prerendered behavior, content,
+theme/localization, SEO, structured data, and consent-gated analytics. Hot Potato follows after
+Wanflo is accepted; keep its pinned source submodule unchanged. Do not advance to BOS/BR until both
+consumer proofs are accepted. Bootstrap remains later work, derived from an accepted consumer demo.
 
 Companion reviews:
 
@@ -103,23 +105,31 @@ Authorization, tenant scope, field filtering, and audit remain server/API respon
 Resource-driven CRUD should be introduced only when repeated real resources justify the contract;
 PR #2's `{ id, navItem }` is an early navigation contribution, not that full contract.
 
-## 3. Staged delivery: app framework, BOS/BR, then bootstrap
+## 3. Staged delivery: Wanflo, Hot Potato, BOS/BR, then bootstrap
 
-**Stage 1: Svelte app framework + full Hot Potato port.** Build and validate the full existing
-Hot Potato website on a copy of its pinned source, leaving the source submodule unchanged. Preserve
-the site's current pages, content, SEO, structured data, and assets while integrating the Svelte app
-framework. The app runs on the Node adapter; checked-in content is loaded asynchronously on the
-server through a read-only repository, validated against a runtime schema, and registered per
-request. Components receive loaded data as props. Keep the repository API small and read-only
-because the site has no write use case. The framework owns the schema/repository/registry contracts;
-the demo owns its content schema and local data module. Do not add API, database, or other product
-behavior that the existing site does not have. Do not implement BOS, Go, BR, or bootstrap during
-this stage.
+**Stage 1: Svelte app framework + full Wanflo refactor.** Use the copied, production-facing
+application at `projects/demo/wanflo/` as the first consumer. Preserve its current pages, content,
+responsive behavior, static/prerendered deployment, theme, localization, SEO, structured data,
+assets, and consent-gated GA4 behavior while extracting only the shared mechanisms its pages
+demonstrate. Keep Wanflo's schemas, data, brand values, routes, and page composition consumer-owned.
+The framework owns the approved schema/repository/registry, responsive-layout, renderer, theme,
+localization, SEO/analytics, and configured access/session contracts. Content stays behind
+registered sources; renderers receive validated typed inputs. Do not add a database, private route,
+or auth provider that Wanflo does not need. Capture and approve a visual baseline before migration.
+Do not implement BOS, Go, BR, or bootstrap during this stage.
 
-**Stage 2: Go/Svelte frameworks composed by BOS, with BR as the demo consumer.** After Stage 1 is
-accepted, extend the app-framework direction across Go and Svelte, compose those frameworks
-through BOS, and use BR to exercise the result. This is a consumer-shaped integration demo, not a
-bootstrap-generated application. Keep BR-specific data and configuration with BR.
+**Stage 1b: full Hot Potato port.** After Wanflo is accepted, apply the proven app-framework
+contracts to the full Hot Potato website on a copy of its pinned source, leaving the source
+submodule unchanged. Preserve its pages, content, SEO, structured data, and assets. Keep its
+Node-adapter runtime, checked-in content behind a read-only repository, runtime schema validation,
+and per-request registration. Components receive loaded data as props. The framework owns the
+schema/repository/registry contracts; Hot Potato owns its content schema and data module. Do not add
+API, database, or other product behavior it does not have.
+
+**Stage 2: Go/Svelte frameworks composed by BOS, with BR as the demo consumer.** After both consumer
+proofs are accepted, extend the app-framework direction across Go and Svelte, compose those
+frameworks through BOS, and use BR to exercise the result. This is a consumer-shaped integration
+demo, not a bootstrap-generated application. Keep BR-specific data and configuration with BR.
 
 **Later: bootstrap.** Only after the BOS/BR demo is accepted, derive bootstrap from what the
 working app and its implementation history actually require. Do not use bootstrap to define the
@@ -431,27 +441,33 @@ those product-specific facts have been inspected.
 
 This is a dependency outline. Only the first row is the active implementation scope:
 
-1. **Active — finish and accept the full Hot Potato port:** preserve the existing website's pages,
-   content, SEO, structured data, and assets while using the Svelte app framework's runtime schema,
-   read-only repository, typed per-request data registry, and server-load integration. Use the Node
-   adapter and leave the source submodule unchanged. Do not add API or database behavior. Validate
-   with focused tests, Svelte checking, a production build, and a local runtime smoke test; the user
-   accepts the site before work moves on.
-2. **BOS/BR design and approval:** only after Hot Potato is accepted, confirm the exact Go/Svelte
-   framework and BOS/BR scope and its before/after tree. This document is not standing
+1. **Active — Wanflo app-framework refactor:** preserve the copied application's pages, content,
+   responsive behavior, static/prerendered lifecycle, theme/localization, SEO, structured data,
+   assets, and consent-gated analytics. Capture a desktop/tablet/phone baseline; define and approve
+   the responsive-template, site/page composition, typed section/renderer, source-registry,
+   theme/localization, SEO/analytics, and route-access contracts; then migrate the app in bounded
+   scopes. The plan is recorded in
+   [`2026-10-09-wanflo-app-framework-refactor.md`](../plans/2026-10-09-wanflo-app-framework-refactor.md).
+   User acceptance is required before moving on.
+2. **Hot Potato app-framework proof:** only after Wanflo is accepted, port the full Hot Potato
+   website on a copy of its pinned source. Preserve the Node adapter and request-time, read-only
+   data behavior; do not add API or database behavior. Use focused tests, Svelte checking, a
+   production build, and a local runtime smoke test; obtain user acceptance.
+3. **BOS/BR design and approval:** only after Wanflo and Hot Potato are accepted, confirm the exact
+   Go/Svelte framework and BOS/BR scope and its before/after tree. This document is not standing
    implementation authorization.
-3. **Go and Svelte app frameworks + BOS/BR demo:** compose selected platform modules manually and
+4. **Go and Svelte app frameworks + BOS/BR demo:** compose selected platform modules manually and
    validate the cross-platform registration and runtime boundary.
-4. **Local Docker services:** exercise the BOS/BR demo with isolated Postgres, Redis, and pgAdmin
+5. **Local Docker services:** exercise the BOS/BR demo with isolated Postgres, Redis, and pgAdmin
    using existing infrastructure definitions where possible.
-5. **Data compatibility gate:** restore an authorized BR source production dump into the isolated
+6. **Data compatibility gate:** restore an authorized BR source production dump into the isolated
    local target, run migrations/mappings, and verify data preservation and application behavior.
    Keep the full dump outside Git; use sanitized copies for repeatable checks where possible.
-6. **Integrated BOS/BR demo:** prove the configured Go and Svelte components work together from a
+7. **Integrated BOS/BR demo:** prove the configured Go and Svelte components work together from a
    clean setup and repeatable demo seed.
-7. **Bootstrap design:** derive templates and checks from the accepted BOS/BR demo and its
+8. **Bootstrap design:** derive templates and checks from the accepted BOS/BR demo and its
    implementation history; do not build bootstrap before the evidence exists.
-8. **Product adoption:** review each product in its own repo, select app-only or BOS and its
+9. **Product adoption:** review each product in its own repo, select app-only or BOS and its
    component/adapters, then move one vertical slice at a time.
 
 Before any implementation scope, show its exact before/after tree and obtain approval. Each new
@@ -460,16 +476,21 @@ bootstrap process is proposed for implementation here.
 
 ## 10. Decisions and remaining questions
 
-Agreed for the current slice: the app framework is the base and BOS is an optional extension;
-Hot Potato uses Node request-time loading, checked-in content behind a read-only repository, runtime
-schema validation, and per-request module registration. Its existing website has no API or database
-behavior, and none is added for this port. Other consumers may use API adapters when an actual
-consumer requirement defines that later scope.
+Agreed for the current direction: the app framework is the base and BOS is an optional extension;
+Wanflo is the first Svelte consumer proof and Hot Potato follows it. Wanflo currently uses static
+prerendering, build-time YAML content, three locales, configurable theme tokens, public SEO and
+structured data, and consent-gated GA4. Preserve those behaviors; do not infer a need for a database,
+private route, or auth provider from the framework's broader purpose. Hot Potato's later proof keeps
+its distinct Node request-time loading and read-only repository requirements. Other consumers may
+use API adapters when an actual consumer requirement defines that scope.
 
-Still to decide before Stage 2 implementation: the exact shared app configuration contract,
-cross-platform module registration surface, first non-local storage adapter, and the BR-specific
-data compatibility/migration scope. Resolve those against the Stage 2 consumer and its actual
-requirements rather than expanding the Stage 1 framework preemptively.
+Still to approve before implementation: the exact app configuration and page/section/renderer
+contracts; responsive-template versus site/page composition boundaries; the source interface and
+error policy; theme and localization integration; public/private route and SEO defaults; analytics
+provider/consent contracts; and the auth/session adapter boundary. Choose provider-specific
+auth/session behavior against a concrete protected-route use case. The Go/Svelte composition,
+first non-local storage adapter, and BR data compatibility/migration scope remain later decisions,
+grounded in their actual consumers.
 
 This document records the current staged direction; it is not standing authorization for future
 scopes. Stage 2 and later scopes still require an exact before/after tree and explicit approval.

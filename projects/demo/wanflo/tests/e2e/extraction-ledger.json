@@ -1,0 +1,428 @@
+{
+ "source": "docs/plans/2026-06-18-business-presentation/presentation/index.html",
+ "sourceSha1": "e35b86b0aa83a39263c0f5c030fdf30d0d719690",
+ "deckPairs": 242,
+ "usedVerbatim": 172,
+ "dropped": [
+  {
+   "line": 1415,
+   "section": "pre-hero",
+   "reason": "superseded by NEW-COPY-1 hero.kicker, which embeds it verbatim ('Wanflo — Business Operating System')",
+   "preview": "Business Operating System"
+  },
+  {
+   "line": 1586,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Same engine, every shape"
+  },
+  {
+   "line": 1589,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Which business are you?"
+  },
+  {
+   "line": 1591,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Pick the closest. The platform underneath is the same — only the confi"
+  },
+  {
+   "line": 1597,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "FLAGSHIP"
+  },
+  {
+   "line": 1598,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Live"
+  },
+  {
+   "line": 1599,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Real Estate"
+  },
+  {
+   "line": 1601,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Properties & units, image collections, maps, amenities, landlord conta"
+  },
+  {
+   "line": 1608,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Properties · Units · Collections · Media · SEO · Analytics"
+  },
+  {
+   "line": 1613,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Next up"
+  },
+  {
+   "line": 1614,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Hotels & Booking"
+  },
+  {
+   "line": 1616,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Stays as listings, availability calendar, bookings that settle through"
+  },
+  {
+   "line": 1621,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Listings · Calendar · Bookings · Guests"
+  },
+  {
+   "line": 1625,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Concept"
+  },
+  {
+   "line": 1626,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Gym & Training"
+  },
+  {
+   "line": 1628,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Equipment as scannable listings (QR), exercises with video, coach-buil"
+  },
+  {
+   "line": 1634,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Equipment · QR · Programs · Coaching"
+  },
+  {
+   "line": 1638,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Concept"
+  },
+  {
+   "line": 1639,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Product Marketing"
+  },
+  {
+   "line": 1641,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Promote your own app the way we promote ours: generate articles, sched"
+  },
+  {
+   "line": 1647,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Content · Campaigns · App links"
+  },
+  {
+   "line": 1651,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Blueprint"
+  },
+  {
+   "line": 1652,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Project Management"
+  },
+  {
+   "line": 1654,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Track projects, clients, meetings and deadlines — contacts + calendar "
+  },
+  {
+   "line": 1660,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "Projects · Clients · Calendar · Deadlines"
+  },
+  {
+   "line": 1663,
+   "section": "verticals",
+   "reason": "section replaced by the wanflo step narrative (plan IA); vertical cards return with the fabric product registry",
+   "preview": "→ scroll to explore all five"
+  },
+  {
+   "line": 1671,
+   "section": "pillars",
+   "reason": "pillar FRAME replaced by the step narrative — its 12 capability bullets ship verbatim inside steps 2-4; frame kicker/title/card-titles drop",
+   "preview": "What it does"
+  },
+  {
+   "line": 1673,
+   "section": "pillars",
+   "reason": "pillar FRAME replaced by the step narrative — its 12 capability bullets ship verbatim inside steps 2-4; frame kicker/title/card-titles drop",
+   "preview": "Three things, done in one place."
+  },
+  {
+   "line": 1687,
+   "section": "pillars",
+   "reason": "pillar FRAME replaced by the step narrative — its 12 capability bullets ship verbatim inside steps 2-4; frame kicker/title/card-titles drop",
+   "preview": "Publish"
+  },
+  {
+   "line": 1697,
+   "section": "pillars",
+   "reason": "pillar FRAME replaced by the step narrative — its 12 capability bullets ship verbatim inside steps 2-4; frame kicker/title/card-titles drop",
+   "preview": "Automate"
+  },
+  {
+   "line": 1833,
+   "section": "showcase",
+   "reason": "deal-chain / figure micro-labels tied to the screenshot showcase (cut with the gallery, D-8)",
+   "preview": "Inquiry"
+  },
+  {
+   "line": 1834,
+   "section": "showcase",
+   "reason": "deal-chain / figure micro-labels tied to the screenshot showcase (cut with the gallery, D-8)",
+   "preview": "Contact"
+  },
+  {
+   "line": 1835,
+   "section": "showcase",
+   "reason": "deal-chain / figure micro-labels tied to the screenshot showcase (cut with the gallery, D-8)",
+   "preview": "Viewing"
+  },
+  {
+   "line": 1836,
+   "section": "showcase",
+   "reason": "deal-chain / figure micro-labels tied to the screenshot showcase (cut with the gallery, D-8)",
+   "preview": "Owner"
+  },
+  {
+   "line": 1837,
+   "section": "showcase",
+   "reason": "deal-chain / figure micro-labels tied to the screenshot showcase (cut with the gallery, D-8)",
+   "preview": "Property ฿4M"
+  },
+  {
+   "line": 1838,
+   "section": "showcase",
+   "reason": "deal-chain / figure micro-labels tied to the screenshot showcase (cut with the gallery, D-8)",
+   "preview": "Deal"
+  },
+  {
+   "line": 1839,
+   "section": "showcase",
+   "reason": "deal-chain / figure micro-labels tied to the screenshot showcase (cut with the gallery, D-8)",
+   "preview": "Buyer"
+  },
+  {
+   "line": 1853,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Real screens. One connected system."
+  },
+  {
+   "line": 1855,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Every screen here is a live instance — Bestie Real Estate , running in"
+  },
+  {
+   "line": 1878,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Marketing"
+  },
+  {
+   "line": 1880,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "One post, bound to live data."
+  },
+  {
+   "line": 1883,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "The Media Canvas pulls a property, a guide, a service and a news item "
+  },
+  {
+   "line": 1909,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Public site"
+  },
+  {
+   "line": 1910,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Explore on the map"
+  },
+  {
+   "line": 1912,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Listings, land plots and landmarks — the same data, plotted and filter"
+  },
+  {
+   "line": 1933,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Every client in one book"
+  },
+  {
+   "line": 1935,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Tags, owners, duplicate-merge, export — contacts link to properties, i"
+  },
+  {
+   "line": 1955,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Viewings, calls, closings"
+  },
+  {
+   "line": 1957,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Every event links to the property and contact it belongs to — and expo"
+  },
+  {
+   "line": 1977,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Or read it as a list"
+  },
+  {
+   "line": 1979,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "The same schedule as a filterable agenda — pick the view your team pre"
+  },
+  {
+   "line": 1998,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Content"
+  },
+  {
+   "line": 1999,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "A knowledge base that ranks"
+  },
+  {
+   "line": 2001,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Guides categorised, tagged, and auto-linked to the listings they menti"
+  },
+  {
+   "line": 2020,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Content"
+  },
+  {
+   "line": 2021,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Your own press room"
+  },
+  {
+   "line": 2023,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Multi-source market news, EN/TH, aggregated and de-duplicated — fresh "
+  },
+  {
+   "line": 2043,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Auto-updating"
+  },
+  {
+   "line": 2044,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Menus that build themselves"
+  },
+  {
+   "line": 2046,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Navigation and sections resolve from live data — add a province, the m"
+  },
+  {
+   "line": 2066,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Productized services"
+  },
+  {
+   "line": 2068,
+   "section": "gallery",
+   "reason": "screenshot gallery cut for v1 page weight (plan D-8 ruling)",
+   "preview": "Service pages with built-in inquiry capture, cross-linked to listings "
+  },
+  {
+   "line": 2122,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Everywhere your customers are"
+  },
+  {
+   "line": 2125,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Web, mobile, desktop & chat."
+  },
+  {
+   "line": 2129,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Web"
+  },
+  {
+   "line": 2130,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Server-rendered, fast, SEO-ready"
+  },
+  {
+   "line": 2135,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Native (Swift · Kotlin) or Flutter"
+  },
+  {
+   "line": 2139,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Desktop"
+  },
+  {
+   "line": 2140,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Standalone apps for the back-office"
+  },
+  {
+   "line": 2145,
+   "section": "platforms",
+   "reason": "platform strip folded out of the v1 single-page IA (breadth claim carried by hero + system map)",
+   "preview": "Alerts, inquiries & quick actions"
+  }
+ ]
+}

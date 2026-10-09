@@ -1,0 +1,174 @@
+# Wanflo — shipped work. EDIT HERE, nowhere else.
+#
+# Transcribed from the owner's portfolio (Mini_Portfolio_B.pdf) — names, types, stacks and
+# URLs are exactly as written there. Nothing is invented.
+#
+# WHERE THE WORDS ARE: not here. The description AND the type line live in
+# content/copy/<lang>.yml under `work.<slug>.note` and `work.<slug>.type`, because they are
+# prose and prose is per-language. Putting them there means the master-keyset check
+# guarantees a project can never have an English description and be silently missing its
+# Thai one — which is exactly what `type:` did while it sat in this file.
+#
+# shots:      screenshots, IN DISPLAY ORDER. The first one is used wherever only one fits
+#             (the home page). `width` is the file's REAL width, recorded so the card never
+#             UPSCALES a 320px original from 2013 into softness.
+#             All 17 are WebP. The 12 mobile shots are the owner's own files copied
+#             byte-for-byte — verified identical by md5, never re-encoded. The 5 website
+#             captures are the only ones cwebp touches, because 2560px browser shots have
+#             to be resized and Bestie has to have its browser chrome cropped off.
+#             None → a neutral placeholder block, never a broken image.
+# url:        absent → the card renders complete with NO link (not a dead anchor). Only the
+#             HOST is shown on screen (www. stripped), so a long store path stays readable
+#             and every card's link reads the same length.
+# credit:     who it was built FOR (role: client) or THROUGH (role: studio). A portfolio
+#             entry claims "we built this"; the credit says for whom — which is the part a
+#             reader can independently verify. { label, role, url? }; url optional.
+# archived:   the project is retired. DELIBERATELY separate from `url`: most apps below have
+#             no public store link, which is not the same as being archived.
+# featured:   also appears in the "selected work" row on the home page.
+#
+# The shipped-project counts on the home page are COUNTED from this file. Add an entry and
+# the badge follows. Nobody edits a number in a component.
+
+# ── WEB ──────────────────────────────────────────────────────────────────────
+- slug: bestie-real-estate
+  group: web
+  name: "Bestie Real Estate Thailand"
+  stack: [SvelteKit, Go, PostgreSQL]
+  url: "https://bestierealestate.com"
+  featured: true
+  shots:
+    # Browser chrome cropped off at asset-prep time: the original showed localhost:4003 and
+    # the developer's private bookmarks bar. See tools/cut-assets.sh.
+    - { src: /work/web/bestie-real-estate.webp, width: 1200, shows: "property catalogue" }
+
+- slug: kitecable
+  group: web
+  name: "KiteCableThailand"
+  stack: [Next.js, React]
+  url: "https://kitecable.com"
+  featured: true
+  shots:
+    - { src: /work/web/kitecable.webp, width: 1200, shows: "home page" }
+
+- slug: bestays
+  group: web
+  name: "Best Stays Thailand"
+  stack: [Next.js, Supabase]
+  url: "https://bestays.app"
+  featured: true
+  shots:
+    - { src: /work/web/bestays.webp, width: 1200, shows: "search and listings" }
+
+- slug: shredbx
+  group: web
+  name: "shredbx.com"
+  stack: [SvelteKit, Go]
+  url: "https://shredbx.com"
+  featured: true
+  shots:
+    - { src: /work/web/shredbx.webp, width: 1200, shows: "project index" }
+
+- slug: design-studio
+  group: web
+  name: "Design Studio Showcase"
+  stack: [Next.js, Supabase]
+  archived: true          # marked Archived in the portfolio; no live URL to link to
+  shots:
+    - { src: /work/web/design-studio.webp, width: 1200, shows: "home page" }
+
+# ── MOBILE ───────────────────────────────────────────────────────────────────
+# EVERY app carries TWO shots (owner directive 2026-08-24): the first is the one that still
+# reads at 92px on the home tile, the second is the proof that the app actually works.
+#
+# ORDER IS DISPLAY ORDER (owner-set 2026-08-24). Nothing in code sorts these — the first
+# three fill the first row on /mobile, and the first four are what the home page shows.
+#
+# Every `url:` below was verified live (HTTP 200) before it was added. Most are PRODUCT
+# SITES rather than store listings — Intuition is the only one with a store link, and that
+# store is RuStore, not Google Play. App Store / Play links are still outstanding (see
+# docs/plans/2026-08-24-wanflo-asset-requests.md, B2). Adding a url to any other entry turns
+# its link on with no code change.
+
+- slug: intuition-challenge
+  group: mobile
+  name: "Intuition Challenge Game"
+  stack: [React Native, Expo]
+  # RuStore listing, owner-supplied 2026-08-24, verified 200. NOTE for the owner: RuStore is
+  # the Russian domestic Android store, and the listing is titled «Тренажер интуции» — a
+  # different name from the one this card shows. See the review note.
+  url: "https://www.rustore.ru/catalog/app/com.shredbx.hhh.android"
+  featured: true
+  shots:
+    # Owner-supplied replacement pair (2026-08-24): onboarding first, a live round second.
+    # The previous pair showed two BUILDS of the game; these show the current build working.
+    - { src: /work/mobile/intuition-welcome.webp, width: 1120, shows: "onboarding" }
+    - { src: /work/mobile/intuition-round.webp, width: 1120, shows: "a round in play" }
+
+- slug: bein
+  group: mobile
+  name: "Bein"
+  stack: [iOS, MapKit]
+  url: "https://be-in.ru"
+  # PROPOSED, NOT LIVE — awaiting the owner's word on the wording. Bein is listed in the
+  # portfolio of Buro Welcome Media (welcomemedia.ru/portfolio, "Портал одежды «Be-in.ru»").
+  # Uncomment to publish the attribution:
+  # credit: { label: "Welcome Media", role: studio, url: "https://welcomemedia.ru" }
+  featured: true
+  shots:
+    # Catalogue leads: at 92px on the home tile the item photo centre-crops to a headless
+    # torso, while the grid of products still reads as a shopping app. The item detail
+    # follows on the card, where it has the room to work.
+    - { src: /work/mobile/bein-catalogue.webp, width: 320, shows: "collection catalogue" }
+    - { src: /work/mobile/bein-item.webp, width: 320, shows: "item detail" }
+
+- slug: velomesto
+  group: mobile
+  name: "Velomesto"
+  stack: [iOS, MapKit]
+  url: "https://velomesto.com"
+  # PROPOSED, NOT LIVE — same as Bein above. Welcome Media lists it as «Проект Velomesto».
+  # credit: { label: "Welcome Media", role: studio, url: "https://welcomemedia.ru" }
+  featured: true
+  shots:
+    # Identity screen first — it is the stronger image at thumbnail size. The working screen
+    # follows as the proof. Swap these two lines to lead with the working screen instead.
+    - { src: /work/mobile/velomesto-splash.webp, width: 320, shows: "launch screen" }
+    - { src: /work/mobile/velomesto-map.webp, width: 320, shows: "route and place list" }
+
+- slug: 7tree
+  group: mobile
+  name: "7Tree"
+  stack: [iOS, CloudKit, "Core Data"]
+  # The product site, verified live 2026-08-24. Not a store link — that one is still open.
+  url: "https://7tree.app"
+  featured: true
+  shots:
+    # The canvas IS the product, so it leads. The person profile shows the depth behind it.
+    - { src: /work/mobile/7tree-canvas.webp, width: 1170, shows: "family tree canvas" }
+    - { src: /work/mobile/7tree-person.webp, width: 1170, shows: "person profile and relatives" }
+
+- slug: le-paris-des-galleries
+  group: mobile
+  name: "Le Paris Des Galleries"
+  stack: [iOS, "Core Data"]
+  shots:
+    # The detail screen leads: it is the only one of the pair carrying a photograph, which is
+    # what survives the 92px home tile. The filtered listing follows as the proof.
+    - { src: /work/mobile/le-paris-detail.webp, width: 640, shows: "gallery detail" }
+    - { src: /work/mobile/le-paris-list.webp, width: 640, shows: "filtered exhibition list" }
+
+- slug: ismarthouse
+  group: mobile
+  name: "iSmartHouse"
+  stack: [iOS, "TCP/IP"]
+  # Owner-stated 2026-08-24: INTELVISION is the company the app was built for — a building
+  # automation / BMS integrator, which is exactly this app's domain. It is a CLIENT, so it
+  # is a credit and not the project's own `url`: there is no iSmartHouse product page.
+  credit:
+    label: "INTELVISION"
+    role: client
+    url: "https://www.intelvision.ru"
+  shots:
+    - { src: /work/mobile/ismarthouse-splash.webp, width: 320, shows: "launch screen" }
+    - { src: /work/mobile/ismarthouse-control.webp, width: 320, shows: "room controls" }
