@@ -1,6 +1,6 @@
 # Research index — reconnaissance
 
-Last updated: 2026-09-23
+Last updated: 2026-10-09
 tags: research, index, sbx-sdlc-kit
 
 Purpose: understand process-os's own patterns and prior art (shredbx = "sbx v1", sbx.framework =
@@ -10,7 +10,7 @@ this is the "getting to know each other" phase before planning. Two documents re
 folder/manifest/representative-sample depth, not a full code read — treat exhaustiveness claims
 accordingly).
 
-## The five documents
+## Research documents
 
 1. **[`process-os-patterns.md`](./process-os-patterns.md)** — read directly, primary source. The
    concrete shape of process-os's five definition kinds (type/schema/action/template/process), the
@@ -46,6 +46,10 @@ accordingly).
    anti-patterns (mutable deps racing under parallel tool calls; an unauthenticated session id is
    not an identity boundary for accumulated facts), and why `StepPersistence`/`Memory` are real but
    premature before a model is actually in the loop.
+8. **[`wanflo-svelte-content-localization.md`](./wanflo-svelte-content-localization.md)** —
+   source-backed review of Wanflo's typed YAML content, build-time loading, strict locale keyset
+   validation, and manually composed Svelte sections; paired with the Seaside note to distinguish
+   content/localization patterns from section context and dynamic component selection.
 
 ## Headline findings
 

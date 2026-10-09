@@ -1,0 +1,246 @@
+# Wanflo — Thai copy.
+#
+# STATUS: COMPLETE (2026-08-24). Two kinds of Thai live here and they are NOT equal:
+#
+#   ★ OWNER'S OWN THAI — 21 strings transcribed verbatim from Mini_Portfolio_B.pdf. They
+#     are marked ★ below. DO NOT rewrite them; they are the client's own voice.
+#   · TRANSLATED — everything else, written for this pass in professional business Thai
+#     (corporate register, no ครับ/ค่ะ particles, technical terms left in English where the
+#     Thai industry uses them). A native speaker should review before this is advertised.
+#
+# ★ en.yml is the master keyset. ★ This file must carry EXACTLY the same keys — no more,
+# no fewer. The build fails and names the offending key otherwise.
+
+# ── who ─────────────────────────────────────────────────────────────────────
+# Public alias only. The full legal name is deliberately never published.
+person.alias: "คุณบี (B)" # ★ owner
+person.role: "ผู้ก่อตั้งและนักพัฒนา"
+
+# ── shell ────────────────────────────────────────────────────────────────────
+nav.website: "เว็บไซต์"
+nav.mobile: "แอปมือถือ"
+nav.packages: "แพ็กเกจ"
+nav.packages.web: "เว็บไซต์"
+nav.packages.mobile: "แอปมือถือ"
+nav.contacts: "ติดต่อ"
+nav.menu.open: "เปิดเมนู"
+nav.language: "ภาษา"
+nav.theme: "สลับธีม"
+nav.home: "หน้าแรก {name}"
+
+# The brand tagline, exactly as set in the logo lockup. It stays English in every locale
+# because it is part of the mark, not body copy.
+footer.tagline: "Smart systems. Seamless flow."
+footer.descriptor: "รับทำเว็บไซต์ & แอปพลิเคชัน" # ★ owner
+footer.rights: "สงวนลิขสิทธิ์"
+footer.cookies: "นโยบายคุกกี้"
+
+# ── shared ───────────────────────────────────────────────────────────────────
+common.cta.whatsapp: "แชททาง WhatsApp"
+common.cta.whatsapp.prefill: "สวัสดี {name} สนใจปรึกษาเรื่องโปรเจกต์"
+common.cta.whatsapp.prefill.about: "สวัสดี {name} สนใจสอบถามเกี่ยวกับ {subject}"
+common.cta.package: "สอบถามแพ็กเกจนี้"
+common.cta.copy: "คัดลอก"
+common.cta.copied: "คัดลอกแล้ว"
+
+common.steps.title: "ขั้นตอนการทำงาน"
+common.step1.title: "พูดคุย"
+common.step1.body: "บอกความต้องการของคุณ เราสรุปขอบเขตงานและราคากลับไปให้"
+common.step2.title: "พัฒนา"
+common.step2.body: "คุณเห็นงานเดินหน้าเป็นระยะ ไม่ต้องรอจนจบโครงการ"
+common.step3.title: "เปิดใช้งานและดูแลต่อ"
+common.step3.body: "เราส่งมอบและดูแลระบบให้ทำงานได้ต่อเนื่องหลังเปิดใช้"
+
+common.builtwith.title: "เทคโนโลยีที่ใช้"
+common.builtwith.lead: "เลือกเทคโนโลยีให้เหมาะกับงานแต่ละประเภท ไม่ได้ใช้เครื่องมือเดียวกับทุกงาน"
+tech.web.title: "เว็บไซต์"
+tech.web.note: "หน้าเว็บโหลดเร็ว รองรับหลายภาษา และเสิร์ชเอนจินอ่านได้จริง ยังคงเร็วแม้เนื้อหาจะเพิ่มขึ้น"
+tech.mobile.title: "แอปมือถือ"
+tech.mobile.note: "ใช้โค้ดชุดเดียวลงได้ทั้งสองสโตร์เมื่อเหมาะสม และเลือกเนทีฟเต็มรูปแบบเมื่อแอปต้องใช้ความสามารถของเครื่อง"
+tech.data.title: "ระบบหลังบ้านและข้อมูล"
+tech.data.note: "ฐานข้อมูลและระบบหลังบ้านเป็นของคุณเอง อยู่บนโฮสติงในชื่อคุณ ไม่มีส่วนใดผูกกับแพลตฟอร์มที่คุณย้ายออกไม่ได้"
+common.work.visit: "เข้าชมเว็บไซต์"
+common.work.count.web.one: "ส่งมอบแล้ว 1 เว็บไซต์"
+common.work.count.web.other: "ส่งมอบแล้ว {n} เว็บไซต์"
+common.work.count.mobile.one: "ส่งมอบแล้ว 1 แอป"
+common.work.count.mobile.other: "ส่งมอบแล้ว {n} แอป"
+
+common.work.archived: "ปิดให้บริการแล้ว"
+# {label} is the organisation's own name, never translated.
+common.work.credit.client: "พัฒนาให้กับ {label}"
+common.work.credit.studio: "พัฒนาร่วมกับ {label}"
+common.work.confidential: "แสดงเฉพาะผลงานที่สามารถเปิดเผยได้ ผลงานบางส่วนลูกค้าไม่อนุญาตให้เผยแพร่" # ★ owner
+
+pricing.on_request: "สอบถามราคา"
+pricing.starting_at: "เริ่มต้นที่"
+
+# ── home ─────────────────────────────────────────────────────────────────────
+home.meta.title: "{name} — รับทำเว็บไซต์และแอปมือถือ ครบวงจรตั้งแต่ต้นจนจบ"
+home.meta.description: "{name} คือบริษัทพัฒนาเว็บไซต์และแอปมือถือในประเทศไทย เราออกแบบ พัฒนา เปิดใช้งาน และดูแลระบบให้ทำงานต่อเนื่อง"
+home.hero.title: "เว็บไซต์และแอปมือถือ ครบวงจรตั้งแต่ต้นจนจบ"
+home.hero.lead: "ออกแบบ พัฒนา เปิดใช้งาน และดูแลต่อเนื่อง ทีมงานอยู่ในประเทศไทย รับงานลูกค้าได้ทั่วโลก"
+home.hero.secondary: "ดูผลงานของเรา"
+
+home.doors.title: "บริการของเรา"
+home.door.web.title: "เว็บไซต์"
+home.door.web.body: "แลนดิงเพจ เว็บแคตตาล็อก ระบบจอง และแพลตฟอร์มอสังหาริมทรัพย์ แบรนด์ของคุณ ข้อมูลของคุณ โหลดเร็วและรองรับหลายภาษา"
+home.door.web.cta: "ดูผลงานเว็บไซต์"
+home.door.mobile.title: "แอปมือถือ"
+home.door.mobile.body: "iOS Android และแบบข้ามแพลตฟอร์ม พัฒนา ส่งขึ้นสโตร์ทั้งสองระบบ และดูแลต่อหลังเปิดใช้งาน"
+home.door.mobile.cta: "ดูผลงานแอปมือถือ"
+
+home.work.title: "ผลงานคัดสรร เว็บไซต์ & แอปพลิเคชัน" # ★ owner
+home.work.lead: "ตัวอย่างผลงานเว็บไซต์และแอปที่ผ่านมา — โปรเจกต์จริง ลูกค้าจริง" # ★ owner
+home.work.all.web: "ดูเว็บไซต์ทั้งหมด"
+home.work.all.mobile: "ดูแอปทั้งหมด"
+
+home.contact.title: "ปรึกษาเรา"
+home.contact.body: "ทักมาข้อความเดียวก็พอ บอกสิ่งที่คุณต้องการ แล้วเราจะบอกว่าต้องใช้อะไรบ้าง"
+
+# ── /website ─────────────────────────────────────────────────────────────────
+website.meta.title: "รับทำเว็บไซต์ในประเทศไทย — {name}"
+website.meta.description: "เรารับทำแลนดิงเพจ เว็บแคตตาล็อก เว็บระบบจอง และแพลตฟอร์มอสังหาริมทรัพย์ ผลงานจริง ระบุเทคโนโลยีชัดเจน มีแพ็กเกจให้เลือก ทีมงานอยู่ในประเทศไทย"
+website.hero.title: "เว็บไซต์ที่ทำงานได้จริง"
+website.hero.lead: "แลนดิงเพจ เว็บแคตตาล็อก ระบบจอง และแพลตฟอร์มอสังหาริมทรัพย์ ใช้โดเมนและฐานข้อมูลของคุณเอง โหลดเร็ว รองรับหลายภาษา และเป็นของคุณทั้งหมด"
+website.work.title: "ผลงานเว็บไซต์" # ★ owner
+website.work.lead: "ตัวอย่างเว็บไซต์ที่ทำมา ตั้งแต่แพลตฟอร์มอสังหาริมทรัพย์ไปจนถึงเว็บธุรกิจขนาดเล็ก" # ★ owner
+website.packages.title: "แพ็กเกจ"
+website.packages.lead: "มีสามรูปแบบให้เลือก งานที่ไม่เข้ากับรูปแบบใดจัดอยู่ในแพ็กเกจงานสั่งทำ"
+website.crosslink: "ต้องการแอปมือถือด้วยหรือไม่"
+website.crosslink.cta: "ดูผลงานแอปมือถือ"
+
+website.faq.title: "คำถามที่พบบ่อย"
+website.faq.q1.q: "ทำเว็บไซต์ใช้เวลานานเท่าไร"
+website.faq.q1.a: "เว็บไซต์หน้าเดียวโดยทั่วไปใช้เวลาสองถึงสามสัปดาห์ นับจากการพูดคุยครั้งแรกจนเปิดใช้งานจริง เว็บแคตตาล็อกหรือเว็บระบบจองมักใช้เวลาหกถึงสิบสัปดาห์ ขึ้นอยู่กับความพร้อมของเนื้อหาที่คุณมี ส่วนแพลตฟอร์มอสังหาริมทรัพย์ที่มีระบบหลังบ้านจะใช้เวลานานกว่านั้น เราจะประเมินขอบเขตงานให้ละเอียดก่อนเสนอราคา เพราะการเดาไม่เป็นผลดีกับใครทั้งนั้น"
+website.faq.q2.q: "โค้ดและข้อมูลเป็นของเราหรือไม่"
+website.faq.q2.a: "เป็นของคุณทั้งสองอย่าง โค้ดอยู่ในรีโพซิทอรีที่คุณเป็นเจ้าของ เว็บไซต์รันบนโฮสติงในชื่อของคุณ และฐานข้อมูลเป็นของคุณ ไม่มีค่าไลเซนส์รายเดือนที่ต้องจ่ายให้เรา และไม่มีการผูกมัด หากคุณต้องการย้ายทั้งระบบไปที่อื่น คุณทำได้ และเราจะช่วยคุณย้าย"
+website.faq.q3.q: "รับดูแลเว็บไซต์ที่คนอื่นทำไว้หรือไม่"
+website.faq.q3.a: "ส่วนใหญ่รับ เราจะดูของเดิมก่อนแล้วบอกตรง ๆ ว่าควรทำต่อหรือควรทำใหม่ บางครั้งเว็บเดิมก็ใช้ได้ดีอยู่แล้วและต้องการแค่การดูแลรักษา การตรวจสอบนี้เป็นส่วนหนึ่งของการพูดคุยตามปกติ ไม่มีค่าใช้จ่าย"
+website.faq.q4.q: "ทำ SEO ด้วยหรือไม่"
+website.faq.q4.a: "ด้าน SEO เชิงเทคนิคเราทำให้ตั้งแต่ต้น ทั้งโครงสร้างมาร์กอัปที่สะอาด structured data หน้าเว็บที่โหลดเร็ว การตั้งค่าหลายภาษาที่ถูกต้อง และ sitemap ที่ใช้งานได้จริง ส่วนการทำคอนเทนต์และลิงก์อย่างต่อเนื่องเป็นงานคนละส่วนที่ต้องทำระยะยาว เรารับทำได้ แต่ควรเรียกตามจริงมากกว่าเหมารวมไว้ในราคาพัฒนาเว็บ"
+website.faq.q5.q: "ค่าดูแลรายเดือนประมาณเท่าไร"
+website.faq.q5.a: "ค่าโฮสติงและโดเมนสำหรับเว็บไซต์ทั่วไปไม่สูง โดยปกติหลักร้อยบาทต่อเดือน จ่ายตรงกับผู้ให้บริการ เราไม่บวกเพิ่ม นอกเหนือจากนั้นคุณจ่ายเฉพาะงานแก้ไขที่คุณสั่งจริง หรือเลือกแพ็กเกจดูแลรายเดือนแบบราคาคงที่หากไม่อยากคิดเรื่องนี้เอง"
+
+# ── /mobile ──────────────────────────────────────────────────────────────────
+mobile.meta.title: "รับทำแอปมือถือในประเทศไทย — {name}"
+mobile.meta.description: "พัฒนาแอป iOS Android และข้ามแพลตฟอร์ม ส่งขึ้นสโตร์ทั้งสองระบบ และดูแลต่อหลังเปิดใช้งาน มีผลงานจริง ระบุเทคโนโลยีชัดเจน ทีมงานอยู่ในประเทศไทย"
+mobile.hero.title: "พัฒนา เผยแพร่ และดูแลแอปให้ครบวงจร"
+mobile.hero.lead: "iOS Android และข้ามแพลตฟอร์ม เราพัฒนา พาผ่านการตรวจสอบขึ้นสโตร์ทั้งสองระบบ และดูแลให้ใช้งานได้ต่อเนื่องหลังเปิดตัว"
+mobile.work.title: "ผลงานแอปมือถือ" # ★ owner
+mobile.work.lead: "ตัวอย่างแอป iOS และ Android ที่พัฒนามา ทั้งแบบเนทีฟและข้ามแพลตฟอร์ม" # ★ owner
+mobile.packages.title: "แพ็กเกจ"
+mobile.packages.lead: "มีสามรูปแบบให้เลือก งานที่ไม่เข้ากับรูปแบบใดจัดอยู่ในแพ็กเกจงานสั่งทำ"
+mobile.crosslink: "ต้องการเว็บไซต์ด้วยหรือไม่"
+mobile.crosslink.cta: "ดูผลงานเว็บไซต์"
+
+mobile.faq.title: "คำถามที่พบบ่อย"
+mobile.faq.q1.q: "ควรทำแบบเนทีฟหรือข้ามแพลตฟอร์ม"
+mobile.faq.q1.a: "เราแนะนำข้ามแพลตฟอร์มเป็นหลัก เว้นแต่มีเหตุผลเฉพาะ เพราะโค้ดชุดเดียวลงได้ทั้งสองสโตร์ ต้นทุนพัฒนาถูกกว่าและต้นทุนดูแลระยะยาวถูกกว่ามาก เราเลือกเนทีฟเมื่อแอปพึ่งพาความสามารถของเครื่องสูง เช่น แผนที่ที่ใช้งานหนัก การติดตามตำแหน่งเบื้องหลัง หรือการเชื่อมต่อฮาร์ดแวร์โดยตรง เราจะบอกคุณก่อนตัดสินใจว่าแอปของคุณควรเป็นแบบไหน"
+mobile.faq.q2.q: "ใช้เวลานานเท่าไรกว่าจะขึ้นสโตร์"
+mobile.faq.q2.a: "แอปเริ่มต้นใช้เวลาประมาณสี่ถึงหกสัปดาห์ รวมเวลาตรวจสอบของสโตร์แล้ว แอปธุรกิจที่เชื่อมกับระบบหลังบ้านมักใช้เวลาสองถึงสี่เดือน ปัจจุบันการตรวจสอบของ Apple มักใช้เวลาหนึ่งถึงสองวัน แต่การส่งครั้งแรกของแอปใหม่จะใช้เวลานานกว่า เราจึงเผื่อเวลาไว้ในแผนแทนที่จะรับปากเกินจริง"
+mobile.faq.q3.q: "ดูแลบัญชี App Store และ Google Play ให้หรือไม่"
+mobile.faq.q3.a: "เราตั้งค่าและส่งแอปให้ รวมถึงจัดการขั้นตอนตรวจสอบและกรณีที่ถูกปฏิเสธ ทั้งนี้บัญชีนักพัฒนาควรจดทะเบียนในนามบริษัทของคุณและชำระเงินโดยคุณเอง เพื่อให้แอปเป็นของคุณตามกฎหมาย และคุณไม่ถูกผูกไว้กับเราในการอัปเดตแต่ละครั้ง"
+mobile.faq.q4.q: "รับพัฒนาแอปที่มีอยู่แล้วต่อหรือไม่"
+mobile.faq.q4.a: "โดยทั่วไปรับ เราเริ่มจากการอ่านโค้ดและบอกคุณตามจริงว่าสถานะปัจจุบันเป็นอย่างไร ซึ่งบางครั้งดีกว่าที่คาดและบางครั้งแย่กว่า ถ้าควรทำต่อเราก็ทำต่อ แต่ถ้าการเขียนใหม่ถูกกว่าการไล่แก้จริง ๆ เราจะบอกตรง ๆ แม้เป็นคำตอบที่คุณต้องจ่ายแพงกว่าก็ตาม"
+mobile.faq.q5.q: "หลังเปิดตัวแล้วต้องทำอะไรต่อ"
+mobile.faq.q5.a: "แอปต้องมีการดูแลเสมอ แม้ตัวแอปจะไม่เปลี่ยนก็ตาม เพราะแต่ละแพลตฟอร์มออกระบบปฏิบัติการใหม่ทุกปีและข้อกำหนดของสโตร์เปลี่ยนอยู่เรื่อย ๆ เรามีแพ็กเกจดูแลที่ครอบคลุมการคอมไพล์ การส่งอัปเดต และการรองรับเวอร์ชันใหม่ ส่วนฟีเจอร์ใหม่คิดราคาแยกตามที่คุณสั่งเพิ่ม"
+
+# ── /contacts ────────────────────────────────────────────────────────────────
+contacts.meta.title: "ติดต่อ {name}"
+contacts.meta.description: "ปรึกษา {name} เรื่องเว็บไซต์หรือแอปมือถือ ติดต่อทาง WhatsApp หรืออีเมล ไม่ต้องกรอกฟอร์ม ไม่ต้องสมัครสมาชิก"
+contacts.title: "ติดต่อ" # ★ owner
+contacts.lead: "บอกสิ่งที่คุณต้องการได้เลย ติดต่อทาง WhatsApp เร็วที่สุด หรือจะส่งอีเมลก็ได้เช่นกัน"
+contacts.whatsapp.label: "WhatsApp"
+contacts.email.label: "อีเมล"
+contacts.qr.label: "สแกนเพื่อเปิด WhatsApp บนมือถือของคุณ"
+contacts.noform: "ไม่มีฟอร์มและไม่ต้องสมัครสมาชิก คุณติดต่อกับคนจริงโดยตรง"
+contacts.review.title: "รีวิวเว็บไซต์ฟรี"
+contacts.review.body: "ทักมาได้เลยถ้าอยากให้ช่วยรีวิวเว็บไซต์ของคุณ — ดูให้ฟรีว่าควรปรับตรงไหน" # ★ owner
+
+# The TYPE line under each project name.
+work.bestie-real-estate.type: "แพลตฟอร์มอสังหาริมทรัพย์ — ออกแบบใหม่"
+work.kitecable.type: "เว็บไซต์สวนเวคบอร์ด"
+work.bestays.type: "แพลตฟอร์มจองที่พัก"
+work.shredbx.type: "เว็บพอร์ตโฟลิโอและแสดงผลงาน"
+work.design-studio.type: "เว็บไซต์พอร์ตโฟลิโอสตูดิโอออกแบบ"
+work.intuition-challenge.type: "ข้ามแพลตฟอร์ม (iOS & Android)"
+work.bein.type: "ไกด์ร้านค้าแฟชั่น"
+work.velomesto.type: "แผนที่เส้นทางปั่นจักรยานในเมือง"
+work.7tree.type: "ผังครอบครัวและลำดับวงศ์ตระกูล"
+work.le-paris-des-galleries.type: "ไกด์แกลเลอรีศิลปะ"
+work.ismarthouse.type: "ระบบควบคุมบ้านอัจฉริยะ"
+
+# ── project descriptions ─────────────────────────────────────────────────────
+# All ★ owner's own Thai, transcribed verbatim, except 7Tree which was added later.
+work.7tree.note: "แอปผังครอบครัวแบบส่วนตัว แก้ไขผังได้ด้วยภาพ บันทึกเรื่องราวและอัลบั้มรูป ข้อมูลเก็บอยู่ใน iCloud ของผู้ใช้เอง ไม่เก็บบนเซิร์ฟเวอร์"
+work.bestie-real-estate.note: "แพลตฟอร์มอสังหาริมทรัพย์ครบวงจร ค้นหาบนแผนที่ ระบบเอเจนต์ ออกแบบเฉพาะสำหรับข้อมูลที่ดินไทย"
+work.kitecable.note: "เว็บไซต์สองภาษาสำหรับสวนเวคบอร์ดเคเบิล โหลดเร็ว เป็นมิตรกับ SEO"
+work.bestays.note: "เว็บไซต์จองที่พัก ค้นหาและจัดการคำถามจากลูกค้าได้ในที่เดียว"
+work.shredbx.note: "เว็บไซต์พอร์ตโฟลิโอแสดงผลงาน พร้อมระบบกรองตามเทคโนโลยีและหมวดหมู่"
+work.design-studio.note: "เว็บไซต์พอร์ตโฟลิโอสตูดิโอออกแบบ แก้ไขเนื้อหาได้เองผ่านระบบแอดมิน"
+work.intuition-challenge.note: "เกมทายใจข้ามแพลตฟอร์ม โค้ดเดียวใช้ได้ทั้ง iOS และ Android"
+work.bein.note: "แอปแฟชั่นพร้อมแผนที่ร้านค้า และระบบลองเสื้อผ้าผ่านกล้อง"
+work.velomesto.note: "แอปแผนที่เส้นทางปั่นจักรยานสำหรับชุมชนนักปั่น"
+work.le-paris-des-galleries.note: "แอปไกด์แกลเลอรีศิลปะในปารีส ดูนิทรรศการและเส้นทางเที่ยวชม"
+work.ismarthouse.note: "แอปควบคุมบ้านอัจฉริยะ สั่งงานไฟ ระบบทำความเย็น และฉากอัตโนมัติ"
+
+# ── cookie consent banner ────────────────────────────────────────────────────
+cookie.text: "เราใช้คุกกี้เพื่อทำความเข้าใจว่าผู้เข้าชมใช้งานเว็บไซต์นี้อย่างไร คุณเลือกได้ว่าจะอนุญาตการเก็บสถิติหรือไม่"
+cookie.policy: "นโยบายคุกกี้"
+cookie.accept: "ยอมรับ"
+cookie.decline: "ไม่ยอมรับ"
+
+# ── packages ─────────────────────────────────────────────────────────────────
+# Was rendering ENGLISH on this page until 2026-08-24: the words lived in packages.yml,
+# which the master-keyset check never guarded.
+
+package.homepage.name: "เว็บไซต์หน้าเดียว"
+package.homepage.summary: "หน้าเว็บเดียวที่นำเสนอธุรกิจของคุณอย่างมืออาชีพ และรับการติดต่อจากลูกค้าได้"
+package.homepage.f1: "หน้าเดียว ออกแบบเพื่อมือถือเป็นหลัก ตามแบรนด์ของคุณ"
+package.homepage.f2: "ฟอร์มติดต่อและปุ่ม WhatsApp"
+package.homepage.f3: "SEO พื้นฐานและระบบเก็บสถิติผู้เข้าชม"
+package.homepage.f4: "ตั้งค่าโฮสติงและเชื่อมโดเมนของคุณให้พร้อมใช้งาน"
+
+package.real-estate.name: "อสังหาริมทรัพย์"
+package.real-estate.summary: "แพลตฟอร์มอสังหาริมทรัพย์ที่ใช้งานได้จริง ไม่ใช่แค่โบรชัวร์ออนไลน์"
+package.real-estate.f1: "แคตตาล็อกทรัพย์พร้อมตัวกรองการค้นหา"
+package.real-estate.f2: "ค้นหาบนแผนที่"
+package.real-estate.f3: "เครื่องมือสำหรับเอเจนต์และระบบจัดการคำถามลูกค้า"
+package.real-estate.f4: "รองรับหลายภาษา"
+package.real-estate.f5: "คลังรูปภาพและสื่อ"
+package.real-estate.f6: "ระบบหลังบ้านสำหรับผู้ดูแล"
+
+package.custom-web.name: "งานสั่งทำและดูแลระบบ"
+package.custom-web.summary: "งานที่ไม่เข้ากับรูปแบบมาตรฐาน รวมถึงการรับดูแลเว็บไซต์ที่คุณมีอยู่แล้ว"
+package.custom-web.f1: "พัฒนาเว็บไซต์ตามความต้องการเฉพาะ"
+package.custom-web.f2: "รับดูแลหรือพัฒนาต่อจากเว็บไซต์เดิม"
+package.custom-web.f3: "งานด้าน SEO"
+package.custom-web.f4: "ระบบอัตโนมัติและการเชื่อมต่อกับระบบอื่น"
+package.custom-web.f5: "ผู้ช่วย AI"
+package.custom-web.f6: "คอนเทนต์และสื่อ"
+package.custom-web.f7: "แพ็กเกจดูแลรักษาระบบ"
+
+package.app-starter.name: "แอปเริ่มต้น"
+package.app-starter.summary: "เทียบเท่าแลนดิงเพจในเวอร์ชันแอปมือถือ ขึ้นครบทั้งสองสโตร์"
+package.app-starter.f1: "ข้ามแพลตฟอร์ม (React Native / Expo)"
+package.app-starter.f2: "3-5 หน้าจอ ใช้ธีมตามแบรนด์ของคุณ"
+package.app-starter.f3: "การแจ้งเตือนแบบพุช"
+package.app-starter.f4: "ส่งขึ้น App Store และ Google Play ให้เรียบร้อย"
+
+package.business-app.name: "แอปสำหรับธุรกิจ"
+package.business-app.summary: "แอปแคตตาล็อกหรือระบบจอง เชื่อมต่อกับระบบที่คุณใช้งานอยู่"
+package.business-app.f1: "ระบบเข้าสู่ระบบ หน้ารายการ และหน้ารายละเอียด"
+package.business-app.f2: "ค้นหาและแผนที่"
+package.business-app.f3: "ระบบรับคำถามจากลูกค้า"
+package.business-app.f4: "ใช้งานต่อได้เมื่อออฟไลน์"
+package.business-app.f5: "ระบบเก็บสถิติการใช้งาน"
+package.business-app.f6: "เชื่อมต่อกับระบบหลังบ้านของคุณ"
+
+package.custom-mobile.name: "งานสั่งทำ"
+package.custom-mobile.summary: "เลือกเนทีฟเมื่อจำเป็น เลือกข้ามแพลตฟอร์มเมื่อคุ้มค่ากว่า"
+package.custom-mobile.f1: "เนทีฟ iOS หรือเนทีฟ Android"
+package.custom-mobile.f2: "ข้ามแพลตฟอร์ม (React Native)"
+package.custom-mobile.f3: "รับพัฒนาต่อจากแอปเดิม"
+package.custom-mobile.f4: "เผยแพร่บน App Store / Google Play และดูแลให้เป็นไปตามข้อกำหนด"
+package.custom-mobile.f5: "เชื่อมต่อกับระบบที่คุณใช้งานอยู่"
+package.custom-mobile.f6: "ดูแลรักษาและอัปเดต"

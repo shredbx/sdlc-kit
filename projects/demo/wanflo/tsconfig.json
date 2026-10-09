@@ -1,0 +1,19 @@
+{
+  "extends": "./.svelte-kit/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "bundler"
+  },
+  // The v1 landing and its data/i18n modules are FROZEN reference: zero imports from live
+  // code, absent from the bundle. They still carry $lib/data/* imports that moved with them,
+  // so type-checking them reports errors about code that is deliberately dead. Excluded so
+  // the gate reflects shipping code only.
+  "exclude": ["src/lib/archive/**", "tests/archive-v1/**"]
+}

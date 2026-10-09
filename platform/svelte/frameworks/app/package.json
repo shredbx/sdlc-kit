@@ -1,0 +1,16 @@
+{
+  "name": "@sbx/app-svelte",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./server": {
+      "types": "./src/lib/server/index.ts",
+      "default": "./src/lib/server/index.ts"
+    }
+  },
+  "files": ["src"],
+  "peerDependencies": {
+    "@sveltejs/kit": "^2.0.0",
+    "svelte": "^5.0.0"
+  }
+}

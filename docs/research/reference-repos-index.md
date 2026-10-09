@@ -1,6 +1,6 @@
 # Reference repos index
 
-Last updated: 2026-09-24
+Last updated: 2026-10-09
 tags: index, reference, research
 
 Purpose: one lookup table for every prior-work repo added as a reference so far, so a future session
@@ -18,6 +18,7 @@ a parallel index.
 | sbx.framework (v2) | `/Users/solo/Projects/workspaces/sbx.framework` | Paused predecessor; birthplace of process-os's own engine design | `sbx-framework-inventory.md` |
 | sbx-workspace | `/Users/solo/Projects/workspaces/sbx-workspace` | Early filestructure precedent (`platform/python/{applications,frameworks,packages}`, `projects/{products,experiments,prototypes,tools}`, `consumers/`) | CLAUDE.md/README read directly, folder tree only — no standalone doc yet |
 | Python quality comparison | — | process-os's own Python vs. shredbx/sbx.framework Python, craftsmanship verdict | `python-implementation-quality-comparison.md` — **done**. Verdict: process-os is the most internally consistent/disciplined of the five codebases read (error-handling split, typing, packaging uniformity), but has zero lint/type-check/CI (a gap shared by every comparison codebase except sbx.framework's CI, which itself has no Python lint/type job either) and a self-admitted test gap in `types/` (string/integer/float/sequence untested). Recommendation: wire up ruff+mypy+CI at the point of porting, not after. |
+| Wanflo Svelte app | `shredbx/shredbx-workspace` at `a96d9d058fb312eb896e2509710905a4acd6c8bb`, `clients/wanflo/projects/wanflo/apps/web/svelte/` | Prerendered SvelteKit marketing app; typed YAML content, locale keyset validation, and manually composed reusable sections | `wanflo-svelte-content-localization.md` — build-time content and localization precedent; not a dynamic component resolver or runtime source registry. |
 
 ## `shredbx-workspace-reference` — a graveyard of 9 older/parallel projects
 
@@ -32,7 +33,7 @@ the rest are noted, not opened.
 | `whisper-python` | FastAPI + SvelteKit (Python backend) | Speech-to-text service: Whisper model, WebSocket streaming, a parallel/overlapping recording strategy | untracked (no `.git`) | The one real Python codebase here. Clean `routers/services/models` split (`backend/app/`), plus its own independent YAML user-story requirements system (`requirements/system-definition.yml` + `requirements/user-stories/US-*.yml`, even a small `req_cli.py`) — a third independent example (alongside shredbx's `.sbx/` and sbx.framework's rows) of schema/YAML-driven requirements, worth comparing. Pairs with sbx.framework's separate Swift voice-to-text menu-bar app — two unrelated attempts at voice/transcription tooling, worth cross-referencing if that ever becomes a real feature. |
 | `bestays-svelte` | SvelteKit 5 + FastAPI | An earlier, standalone real-estate app attempt (Svelte+**FastAPI**, vs. the live shredbx client project's Svelte+**Go**) | 2025-11-12 | CI/CD + codecov already wired. A different backend-language choice for the same product idea — comparison value if the Go rebuild's tradeoffs are ever revisited. |
 | `ex-nextjs-zustand-dynamic-forms-demo` | Next.js 15 + Zustand + Immer | Dynamic form builder demo, "Domain-Property-Record-Value" architecture | 2025-12-20 | Worth a real look later — schema-driven dynamic forms is directly relevant to our own entity-modeling ambitions and to the AI-assistant chat UI's form needs. |
-| `seaside-workspace` | Next.js 15 + React 19 + Supabase | CMS-style content-model starter | 2025-10-06 | A second Next.js-starter reference alongside `bestays-web` — worth comparing tech choices (Supabase vs. our own Go-API pattern) when finalizing the Next.js bootstrap. |
+| `seaside-workspace` | Next.js 15 + React 19 + Supabase | CMS-style content-model starter; inspected specifically for section/content data, section context, and composition | 2025-10-06 | `seaside-workspace-dynamic-content.md` records the source-backed findings at commit `2477824`, including the useful `domain`/`section` context and the limits: pages manually select layouts, Supabase is hardwired, and resolver state is module-global. |
 | `remote-claude-code` | unknown (`claude-code-ui/`) | Barely started — one `init` commit | 2025-11-27 | Minimal; skip unless it becomes specifically relevant. |
 | `shredbx` (nested copy) | `services/`-based monorepo | An earlier-branded "Experimental Development Lab" version of what's now the live shredbx — different top-level layout (`services/`, not `clients/`+`projects/`) | 2025-11-24 | Evolutionary artifact, not a separate product — shows an earlier structural convention before the current shredbx shape. |
 | `shredbx-sandbox-001-background-video-stream` | SvelteKit-based | A sandbox spike | 2025-11-24 | Narrow, likely low reuse value. |

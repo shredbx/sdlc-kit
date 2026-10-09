@@ -1,0 +1,255 @@
+# Wanflo — English copy. ★ THIS FILE IS THE MASTER KEYSET. ★
+#
+# Every visible word on the site is here. Edit a value, run `pnpm build`, it changes.
+# th.yml and ru.yml must carry EXACTLY these keys — no more, no fewer. The build fails
+# and names the offending key otherwise, so a half-translated locale can never ship.
+#
+# Add a key here FIRST, then to th.yml and ru.yml. Remove it here LAST.
+#
+# Project DESCRIPTIONS are here too, under `work.<slug>.note`, not in work.yml — they are
+# prose, and prose is per-language. Being here means the keyset check guarantees a project
+# can never have an English description and be silently missing its Thai one.
+
+# ── who ─────────────────────────────────────────────────────────────────────
+# Public alias only. The full legal name is deliberately never published.
+person.alias: "Ms. B"
+person.role: "Founder & developer"
+
+# ── shell ────────────────────────────────────────────────────────────────────
+nav.website: "Website"
+nav.mobile: "Mobile"
+nav.packages: "Packages"
+nav.packages.web: "Web"
+nav.packages.mobile: "Mobile"
+nav.contacts: "Contacts"
+nav.menu.open: "Open menu"
+nav.language: "Language"
+nav.theme: "Switch theme"
+nav.home: "{name} home"
+
+# The brand tagline, exactly as set in the logo lockup. It stays English in every locale
+# because it is part of the mark, not body copy.
+footer.tagline: "Smart systems. Seamless flow."
+footer.descriptor: "Web & app development"
+footer.rights: "All rights reserved."
+footer.cookies: "Cookie policy"
+
+# ── shared ───────────────────────────────────────────────────────────────────
+common.cta.whatsapp: "Chat on WhatsApp"
+common.cta.whatsapp.prefill: "Hi {name}, I'd like to talk about a project."
+common.cta.whatsapp.prefill.about: "Hi {name}, I'd like to talk about {subject}."
+common.cta.package: "Talk about this"
+common.cta.copy: "Copy"
+common.cta.copied: "Copied"
+
+common.steps.title: "How we work"
+common.step1.title: "Talk"
+common.step1.body: "Tell us what you need. We come back with scope and a price."
+common.step2.title: "Build"
+common.step2.body: "You see it working as it goes, not at the end."
+common.step3.title: "Launch & keep running"
+common.step3.body: "We ship it, and we keep it running afterwards."
+
+common.builtwith.title: "Built with"
+common.builtwith.lead: "Three stacks, picked per job rather than one tool used for everything."
+# One group per entry in site.yml -> techGroups. The NOTE is the whole point of the section:
+# the framework names answer a technical buyer, the note answers everyone else.
+tech.web.title: "Websites"
+tech.web.note: "Fast, multilingual pages that search engines can actually read — and that stay fast as the content grows."
+tech.mobile.title: "Mobile apps"
+tech.mobile.note: "One codebase in both stores when that is the sensible answer, fully native when the app leans on the device."
+tech.data.title: "Back-office & data"
+tech.data.note: "Your own database and admin panel, on hosting in your name. Nothing here is rented from a platform you cannot leave."
+common.work.visit: "Visit site"
+common.work.count.web.one: "1 site shipped"
+common.work.count.web.other: "{n} sites shipped"
+common.work.count.mobile.one: "1 app shipped"
+common.work.count.mobile.other: "{n} apps shipped"
+
+common.work.archived: "Archived"
+# Provenance. {label} is the organisation's own name, from work.yml — never translated.
+#   client → who the work was delivered TO      studio → who it was delivered THROUGH
+common.work.credit.client: "Built for {label}"
+common.work.credit.studio: "Built at {label}"
+# Reads as discretion to a prospect: it says client confidentiality is respected here.
+common.work.confidential: "Showing only the work we're permitted to share — some client projects are confidential."
+
+pricing.on_request: "Pricing on request"
+pricing.starting_at: "from"
+
+# ── home ─────────────────────────────────────────────────────────────────────
+home.meta.title: "{name} — websites and mobile apps, built end to end"
+home.meta.description: "{name} is a Thailand-based web and mobile development company. We design, build and launch websites and mobile apps, and keep them running."
+home.hero.title: "Websites and mobile apps, built end to end."
+home.hero.lead: "Design, build, launch, keep running. Thailand-based, working with clients anywhere."
+home.hero.secondary: "See our work"
+
+home.doors.title: "What we build"
+home.door.web.title: "Websites"
+home.door.web.body: "Landing pages, catalogues, booking, real-estate platforms. Your brand, your data, fast and multilingual."
+home.door.web.cta: "See websites"
+home.door.mobile.title: "Mobile apps"
+home.door.mobile.body: "iOS, Android and cross-platform. Built, submitted to both stores, and maintained after launch."
+home.door.mobile.cta: "See mobile apps"
+
+home.work.title: "Selected work"
+home.work.lead: "A quick look at recent website and mobile app work — live projects, real clients."
+home.work.all.web: "All websites"
+home.work.all.mobile: "All apps"
+
+home.contact.title: "Talk to us"
+home.contact.body: "One message is enough. Tell us what you need and we will tell you what it takes."
+
+# ── /website ─────────────────────────────────────────────────────────────────
+website.meta.title: "Website development in Thailand — {name}"
+website.meta.description: "We build landing pages, catalogues, booking sites and real-estate platforms. Live projects, named stack, fixed packages. Thailand-based."
+website.hero.title: "Websites that do a job."
+website.hero.lead: "Landing pages, catalogues, booking, property platforms. Built on your own domain and your own data — fast, multilingual, and yours to keep."
+website.work.title: "Selected websites"
+website.work.lead: "A sample of recent website work, from full platforms to small business sites."
+website.packages.title: "Packages"
+website.packages.lead: "Three shapes. Anything that does not fit goes in Custom."
+website.crosslink: "Need an app as well?"
+website.crosslink.cta: "See mobile apps"
+
+website.faq.title: "Questions"
+website.faq.q1.q: "How long does a website take?"
+website.faq.q1.a: "A one-page site is usually two to three weeks from the first conversation to being live. A catalogue or booking site is typically six to ten weeks, depending on how much of your content is ready. A property platform with an admin back-office runs longer — we scope that one properly before quoting, because guessing helps nobody."
+website.faq.q2.q: "Do I own the code and the data?"
+website.faq.q2.a: "Yes, both. The code goes in a repository you own, the site runs on hosting in your name, and the database is yours. There is no licence to keep paying us and no lock-in — if you want to move the whole thing elsewhere, you can, and we will help you do it."
+website.faq.q3.q: "Can you take over a site someone else built?"
+website.faq.q3.a: "Often, yes. We look at what is there first and tell you honestly whether it is worth continuing or worth replacing — sometimes the existing site is fine and only needs maintenance. That review is a normal part of the conversation, not a paid engagement."
+website.faq.q4.q: "Do you do SEO?"
+website.faq.q4.a: "The technical side is built in: clean markup, structured data, fast pages, correct multilingual setup, a real sitemap. Ongoing content and link work is a separate, ongoing job — we can do it, but it is honest to call it what it is rather than to bundle it into a build price."
+website.faq.q5.q: "What does it cost to keep running?"
+website.faq.q5.a: "Hosting and domain for a normal site are small — usually a few hundred baht a month, paid directly by you to the provider, not marked up by us. Beyond that you only pay for changes you actually ask for, or a fixed care plan if you would rather not think about it."
+
+# ── /mobile ──────────────────────────────────────────────────────────────────
+mobile.meta.title: "Mobile app development in Thailand — {name}"
+mobile.meta.description: "iOS, Android and cross-platform apps, built and released to both stores, and maintained after launch. Shipped apps, named stack. Thailand-based."
+mobile.hero.title: "Apps built, released and looked after."
+mobile.hero.lead: "iOS, Android and cross-platform. We build it, get it through review into both stores, and keep it working after launch."
+mobile.work.title: "Selected mobile apps"
+mobile.work.lead: "A sample of iOS and Android apps built — both native and cross-platform."
+mobile.packages.title: "Packages"
+mobile.packages.lead: "Three shapes. Anything that does not fit goes in Custom."
+mobile.crosslink: "Need a website as well?"
+mobile.crosslink.cta: "See websites"
+
+mobile.faq.title: "Questions"
+mobile.faq.q1.q: "Native or cross-platform?"
+mobile.faq.q1.a: "Cross-platform unless there is a reason not to — one codebase in both stores is cheaper to build and much cheaper to keep alive. We go native when the app leans hard on the device: heavy maps, background location, tight hardware integration. We will tell you which one your app is before you commit."
+mobile.faq.q2.q: "How long until it is in the stores?"
+mobile.faq.q2.a: "A starter app is roughly four to six weeks including store review. A business app tied to a back-office is usually two to four months. Apple's review itself is normally a day or two now, but the first submission of a new app takes longer, so we plan for it rather than promising around it."
+mobile.faq.q3.q: "Do you handle the App Store and Play accounts?"
+mobile.faq.q3.a: "We set up and submit, and we deal with the review process, including rejections. The developer accounts should be registered in your company's name and paid for by you — that way the apps are legally yours, and you are never locked to us to publish an update."
+mobile.faq.q4.q: "Can you take over an existing app?"
+mobile.faq.q4.a: "Usually. We start by reading the code and telling you what state it is really in, which is sometimes better and sometimes worse than expected. If it is worth continuing we continue it; if rebuilding is genuinely cheaper than fixing, we will say so even though it is the more expensive answer for you to hear."
+mobile.faq.q5.q: "What happens after launch?"
+mobile.faq.q5.a: "Apps need maintenance whether or not they change: the platforms release a new OS every year, and store requirements move. We offer a maintenance plan that covers keeping it building, submitted and compatible. New features are quoted separately as you ask for them."
+
+# ── /contacts ────────────────────────────────────────────────────────────────
+contacts.meta.title: "Contact {name}"
+contacts.meta.description: "Talk to {name} about a website or a mobile app. WhatsApp or email — no forms, no signup."
+contacts.title: "Get in touch"
+contacts.lead: "Tell us what you need. WhatsApp is fastest, email is fine too."
+contacts.whatsapp.label: "WhatsApp"
+contacts.email.label: "Email"
+contacts.qr.label: "Scan to open WhatsApp on your phone"
+contacts.noform: "No forms and no signup — you reach a person directly."
+# The strongest, lowest-commitment ask in the whole portfolio. It was missing from the site.
+contacts.review.title: "Free website review"
+contacts.review.body: "Message us for a website review — we'll take a look and tell you what we'd improve."
+
+# The TYPE line under each project name. English is exactly as the owner's portfolio
+# writes it; th/ru are translated. Moved out of work.yml, where it rendered English on
+# every locale while the build stayed green.
+work.bestie-real-estate.type: "Property Platform — Redesign"
+work.kitecable.type: "Wake Park Website"
+work.bestays.type: "Accommodation Booking Platform"
+work.shredbx.type: "Portfolio & Showcase Portal"
+work.design-studio.type: "Studio Portfolio Website"
+work.intuition-challenge.type: "Cross-Platform (iOS & Android)"
+work.bein.type: "Fashion Retail Guide"
+work.velomesto.type: "Urban Cycling Map"
+work.7tree.type: "Family Tree & Genealogy"
+work.le-paris-des-galleries.type: "Art Gallery Guide"
+work.ismarthouse.type: "Smart Home Control"
+
+# ── project descriptions ─────────────────────────────────────────────────────
+# One per entry in content/work.yml, keyed by its slug. Adding a project to work.yml without
+# adding its note to all three decks fails the build, by design.
+work.7tree.note: "Private family-tree app — visual editor, life stories, photo galleries. Data stays in the owner's own iCloud, never on a server."
+work.bestie-real-estate.note: "Full real-estate platform — map search, agent tools, built for Thai land-title data."
+work.kitecable.note: "Bilingual wake park website — fast, mobile-friendly, SEO-ready."
+work.bestays.note: "Accommodation booking site with search and inquiry management."
+work.shredbx.note: "Portfolio website with technology and category filtering."
+work.design-studio.note: "Design studio showcase with an admin-editable CMS."
+work.intuition-challenge.note: "Cross-platform quiz game — one codebase, both OS."
+work.bein.note: "Fashion guide with store maps and camera try-on."
+work.velomesto.note: "Community cycling route map and navigation."
+work.le-paris-des-galleries.note: "Paris art-gallery guide with exhibitions and routes."
+work.ismarthouse.note: "Smart-home control for lighting, climate and scenes."
+
+# ── cookie consent banner ────────────────────────────────────────────────────
+cookie.text: "We use cookies to understand how visitors use this site. You choose whether to allow analytics."
+cookie.policy: "Cookie policy"
+cookie.accept: "Accept"
+cookie.decline: "Decline"
+
+# ── packages ─────────────────────────────────────────────────────────────────
+# One block per entry in content/packages.yml, keyed by its id. The bullet COUNT is read
+# off this file (the master keyset), so adding `.f5` in all three decks adds a fifth bullet
+# with no code change. Adding a package to packages.yml without adding its words here fails
+# the build, by design.
+
+package.homepage.name: "Homepage"
+package.homepage.summary: "One page that presents you properly and takes enquiries."
+package.homepage.f1: "One page, mobile-first, built to your brand"
+package.homepage.f2: "Contact form and WhatsApp button"
+package.homepage.f3: "SEO basics and analytics"
+package.homepage.f4: "Hosting set up and pointed at your domain"
+
+package.real-estate.name: "Real estate"
+package.real-estate.summary: "A property platform, not a brochure."
+package.real-estate.f1: "Property catalogue with filters"
+package.real-estate.f2: "Map search"
+package.real-estate.f3: "Agent tools and enquiry handling"
+package.real-estate.f4: "Multi-language"
+package.real-estate.f5: "Media library"
+package.real-estate.f6: "Admin back-office"
+
+package.custom-web.name: "Custom & support"
+package.custom-web.summary: "Anything that is not a standard shape, plus taking over what you already have."
+package.custom-web.f1: "Custom website build"
+package.custom-web.f2: "Take over or support an existing website"
+package.custom-web.f3: "SEO work"
+package.custom-web.f4: "Automations and integrations"
+package.custom-web.f5: "AI assistant"
+package.custom-web.f6: "Content and media"
+package.custom-web.f7: "Maintenance and care plan"
+
+package.app-starter.name: "App starter"
+package.app-starter.summary: "The mobile equivalent of a landing page — in both stores."
+package.app-starter.f1: "Cross-platform (React Native / Expo)"
+package.app-starter.f2: "3-5 screens, your brand theme"
+package.app-starter.f3: "Push notifications"
+package.app-starter.f4: "Submitted to the App Store and Google Play"
+
+package.business-app.name: "Business app"
+package.business-app.summary: "A catalogue or booking app wired to the system you already run."
+package.business-app.f1: "Sign-in, list and detail screens"
+package.business-app.f2: "Search and maps"
+package.business-app.f3: "Enquiries"
+package.business-app.f4: "Offline cache"
+package.business-app.f5: "Analytics"
+package.business-app.f6: "Connected to your back-office"
+
+package.custom-mobile.name: "Custom"
+package.custom-mobile.summary: "Native where it matters, cross-platform where it pays."
+package.custom-mobile.f1: "Native iOS or native Android"
+package.custom-mobile.f2: "Cross-platform (React Native)"
+package.custom-mobile.f3: "Take over an existing app"
+package.custom-mobile.f4: "App Store / Play release and compliance"
+package.custom-mobile.f5: "Integrate with systems you already run"
+package.custom-mobile.f6: "Maintenance and updates"

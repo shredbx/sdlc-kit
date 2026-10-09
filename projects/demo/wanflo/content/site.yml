@@ -1,0 +1,152 @@
+# Wanflo — site identity. EDIT HERE, nowhere else.
+# Every value below reaches the screen (and the structured data) through
+# src/lib/content/index.ts. No .svelte file contains an email, a phone number or a handle.
+# Change a line, run `pnpm build`, done. No code change, ever.
+
+name: Wanflo
+
+# Canonical host MUST equal the host Vercel actually serves. Vercel is www-primary
+# (apex wanflo.com 308-redirects -> www), so canonical/og:url resolve here with NO redirect.
+# A self-referential canonical that redirects is what broke Facebook's scraper in 2026-07.
+# If Vercel's primary domain is ever flipped to the bare apex, change both lines together.
+url: https://www.wanflo.com
+domain: wanflo.com
+
+base: Thailand          # where we operate -> schema.org areaServed. Open to customers anywhere.
+currency: THB
+foundedYear: 2026
+
+# The name and the role are WORDS, so they live in content/copy/<lang>.yml
+# (person.alias / person.role) — Thai renders "บี (B)". Only the image belongs here.
+person:
+  # Owner-supplied 2026-08-24. Rounded in CSS, never baked into the file, so one asset
+  # serves the hero circle and the contacts panel. Omit this key -> no photo renders.
+  portrait: /brand/portrait-512.webp
+  portrait2x: /brand/portrait-1024.webp
+
+contact:
+  email: wanfloinfo@gmail.com
+  whatsapp:
+    phone: "66983757671"          # digits only — this is the wa.me link target
+    display: "+66 98 375 7671"    # what a human reads on screen
+    handle: "@wan1flo"            # searchable inside WhatsApp; wa.me has NO username link form
+  # Cut from the owner's WhatsApp Business QR export (code + quiet zone only; the card
+  # around it repeated the name and number, which the page already renders as real text).
+  # Remove this key -> the QR block disappears from /contacts entirely.
+  qr: /brand/qr-whatsapp.png
+
+# The floating contact affordance, bottom-right of every page except /contacts.
+#   whatsapp  → a link straight into WhatsApp (today)
+#   assistant → the AI chat panel mounts in the SAME slot, same size, same behaviour —
+#               flip this one word when the assistant exists; no page or layout change
+#   off       → no dock at all
+dock:
+  mode: whatsapp
+
+# Published social profiles. Empty today.
+# Add ONE entry here and the icon appears in the header, the footer and on /contacts.
+# Nothing else to touch. Shape: { id, label, url }
+social: []
+
+# Cut from the owner's transparent logo sheet (tools/cut-assets.sh records every crop).
+# The sheet is a light/dark PAIR: navy ink for light backgrounds, white ink for dark ones.
+#   mark / wordmark  -> the header, sized independently so the tagline is never shrunk to mush
+#   lockup           -> the footer, big enough for the tagline to actually read
+brand:
+  mark:         /brand/logo-mark-light.png       # navy mark   — for LIGHT backgrounds
+  markDark:     /brand/logo-mark-dark.png        # white mark  — for DARK backgrounds
+  wordmark:     /brand/logo-wordmark-light.png   # navy WANFLO
+  wordmarkDark: /brand/logo-wordmark-dark.png    # white WANFLO
+  lockup:       /brand/logo-lockup-light.png     # mark | WANFLO + tagline, navy
+  lockupDark:   /brand/logo-lockup-dark.png      # mark | WANFLO + tagline, white
+  themeColor:
+    light: "#f5f8fc"
+    dark: "#0a1626"
+
+# Media CDN — LIVE since 2026-08-24. Cloudflare R2 bucket `wanflo-homepage`, served from
+# media.wanflo.com. Verified: all 32 assets answer 200, content-type correct,
+# cache-control max-age=14400.
+#
+# base: "" would serve everything from this site's own origin. It is set, so the prefixes
+#       below resolve to the bucket instead — and those files are NO LONGER in static/.
+#       There is exactly one copy of each: on the CDN, staged locally in cdn-upload/ for
+#       the owner to sync. Emptying this string now breaks every image, because there is
+#       nothing local left to fall back to.
+#
+# paths: which URL prefixes move. Deliberately NOT everything:
+#   /work  screenshots — replacing one is an upload, not a redeploy
+#   /og    share images — fetched by crawlers, never by a visitor
+#
+#   /icons IS NOT HERE, and that is the fix for a real failure. The marks were served from
+#          the bucket as CSS mask-image and every one failed with net::ERR_FAILED: a
+#          cross-origin image used as a MASK is subject to CORS, unlike a plain <img>, which
+#          is why the screenshots on the same bucket load fine. They are inlined into the
+#          page now — see src/lib/icons/index.ts.
+#
+#   /brand STAYS local — the header logo is in the first paint, and a second origin costs a
+#          DNS lookup plus a TLS handshake before that byte arrives.
+#   /fonts STAYS local — same first-paint argument, and a cross-origin webfont additionally
+#          needs CORS headers on the bucket, which is a config step that can fail silently.
+media:
+  base: "https://media.wanflo.com"
+  paths: [/work, /og]
+
+
+# The "Built with" section. THIS IS CURATED, NOT DUMPED.
+#
+# It used to print every distinct string in work.yml, in first-appearance order. That put
+# TCP/IP, MapKit, CloudKit and Core Data in front of customers — implementation trivia from
+# 2013 iOS work that answers no question a buyer is asking, and reads as padding.
+#
+# What a buyer is actually asking is "can these people build MY thing, and will I own it".
+# So the section answers that in three groups, each with one plain-language line. The
+# framework names stay because a technical buyer does check them; the line is there because
+# most buyers cannot.
+#
+# THE HONESTY RULE, enforced by a test: every item below must appear in some project's
+# `stack` in work.yml. The section can never name a technology no shipped project used.
+# The reverse is fine and deliberate — a technology can be used and NOT listed here.
+# TCP/IP, MapKit, CloudKit and Core Data still appear on their own project cards, which is
+# where a reader who cares about them is actually looking.
+#
+# Titles and the one-line notes are prose, so they live in content/copy/<lang>.yml under
+# `tech.<id>.title` and `tech.<id>.note`.
+techGroups:
+  - id: web
+    items: [SvelteKit, Next.js, React]
+  - id: mobile
+    items: [React Native, Expo, iOS]
+  - id: data
+    items: [Go, PostgreSQL, Supabase]
+
+# Marks for the names above. KEY = the exact stack string in work.yml, VALUE = a file in
+# src/lib/icons/tech/, INLINED into the page (see src/lib/icons/index.ts for why they are
+# not fetched). Every listed technology has a REAL logo of its own — the four category
+# glyphs that used to live here (a pin for MapKit, a cloud for CloudKit, a database for
+# Core Data, a network node for TCP/IP) went away with the entries they stood in for.
+#
+# React Native genuinely uses the React atom — that is its own logo, not a stand-in.
+#
+# SOURCES: Simple Icons (CC0) for Svelte, Go, PostgreSQL, React, Supabase and Expo; Tabler
+# Icons (MIT) for Apple and Next.js — the Simple Icons versions of those two are SOLID fills
+# that collapse into dark blobs at 16px beside the outline marks around them.
+#
+# They render in the CURRENT TEXT COLOUR, never in their brand colour: the marks ship in
+# assorted colours (Next.js and Apple pure white, Expo near-black), so any fixed fill would
+# vanish in one of the two themes.
+techIcons:
+  SvelteKit: svelte
+  Go: go
+  PostgreSQL: postgresql
+  Next.js: nextdotjs
+  React: react
+  React Native: react
+  Supabase: supabase
+  iOS: apple
+  Expo: expo
+
+# Per-locale share images (1200x630), existing assets.
+og:
+  en: /og/og.png
+  ru: /og/og-ru.png
+  th: /og/og-th.png

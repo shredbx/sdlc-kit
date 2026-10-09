@@ -1,0 +1,3 @@
+packages:
+  - web-app
+  - ../../../platform/svelte/frameworks/app

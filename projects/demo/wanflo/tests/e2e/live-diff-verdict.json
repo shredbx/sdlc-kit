@@ -1,0 +1,8 @@
+{
+  "divergent": false,
+  "fetchedAt": "2026-07-14T00:00:00+07:00",
+  "liveUrl": "https://solutions.shredbx.com/",
+  "sha1": "e35b86b0aa83a39263c0f5c030fdf30d0d719690",
+  "comparedTo": "docs/plans/2026-06-18-business-presentation/presentation/index.html",
+  "verdict": "SHA-identical (103882 bytes both) — the monorepo deck is byte-for-byte the live site; extraction source confirmed per SC4. 242 en/ru pairs, 0 orphans (extract_pairs.py)."
+}

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "framework": "sveltekit",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm run build",
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
+}
